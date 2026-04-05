@@ -4,12 +4,26 @@ MACRO M1
   CLASS BLOCK ;
   ORIGIN 0 0 ;
   SIZE 10 BY 10 ;
+  PIN A
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+      RECT 0 0 1 1 ;
+    END
+  END A
 END M1
 
 MACRO M2
   CLASS BLOCK ;
   ORIGIN 0 0 ;
   SIZE 10 BY 10 ;
+  PIN A
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+      RECT 0 0 1 1 ;
+    END
+  END A
 END M2
 
 END LIBRARY

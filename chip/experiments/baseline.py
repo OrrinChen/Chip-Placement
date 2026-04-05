@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+import subprocess
 from pathlib import Path
 
 from chip.constraints import build_constraint_registry
@@ -16,6 +17,7 @@ def run_baseline_experiment(
     def_path: str | Path,
     iterations: int = 50,
     bridge_binary: str = "openroad",
+    docker_image: str | None = None,
 ) -> dict[str, object]:
     graph, problem = load_chip_problem(lef_path, def_path)
     constraints = build_constraint_registry(problem)
@@ -31,12 +33,14 @@ def run_baseline_experiment(
         iterations=iterations,
     )
 
-    bridge = OpenROADBridge(binary_name=bridge_binary)
+    bridge = OpenROADBridge(binary_name=bridge_binary, docker_image=docker_image)
     openroad_metrics: dict[str, str] | None
+    openroad_error: str | None = None
     try:
         openroad_metrics = bridge.evaluate_placement(lef_path, def_path, sa_result.best_state) if bridge.is_available() else None
-    except OpenROADUnavailableError:
+    except (OpenROADUnavailableError, subprocess.CalledProcessError) as error:
         openroad_metrics = None
+        openroad_error = getattr(error, "stderr", None) or str(error)
 
     return {
         "openroad_available": bridge.is_available(),
@@ -46,6 +50,7 @@ def run_baseline_experiment(
             "sa": _summarize(problem, constraints, sa_result.best_state),
         },
         "openroad": openroad_metrics,
+        "openroad_error": openroad_error,
     }
 
 
