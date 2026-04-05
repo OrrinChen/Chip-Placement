@@ -18,12 +18,23 @@ def run_baseline_experiment(
     iterations: int = 50,
     bridge_binary: str = "openroad",
     docker_image: str | None = None,
+    analytical_node_limit: int | None = 200,
 ) -> dict[str, object]:
     graph, problem = load_chip_problem(lef_path, def_path)
     constraints = build_constraint_registry(problem)
-    analytical = QuadraticPlacementSolver().solve(graph)
     sa_solver = SimulatedAnnealingSolver(seed=7)
     initial_placement = problem.placement()
+
+    analytical_summary: dict[str, float | bool | str]
+    if analytical_node_limit is not None and len(graph.node_ids) > analytical_node_limit:
+        analytical_summary = {
+            "status": "skipped",
+            "reason": "node_limit_exceeded",
+            "node_count": len(graph.node_ids),
+        }
+    else:
+        analytical = QuadraticPlacementSolver().solve(graph)
+        analytical_summary = _summarize(problem, constraints, analytical)
 
     bounds = graph.global_features["bounds"]
     sa_result = sa_solver.solve(
@@ -46,7 +57,7 @@ def run_baseline_experiment(
         "openroad_available": bridge.is_available(),
         "placements": {
             "initial": _summarize(problem, constraints, initial_placement),
-            "analytical": _summarize(problem, constraints, analytical),
+            "analytical": analytical_summary,
             "sa": _summarize(problem, constraints, sa_result.best_state),
         },
         "openroad": openroad_metrics,
@@ -61,7 +72,10 @@ def _objective(problem, constraints, placement: dict[str, tuple[float, float]]) 
 
 def _neighbor(problem, placement, bounds, rng: random.Random) -> dict[str, tuple[float, float]]:
     min_x, max_x, min_y, max_y = bounds
-    macro_name = rng.choice(list(problem.macros))
+    movable_macros = [name for name, macro in problem.macros.items() if not macro.is_fixed]
+    if not movable_macros:
+        return dict(placement)
+    macro_name = rng.choice(movable_macros)
     macro = problem.macros[macro_name]
     delta_x = rng.choice([-5.0, 5.0])
     delta_y = rng.choice([-5.0, 5.0])
@@ -76,6 +90,7 @@ def _neighbor(problem, placement, bounds, rng: random.Random) -> dict[str, tuple
 def _summarize(problem, constraints, placement: dict[str, tuple[float, float]]) -> dict[str, float | bool]:
     report = constraints.check_all(placement)
     return {
+        "status": "completed",
         "hpwl": hpwl_cost(problem, placement),
         "total_penalty": report.total_penalty,
         "is_valid": report.is_valid,

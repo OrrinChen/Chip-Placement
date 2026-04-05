@@ -27,6 +27,8 @@ class Macro:
     height: float
     x: float
     y: float
+    orientation: str = "N"
+    is_fixed: bool = False
 
     @property
     def center(self) -> tuple[float, float]:

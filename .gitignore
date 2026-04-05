@@ -2,4 +2,6 @@ __pycache__/
 .pytest_cache/
 /.worktrees/
 /worktrees/
+orfs-export/
+orfs-work/
 *.pyc

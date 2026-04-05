@@ -1,0 +1,38 @@
+[
+  {
+    "design": "gcd",
+    "node_count": 644,
+    "fixed_node_count": 100,
+    "net_count": 617,
+    "initial_hpwl": 5732164.324999992,
+    "initial_is_valid": true,
+    "sa_hpwl": 5732164.324999992,
+    "sa_is_valid": true,
+    "analytical_status": "skipped",
+    "openroad_available": true
+  },
+  {
+    "design": "aes",
+    "node_count": 16152,
+    "fixed_node_count": 799,
+    "net_count": 16180,
+    "initial_hpwl": 395862957.07499945,
+    "initial_is_valid": true,
+    "sa_hpwl": 395862957.07499945,
+    "sa_is_valid": true,
+    "analytical_status": "skipped",
+    "openroad_available": true
+  },
+  {
+    "design": "ibex",
+    "node_count": 16910,
+    "fixed_node_count": 692,
+    "net_count": 18879,
+    "initial_hpwl": 446062892.5499933,
+    "initial_is_valid": true,
+    "sa_hpwl": 446062892.5499933,
+    "sa_is_valid": true,
+    "analytical_status": "skipped",
+    "openroad_available": true
+  }
+]

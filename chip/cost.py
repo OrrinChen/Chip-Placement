@@ -10,9 +10,13 @@ def hpwl_cost(problem: ChipProblem, placement: dict[str, tuple[float, float]] | 
         xs = []
         ys = []
         for pin in net.pins:
+            if pin not in problem.macros or pin not in placement:
+                continue
             macro = problem.macros[pin]
             x, y = placement[pin]
             xs.append(x + macro.width / 2.0)
             ys.append(y + macro.height / 2.0)
+        if len(xs) < 2:
+            continue
         total_hpwl += (max(xs) - min(xs)) + (max(ys) - min(ys))
     return total_hpwl

@@ -12,6 +12,7 @@ class QuadraticPlacementSolver:
             return {}
 
         min_x, max_x, min_y, max_y = graph.global_features.get("bounds", (0.0, 1.0, 0.0, 1.0))
+        fixed_nodes = set(graph.global_features.get("fixed_nodes", set()))
         x = cp.Variable(len(node_ids))
         y = cp.Variable(len(node_ids))
         index_by_node = {node_id: idx for idx, node_id in enumerate(node_ids)}
@@ -29,6 +30,10 @@ class QuadraticPlacementSolver:
             objective_terms.append(cp.sum_squares(y - (min_y + max_y) / 2.0))
 
         constraints = [x >= min_x, x <= max_x, y >= min_y, y <= max_y]
+        for node_id in fixed_nodes:
+            node_features = graph.nodes[node_id]
+            constraints.append(x[index_by_node[node_id]] == float(node_features.get("x", min_x)))
+            constraints.append(y[index_by_node[node_id]] == float(node_features.get("y", min_y)))
         problem = cp.Problem(cp.Minimize(cp.sum(objective_terms)), constraints)
         problem.solve()
 
