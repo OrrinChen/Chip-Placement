@@ -1,0 +1,1 @@
+"""Chip domain layer."""

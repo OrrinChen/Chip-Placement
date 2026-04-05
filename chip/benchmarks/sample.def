@@ -1,0 +1,16 @@
+VERSION 5.8 ;
+DESIGN sample ;
+DIEAREA ( 0 0 ) ( 100 100 ) ;
+
+COMPONENTS 3 ;
+- U1 M1 + PLACED ( 10 10 ) N ;
+- U2 M2 + PLACED ( 40 10 ) N ;
+- U3 M1 + PLACED ( 70 50 ) N ;
+END COMPONENTS
+
+NETS 2 ;
+- N1 ( U1 A ) ( U2 A ) ;
+- N2 ( U2 A ) ( U3 A ) ;
+END NETS
+
+END DESIGN
