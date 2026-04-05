@@ -1,0 +1,1 @@
+"""Offline spatial toy domain."""
