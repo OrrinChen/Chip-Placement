@@ -33,11 +33,19 @@ class OpenROADBridge:
         lef_path: str,
         def_path: str,
         placement: dict[str, tuple[float, float]],
+        placement_mode: str = "sa_injected",
+        orientations: dict[str, str] | None = None,
     ) -> str:
         lines = [f"read_lef {lef_path}", f"read_def {def_path}"]
-        for macro_name, (x, y) in placement.items():
-            lines.append(f"# place {macro_name} at ({x}, {y})")
-        lines.extend(["global_route", "report_tns", "report_wns"])
+        if placement_mode == "sa_injected":
+            orientation_by_macro = orientations or {}
+            for macro_name, (x, y) in placement.items():
+                orient = orientation_by_macro.get(macro_name, "N")
+                lines.append(f"place_inst {macro_name} {x} {y} {orient}")
+        elif placement_mode != "built_in":
+            raise ValueError(f"Unknown placement mode: {placement_mode}")
+        tail_lines = ["global_route", "report_tns", "report_wns"]
+        lines.extend(tail_lines)
         return "\n".join(lines) + "\n"
 
     def build_command(
