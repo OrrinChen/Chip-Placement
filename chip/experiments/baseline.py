@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 import subprocess
+import time
 from pathlib import Path
 
 from chip.constraints import build_constraint_registry
@@ -37,12 +38,14 @@ def run_baseline_experiment(
         analytical_summary = _summarize(problem, constraints, analytical)
 
     bounds = graph.global_features["bounds"]
+    sa_start = time.perf_counter()
     sa_result = sa_solver.solve(
         initial_state=initial_placement,
         objective_fn=lambda placement: _objective(problem, constraints, placement),
         neighbor_fn=lambda placement, rng: _neighbor(problem, placement, bounds, rng),
         iterations=iterations,
     )
+    sa_runtime_seconds = time.perf_counter() - sa_start
 
     bridge = OpenROADBridge(binary_name=bridge_binary, docker_image=docker_image)
     openroad_metrics: dict[str, str] | None
@@ -58,7 +61,7 @@ def run_baseline_experiment(
         "placements": {
             "initial": _summarize(problem, constraints, initial_placement),
             "analytical": analytical_summary,
-            "sa": _summarize(problem, constraints, sa_result.best_state),
+            "sa": _summarize(problem, constraints, sa_result.best_state, runtime_seconds=sa_runtime_seconds),
         },
         "openroad": openroad_metrics,
         "openroad_error": openroad_error,
@@ -87,11 +90,19 @@ def _neighbor(problem, placement, bounds, rng: random.Random) -> dict[str, tuple
     return updated
 
 
-def _summarize(problem, constraints, placement: dict[str, tuple[float, float]]) -> dict[str, float | bool]:
+def _summarize(
+    problem,
+    constraints,
+    placement: dict[str, tuple[float, float]],
+    runtime_seconds: float | None = None,
+) -> dict[str, float | bool]:
     report = constraints.check_all(placement)
-    return {
+    summary = {
         "status": "completed",
         "hpwl": hpwl_cost(problem, placement),
         "total_penalty": report.total_penalty,
         "is_valid": report.is_valid,
     }
+    if runtime_seconds is not None:
+        summary["runtime_seconds"] = runtime_seconds
+    return summary

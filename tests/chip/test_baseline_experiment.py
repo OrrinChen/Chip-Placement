@@ -70,3 +70,16 @@ def test_baseline_experiment_skips_analytical_when_graph_is_too_large():
 
     assert result["placements"]["analytical"]["status"] == "skipped"
     assert result["placements"]["analytical"]["reason"] == "node_limit_exceeded"
+
+
+def test_baseline_experiment_returns_sa_runtime_seconds():
+    benchmark_dir = Path(__file__).resolve().parents[2] / "chip" / "benchmarks"
+
+    result = run_baseline_experiment(
+        benchmark_dir / "sample.lef",
+        benchmark_dir / "sample.def",
+        bridge_binary="definitely-missing-openroad",
+        iterations=1,
+    )
+
+    assert "runtime_seconds" in result["placements"]["sa"]

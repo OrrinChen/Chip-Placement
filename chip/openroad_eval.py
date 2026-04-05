@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from chip.openroad_bridge import OpenROADBridge
+
 
 @dataclass(frozen=True)
 class EvaluationRequest:
@@ -45,3 +47,20 @@ def parse_openroad_metrics(stdout: str) -> dict[str, float | int]:
         "wns": extract_float(r"report_wns\s+([-\d.]+)"),
         "drc_violations": extract_int(r"drc violation count\s*=\s*(\d+)"),
     }
+
+
+def build_openroad_script(
+    lef_path: str,
+    def_path: str,
+    placement_mode: str,
+    placement: dict[str, tuple[float, float]] | None = None,
+    orientations: dict[str, str] | None = None,
+) -> str:
+    bridge = OpenROADBridge()
+    return bridge.build_script(
+        lef_path,
+        def_path,
+        placement or {},
+        placement_mode=placement_mode,
+        orientations=orientations,
+    )
