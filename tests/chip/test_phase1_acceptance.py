@@ -118,6 +118,8 @@ def test_run_single_benchmark_acceptance_uses_built_in_seed_def_for_sa(monkeypat
     artifact_dir.mkdir()
     seed_def_path = artifact_dir / "seed_placed.def"
     seed_def_path.write_text("VERSION 5.8 ;\nEND DESIGN\n")
+    legalized_def_path = artifact_dir / "legalized.def"
+    legalized_def_path.write_text("VERSION 5.8 ;\nEND DESIGN\n")
     benchmark = module.ACCEPTANCE_BENCHMARKS[0]
     load_calls: list[str] = []
     request_calls: list[dict[str, object]] = []
@@ -149,10 +151,29 @@ def test_run_single_benchmark_acceptance_uses_built_in_seed_def_for_sa(monkeypat
 
     def fake_load_chip_problem(_lef_path, def_path):
         load_calls.append(str(def_path))
+        if str(def_path).endswith("legalized.def"):
+            legalized_problem = ChipProblem(
+                die_area=problem.die_area,
+                macros={
+                    "U1": Macro(
+                        name="U1",
+                        kind="M1",
+                        width=1.0,
+                        height=1.0,
+                        x=10.2,
+                        y=2.0,
+                        orientation="N",
+                        is_fixed=False,
+                    )
+                },
+                nets=problem.nets,
+            )
+            return FakeGraph(), legalized_problem
         return FakeGraph(), problem
 
     monkeypatch.setattr(module, "load_chip_problem", fake_load_chip_problem)
     monkeypatch.setattr(module, "_run_sa_baseline", lambda *_args, **_kwargs: ({"U1": (10.13, 20.0)}, {"hpwl": 1.0, "is_valid": True, "runtime_seconds": 0.1}))
+    monkeypatch.setattr(module, "legalize_placement", lambda **_kwargs: legalized_def_path)
 
     def fake_build_evaluation_request(**kwargs):
         request_calls.append(kwargs)
@@ -178,6 +199,7 @@ def test_run_single_benchmark_acceptance_uses_built_in_seed_def_for_sa(monkeypat
     assert row["benchmark"] == benchmark.name
     assert str(prepared["def_path"]) in load_calls[0]
     assert str(seed_def_path) in load_calls[1]
+    assert str(legalized_def_path) in load_calls[2]
     assert request_calls[0]["write_def_path"] == "seed_placed.def"
     assert request_calls[1]["def_path"] == "seed_placed.def"
     assert eval_calls[1]["placement"] == {"U1": (10.2, 2.0)}

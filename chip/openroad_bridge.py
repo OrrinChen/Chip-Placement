@@ -54,6 +54,7 @@ class OpenROADBridge:
         detailed_route_end_iter: int = 0,
         global_placement_density: float | None = None,
         write_def_path: str | None = None,
+        run_routing_flow: bool = True,
     ) -> str:
         lef_paths = [lef_path] if isinstance(lef_path, str) else list(lef_path)
         lines = [f"read_lef {path}" for path in lef_paths]
@@ -81,15 +82,16 @@ class OpenROADBridge:
             lines.append("detailed_placement")
         if write_def_path is not None:
             lines.append(f"write_def {write_def_path}")
-        tail_lines = [
-            "global_route",
-            "estimate_parasitics -global_routing",
-            "report_tns",
-            "report_wns",
-            "report_wire_length -net * -global_route -summary",
-            f"detailed_route -output_drc drc.rpt -droute_end_iter {detailed_route_end_iter}",
-        ]
-        lines.extend(tail_lines)
+        if run_routing_flow:
+            tail_lines = [
+                "global_route",
+                "estimate_parasitics -global_routing",
+                "report_tns",
+                "report_wns",
+                "report_wire_length -net * -global_route -summary",
+                f"detailed_route -output_drc drc.rpt -droute_end_iter {detailed_route_end_iter}",
+            ]
+            lines.extend(tail_lines)
         return "\n".join(lines) + "\n"
 
     def build_command(

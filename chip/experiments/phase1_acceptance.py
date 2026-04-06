@@ -11,6 +11,7 @@ from chip.experiments.baseline import _neighbor
 from chip.ispd_benchmarks import ISPDBenchmark
 from chip.ispd_benchmarks import ACCEPTANCE_BENCHMARKS
 from chip.ispd_benchmarks import prepare_benchmark_artifacts
+from chip.legalization import legalize_placement
 from chip.netlist_parser import load_chip_problem
 from chip.openroad_bridge import OpenROADBridge
 from chip.openroad_eval import build_evaluation_request
@@ -105,6 +106,23 @@ def run_single_benchmark_acceptance(benchmark_root: Path, benchmark: ISPDBenchma
         _, seed_problem = load_chip_problem(prepared["cells_lef_path"], seed_def_path)
         sa_placement, sa_summary = _run_sa_baseline(seed_problem, iterations=benchmark.sa_iterations)
         injectable_placement, orientations = _select_injectable_instances(seed_problem, sa_placement)
+        legalized_def_path = legalize_placement(
+            artifact_dir=artifact_dir,
+            lef_paths=lef_paths,
+            def_path=seed_def_name,
+            placement=injectable_placement,
+            orientations=orientations,
+            bridge=bridge,
+        )
+        _, legalized_problem = load_chip_problem(prepared["cells_lef_path"], legalized_def_path)
+        legalized_placement, legalized_orientations = _select_injectable_instances(
+            legalized_problem,
+            legalized_problem.placement(),
+        )
+        legalized_constraints = build_constraint_registry(legalized_problem)
+        legal_report = legalized_constraints.check_all(legalized_problem.placement())
+        sa_summary["is_valid"] = legal_report.is_valid
+        sa_summary["hpwl"] = hpwl_cost(legalized_problem, legalized_problem.placement())
         sa_metrics = evaluate_openroad_request(
             build_evaluation_request(
                 benchmark_name=benchmark.name,
@@ -118,8 +136,8 @@ def run_single_benchmark_acceptance(benchmark_root: Path, benchmark: ISPDBenchma
                 detailed_route_end_iter=benchmark.detailed_route_end_iter,
             ),
             bridge=bridge,
-            placement=injectable_placement,
-            orientations=orientations,
+            placement=legalized_placement,
+            orientations=legalized_orientations,
         )
     except Exception as error:
         return {

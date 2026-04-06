@@ -112,6 +112,25 @@ def test_build_script_can_write_seed_def_after_placement_before_tail_flow():
     assert script.index("write_def seed_placed.def") < script.index("global_route")
 
 
+def test_build_script_can_skip_route_tail_for_legalization_only():
+    bridge = OpenROADBridge()
+
+    script = bridge.build_script(
+        "design.lef",
+        "design.def",
+        {"U1": (10.0, 20.0)},
+        placement_mode="sa_injected",
+        orientations={"U1": "N"},
+        write_def_path="legalized.def",
+        run_routing_flow=False,
+    )
+
+    assert "detailed_placement" in script
+    assert "write_def legalized.def" in script
+    assert "global_route" not in script
+    assert "detailed_route" not in script
+
+
 def test_openroad_bridge_retries_without_gpu_when_runtime_rejects_gpus(monkeypatch, tmp_path):
     bridge = OpenROADBridge(docker_image="openroad/orfs")
     lef_path = tmp_path / "design.lef"
