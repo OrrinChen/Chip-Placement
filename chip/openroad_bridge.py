@@ -55,6 +55,7 @@ class OpenROADBridge:
         global_placement_density: float | None = None,
         write_def_path: str | None = None,
         run_routing_flow: bool = True,
+        run_detailed_route: bool = True,
     ) -> str:
         lef_paths = [lef_path] if isinstance(lef_path, str) else list(lef_path)
         lines = [f"read_lef {path}" for path in lef_paths]
@@ -89,8 +90,9 @@ class OpenROADBridge:
                 "report_tns",
                 "report_wns",
                 "report_wire_length -net * -global_route -summary",
-                f"detailed_route -output_drc drc.rpt -droute_end_iter {detailed_route_end_iter}",
             ]
+            if run_detailed_route:
+                tail_lines.append(f"detailed_route -output_drc drc.rpt -droute_end_iter {detailed_route_end_iter}")
             lines.extend(tail_lines)
         return "\n".join(lines) + "\n"
 
@@ -102,6 +104,7 @@ class OpenROADBridge:
         referenced_paths: list[str | Path] | tuple[str | Path, ...] | None = None,
         working_directory: str | Path | None = None,
         use_gpu: bool | None = None,
+        container_name: str | None = None,
     ) -> list[str]:
         if self.docker_image is None:
             return [self.binary_name, "-exit", str(script_path)]
@@ -122,11 +125,17 @@ class OpenROADBridge:
             self.docker_binary,
             "run",
             "--rm",
+        ]
+        if container_name is not None:
+            command.extend(["--name", container_name])
+        command.extend(
+            [
             "-v",
             f"{mount_root.as_posix()}:/workspace",
             "-w",
             container_workdir,
-        ]
+            ]
+        )
         if use_gpu is None:
             use_gpu = self.docker_gpus is not None
         if use_gpu and self.docker_gpus is not None:
@@ -150,6 +159,9 @@ class OpenROADBridge:
         working_directory: str | Path | None = None,
         **subprocess_kwargs,
     ) -> subprocess.CompletedProcess[str]:
+        container_name = None
+        if self.docker_image is not None:
+            container_name = self._build_container_name(script_path)
         command = self.build_command(
             lef_path,
             def_path,
@@ -157,9 +169,13 @@ class OpenROADBridge:
             referenced_paths=referenced_paths,
             working_directory=working_directory,
             use_gpu=True,
+            container_name=container_name,
         )
         try:
             return subprocess.run(command, **subprocess_kwargs)
+        except subprocess.TimeoutExpired:
+            self._force_remove_container(container_name)
+            raise
         except subprocess.CalledProcessError as error:
             if self._should_retry_without_gpu(error):
                 fallback_command = self.build_command(
@@ -169,6 +185,7 @@ class OpenROADBridge:
                     referenced_paths=referenced_paths,
                     working_directory=working_directory,
                     use_gpu=False,
+                    container_name=container_name,
                 )
                 return subprocess.run(fallback_command, **subprocess_kwargs)
             raise
@@ -210,6 +227,24 @@ class OpenROADBridge:
 
     def _to_odb_orientation(self, orientation: str) -> str:
         return self.DEF_TO_ODB_ORIENTATION.get(orientation, orientation)
+
+    def _build_container_name(self, script_path: str | Path) -> str:
+        script = Path(script_path)
+        script_stem = "".join(character if character.isalnum() else "-" for character in script.stem.lower()).strip("-")
+        if not script_stem:
+            script_stem = "openroad"
+        suffix = abs(hash(str(script.resolve(strict=False)))) % 10_000_000
+        return f"codex-openroad-{script_stem}-{os.getpid()}-{suffix}"
+
+    def _force_remove_container(self, container_name: str | None) -> None:
+        if self.docker_image is None or container_name is None:
+            return
+        subprocess.run(
+            [self.docker_binary, "rm", "-f", container_name],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
 
     def _should_retry_without_gpu(self, error: subprocess.CalledProcessError) -> bool:
         if self.docker_image is None or self.docker_gpus is None:

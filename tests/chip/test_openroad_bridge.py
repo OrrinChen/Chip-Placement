@@ -1,6 +1,8 @@
 from pathlib import Path
 import subprocess
 
+import pytest
+
 from chip.openroad_bridge import OpenROADBridge
 
 
@@ -131,6 +133,24 @@ def test_build_script_can_skip_route_tail_for_legalization_only():
     assert "detailed_route" not in script
 
 
+def test_build_script_can_skip_detailed_route_for_fast_ground_truth():
+    bridge = OpenROADBridge()
+
+    script = bridge.build_script(
+        "design.lef",
+        "design.def",
+        {"U1": (10.0, 20.0)},
+        placement_mode="sa_injected",
+        orientations={"U1": "N"},
+        run_detailed_route=False,
+    )
+
+    assert "global_route" in script
+    assert "estimate_parasitics -global_routing" in script
+    assert "report_wire_length -net * -global_route -summary" in script
+    assert "detailed_route" not in script
+
+
 def test_openroad_bridge_retries_without_gpu_when_runtime_rejects_gpus(monkeypatch, tmp_path):
     bridge = OpenROADBridge(docker_image="openroad/orfs")
     lef_path = tmp_path / "design.lef"
@@ -158,3 +178,29 @@ def test_openroad_bridge_retries_without_gpu_when_runtime_rejects_gpus(monkeypat
     assert completed.stdout == "ok"
     assert calls[0].count("--gpus") == 1
     assert "--gpus" not in calls[1]
+
+
+def test_openroad_bridge_force_removes_timed_out_docker_container(monkeypatch, tmp_path):
+    bridge = OpenROADBridge(docker_image="openroad/orfs")
+    lef_path = tmp_path / "design.lef"
+    def_path = tmp_path / "design.def"
+    script_path = tmp_path / "run.tcl"
+    lef_path.write_text("")
+    def_path.write_text("")
+    script_path.write_text("")
+    calls: list[list[str]] = []
+
+    def fake_run(command, **kwargs):
+        calls.append(command)
+        if command[:3] == ["docker", "run", "--rm"]:
+            raise subprocess.TimeoutExpired(cmd=command, timeout=5)
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+
+    monkeypatch.setattr("chip.openroad_bridge.subprocess.run", fake_run)
+
+    with pytest.raises(subprocess.TimeoutExpired):
+        bridge.run_script(lef_path, def_path, script_path, timeout=5, capture_output=True, text=True, check=True)
+
+    assert "--name" in calls[0]
+    container_name = calls[0][calls[0].index("--name") + 1]
+    assert calls[1] == ["docker", "rm", "-f", container_name]
