@@ -1,0 +1,34 @@
+{
+  "generated_at": "2026-04-05",
+  "stable_acceptance_benchmarks": [
+    {
+      "name": "mgc_pci_bridge32_1",
+      "scale_bucket": "small",
+      "compatibility_status": "stable",
+      "reason": "Full Phase 1 acceptance run completed with built-in and SA-injected OpenROAD metrics.",
+      "scale_note": "The stable Phase 1 set is skewed toward medium-scale designs because pci_bridge32_1 and pci_bridge32_2 are close variants; a broader medium-large design should be added later to strengthen scale diversity."
+    },
+    {
+      "name": "mgc_pci_bridge32_2",
+      "scale_bucket": "medium",
+      "compatibility_status": "stable",
+      "reason": "Full Phase 1 acceptance run completed with built-in and SA-injected OpenROAD metrics.",
+      "scale_note": "The stable Phase 1 set is skewed toward medium-scale designs because pci_bridge32_1 and pci_bridge32_2 are close variants; a broader medium-large design should be added later to strengthen scale diversity."
+    },
+    {
+      "name": "mgc_des_perf_2",
+      "scale_bucket": "large",
+      "compatibility_status": "stable",
+      "reason": "Full Phase 1 acceptance run completed with built-in and SA-injected OpenROAD metrics.",
+      "scale_note": "The stable Phase 1 set is skewed toward medium-scale designs because pci_bridge32_1 and pci_bridge32_2 are close variants; a broader medium-large design should be added later to strengthen scale diversity."
+    }
+  ],
+  "excluded_candidates": [
+    {
+      "name": "mgc_fft",
+      "status": "excluded_from_stable_acceptance_set",
+      "observed_stage": "built_in_global_route_tail",
+      "reason": "The built-in OpenROAD run produced seed_placed.def but remained in the route tail for an extended wall-clock window, so it was excluded to keep the stable acceptance set bounded."
+    }
+  ]
+}

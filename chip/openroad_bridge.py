@@ -11,17 +11,30 @@ class OpenROADUnavailableError(RuntimeError):
 
 
 class OpenROADBridge:
+    DEF_TO_ODB_ORIENTATION = {
+        "N": "R0",
+        "S": "R180",
+        "E": "R270",
+        "W": "R90",
+        "FN": "MY",
+        "FS": "MX",
+        "FE": "MYR90",
+        "FW": "MXR90",
+    }
+
     def __init__(
         self,
         binary_name: str = "openroad",
         docker_image: str | None = None,
         docker_binary: str = "docker",
         docker_openroad_path: str = "/OpenROAD-flow-scripts/tools/install/OpenROAD/bin/openroad",
+        docker_gpus: str | None = "all",
     ) -> None:
         self.binary_name = binary_name
         self.docker_image = docker_image
         self.docker_binary = docker_binary
         self.docker_openroad_path = docker_openroad_path
+        self.docker_gpus = docker_gpus
 
     def is_available(self) -> bool:
         if self.docker_image is not None:
@@ -30,21 +43,52 @@ class OpenROADBridge:
 
     def build_script(
         self,
-        lef_path: str,
+        lef_path: str | list[str] | tuple[str, ...],
         def_path: str,
         placement: dict[str, tuple[float, float]],
         placement_mode: str = "sa_injected",
         orientations: dict[str, str] | None = None,
+        liberty_path: str | None = None,
+        sdc_path: str | None = None,
+        use_detailed_placement: bool = True,
+        detailed_route_end_iter: int = 0,
+        global_placement_density: float | None = None,
+        write_def_path: str | None = None,
     ) -> str:
-        lines = [f"read_lef {lef_path}", f"read_def {def_path}"]
+        lef_paths = [lef_path] if isinstance(lef_path, str) else list(lef_path)
+        lines = [f"read_lef {path}" for path in lef_paths]
+        lines.append(f"read_def {def_path}")
+        if liberty_path is not None:
+            lines.append(f"read_liberty {liberty_path}")
+        if sdc_path is not None:
+            lines.append(f"read_sdc {sdc_path}")
+        lines.append("set_wire_rc -layer metal2")
         if placement_mode == "sa_injected":
             orientation_by_macro = orientations or {}
             for macro_name, (x, y) in placement.items():
-                orient = orientation_by_macro.get(macro_name, "N")
-                lines.append(f"place_inst {macro_name} {x} {y} {orient}")
+                orient = self._to_odb_orientation(orientation_by_macro.get(macro_name, "N"))
+                lines.append(
+                    f"place_inst -name {macro_name} -location {{{x} {y}}} -orientation {orient} -status PLACED"
+                )
         elif placement_mode != "built_in":
             raise ValueError(f"Unknown placement mode: {placement_mode}")
-        tail_lines = ["global_route", "report_tns", "report_wns"]
+        elif placement_mode == "built_in":
+            placement_command = "global_placement -skip_io"
+            if global_placement_density is not None:
+                placement_command += f" -density {global_placement_density}"
+            lines.append(placement_command)
+        if use_detailed_placement:
+            lines.append("detailed_placement")
+        if write_def_path is not None:
+            lines.append(f"write_def {write_def_path}")
+        tail_lines = [
+            "global_route",
+            "estimate_parasitics -global_routing",
+            "report_tns",
+            "report_wns",
+            "report_wire_length -net * -global_route -summary",
+            f"detailed_route -output_drc drc.rpt -droute_end_iter {detailed_route_end_iter}",
+        ]
         lines.extend(tail_lines)
         return "\n".join(lines) + "\n"
 
@@ -53,25 +97,79 @@ class OpenROADBridge:
         lef_path: str | Path,
         def_path: str | Path,
         script_path: str | Path,
+        referenced_paths: list[str | Path] | tuple[str | Path, ...] | None = None,
+        working_directory: str | Path | None = None,
+        use_gpu: bool | None = None,
     ) -> list[str]:
         if self.docker_image is None:
             return [self.binary_name, "-exit", str(script_path)]
 
-        mount_root = Path(os.path.commonpath([Path(lef_path), Path(def_path), Path(script_path)]))
-        container_script_path = self._to_container_path(Path(script_path), mount_root)
-        return [
+        host_paths = [self._normalize_host_path(lef_path), self._normalize_host_path(def_path), self._normalize_host_path(script_path)]
+        if referenced_paths is not None:
+            host_paths.extend(self._normalize_host_path(path) for path in referenced_paths)
+        if working_directory is not None:
+            host_paths.append(self._normalize_host_path(working_directory))
+
+        mount_root = Path(os.path.commonpath(host_paths))
+        container_script_path = self._to_container_path(self._normalize_host_path(script_path), mount_root)
+        container_workdir = self._to_container_path(
+            self._normalize_host_path(working_directory or Path(script_path).parent),
+            mount_root,
+        )
+        command = [
             self.docker_binary,
             "run",
             "--rm",
             "-v",
             f"{mount_root.as_posix()}:/workspace",
             "-w",
-            "/workspace",
-            self.docker_image,
-            self.docker_openroad_path,
-            "-exit",
-            container_script_path,
+            container_workdir,
         ]
+        if use_gpu is None:
+            use_gpu = self.docker_gpus is not None
+        if use_gpu and self.docker_gpus is not None:
+            command.extend(["--gpus", self.docker_gpus])
+        command.extend(
+            [
+                self.docker_image,
+                self.docker_openroad_path,
+                "-exit",
+                container_script_path,
+            ]
+        )
+        return command
+
+    def run_script(
+        self,
+        lef_path: str | Path,
+        def_path: str | Path,
+        script_path: str | Path,
+        referenced_paths: list[str | Path] | tuple[str | Path, ...] | None = None,
+        working_directory: str | Path | None = None,
+        **subprocess_kwargs,
+    ) -> subprocess.CompletedProcess[str]:
+        command = self.build_command(
+            lef_path,
+            def_path,
+            script_path,
+            referenced_paths=referenced_paths,
+            working_directory=working_directory,
+            use_gpu=True,
+        )
+        try:
+            return subprocess.run(command, **subprocess_kwargs)
+        except subprocess.CalledProcessError as error:
+            if self._should_retry_without_gpu(error):
+                fallback_command = self.build_command(
+                    lef_path,
+                    def_path,
+                    script_path,
+                    referenced_paths=referenced_paths,
+                    working_directory=working_directory,
+                    use_gpu=False,
+                )
+                return subprocess.run(fallback_command, **subprocess_kwargs)
+            raise
 
     def evaluate_placement(
         self,
@@ -96,12 +194,7 @@ class OpenROADBridge:
         script_path.write_text(script)
 
         try:
-            completed = subprocess.run(
-                self.build_command(host_lef, host_def, script_path),
-                check=True,
-                capture_output=True,
-                text=True,
-            )
+            completed = self.run_script(host_lef, host_def, script_path, check=True, capture_output=True, text=True)
             return {"stdout": completed.stdout, "stderr": completed.stderr}
         finally:
             script_path.unlink(missing_ok=True)
@@ -109,3 +202,22 @@ class OpenROADBridge:
     def _to_container_path(self, path: Path, mount_root: Path) -> str:
         relative_path = path.relative_to(mount_root).as_posix()
         return f"/workspace/{relative_path}"
+
+    def _normalize_host_path(self, path: str | Path) -> Path:
+        return Path(path).resolve(strict=False)
+
+    def _to_odb_orientation(self, orientation: str) -> str:
+        return self.DEF_TO_ODB_ORIENTATION.get(orientation, orientation)
+
+    def _should_retry_without_gpu(self, error: subprocess.CalledProcessError) -> bool:
+        if self.docker_image is None or self.docker_gpus is None:
+            return False
+        details = " ".join(filter(None, [getattr(error, "stderr", None), getattr(error, "stdout", None)])).lower()
+        gpu_markers = [
+            "could not select device driver",
+            "capabilities: [[gpu]]",
+            "unknown flag: --gpus",
+            "nvidia-container-runtime",
+            "no gpu devices available",
+        ]
+        return any(marker in details for marker in gpu_markers)

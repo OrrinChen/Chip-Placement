@@ -32,21 +32,29 @@ def _boundary_violations(problem: ChipProblem, placement: dict[str, tuple[float,
 
 def _non_overlap_violations(problem: ChipProblem, placement: dict[str, tuple[float, float]]) -> list[dict[str, float | str]]:
     violations: list[dict[str, float | str]] = []
-    macros = list(problem.macros.values())
-    for index, first in enumerate(macros):
-        x1, y1 = placement[first.name]
-        for second in macros[index + 1 :]:
-            x2, y2 = placement[second.name]
-            overlap_x = min(x1 + first.width, x2 + second.width) - max(x1, x2)
-            overlap_y = min(y1 + first.height, y2 + second.height) - max(y1, y2)
+    rectangles = []
+    for macro in problem.macros.values():
+        if macro.width <= 0.0 or macro.height <= 0.0:
+            continue
+        x, y = placement[macro.name]
+        rectangles.append((x, x + macro.width, y, y + macro.height, macro.name))
+
+    rectangles.sort(key=lambda rect: rect[0])
+    active: list[tuple[float, float, float, float, str]] = []
+    for x1, x2, y1, y2, name in rectangles:
+        active = [rect for rect in active if rect[1] > x1]
+        for other_x1, other_x2, other_y1, other_y2, other_name in active:
+            overlap_x = min(x2, other_x2) - max(x1, other_x1)
+            overlap_y = min(y2, other_y2) - max(y1, other_y1)
             if overlap_x > 0 and overlap_y > 0:
                 violations.append(
                     {
-                        "first": first.name,
-                        "second": second.name,
+                        "first": other_name,
+                        "second": name,
                         "magnitude": overlap_x * overlap_y,
                     }
                 )
+        active.append((x1, x2, y1, y2, name))
     return violations
 
 
