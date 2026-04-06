@@ -1,0 +1,22 @@
+[
+  {
+    "benchmark": "mgc_pci_bridge32_1",
+    "sample_id": "rand_0000",
+    "source": "random_perturbation",
+    "batch": "repair_p010",
+    "status": "success",
+    "phase1_gate_status": "infra_pass / quality_pass",
+    "total_routed_wirelength": 415269.0,
+    "wns": -811.59,
+    "tns": -529429.62,
+    "drc_violations": 0,
+    "runtime_seconds": 5.026757500003441,
+    "hpwl": 366837.2450000029,
+    "displacement_median_sites": 0.0,
+    "displacement_p90_sites": 23.999999999999915,
+    "displacement_max_sites": 162.99999999999997,
+    "moved_fraction": 0.3853626731866341,
+    "placement_def": "C:/Users/14574/Chip/.worktrees/phase2-foundation/experiments/chip/phase2_repair_sweeps/phase2_samples/mgc_pci_bridge32_1/rand_0000.def",
+    "metrics_json": "C:/Users/14574/Chip/.worktrees/phase2-foundation/experiments/chip/phase2_repair_sweeps/phase2_samples/mgc_pci_bridge32_1/rand_0000.metrics.json"
+  }
+]

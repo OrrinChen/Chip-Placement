@@ -1,0 +1,101 @@
+{
+  "benchmark": "mgc_pci_bridge32_1",
+  "seed_hpwl": 276877.0450000123,
+  "x_fraction_sweep": [
+    {
+      "x_fraction": 0.02,
+      "move_probability": 0.02,
+      "row_window": 1,
+      "status": "success",
+      "hpwl": 283557.8450000124,
+      "hpwl_ratio_vs_seed": 1.0241294333065843,
+      "runtime_seconds": 4.840765000000829,
+      "displacement_median_sites": 0.0,
+      "displacement_p90_sites": 2.0000000000000284,
+      "displacement_max_sites": 70.99999999999999
+    },
+    {
+      "x_fraction": 0.05,
+      "move_probability": 0.02,
+      "row_window": 1,
+      "status": "success",
+      "hpwl": 288576.8450000104,
+      "hpwl_ratio_vs_seed": 1.0422577001862322,
+      "runtime_seconds": 4.822950200003106,
+      "displacement_median_sites": 0.0,
+      "displacement_p90_sites": 2.0000000000000018,
+      "displacement_max_sites": 84.00000000000006
+    },
+    {
+      "x_fraction": 0.1,
+      "move_probability": 0.02,
+      "row_window": 1,
+      "status": "success",
+      "hpwl": 297217.24500001053,
+      "hpwl_ratio_vs_seed": 1.0734594179466914,
+      "runtime_seconds": 4.770954399995389,
+      "displacement_median_sites": 0.0,
+      "displacement_p90_sites": 2.9999999999999982,
+      "displacement_max_sites": 141.00000000000009
+    }
+  ],
+  "move_probability_sweep": [
+    {
+      "move_probability": 0.05,
+      "x_fraction": 0.1,
+      "row_window": 1,
+      "status": "success",
+      "hpwl": 324647.7450000097,
+      "hpwl_ratio_vs_seed": 1.1725339852568684,
+      "runtime_seconds": 4.8559440999961225,
+      "displacement_median_sites": 0.0,
+      "displacement_p90_sites": 11.000000000000014,
+      "displacement_max_sites": 146.99999999999997
+    },
+    {
+      "move_probability": 0.1,
+      "x_fraction": 0.1,
+      "row_window": 1,
+      "status": "success",
+      "hpwl": 366837.2450000029,
+      "hpwl_ratio_vs_seed": 1.3249102864413573,
+      "runtime_seconds": 5.026757500003441,
+      "displacement_median_sites": 0.0,
+      "displacement_p90_sites": 23.999999999999915,
+      "displacement_max_sites": 162.99999999999997
+    },
+    {
+      "move_probability": 0.2,
+      "x_fraction": 0.1,
+      "row_window": 1,
+      "status": "success",
+      "hpwl": 443045.34499999974,
+      "hpwl_ratio_vs_seed": 1.6001519555367258,
+      "runtime_seconds": 5.149901700002374,
+      "displacement_median_sites": 2.0000000000000284,
+      "displacement_p90_sites": 70.0,
+      "displacement_max_sites": 169.00000000000006
+    }
+  ],
+  "recommended_random_tiers": [
+    {
+      "label": "primary_band",
+      "weight": 0.7,
+      "move_probability": 0.1,
+      "max_x_fraction": 0.1,
+      "row_window": 1
+    },
+    {
+      "label": "hard_negative",
+      "weight": 0.3,
+      "move_probability": 0.2,
+      "max_x_fraction": 0.1,
+      "row_window": 1
+    }
+  ],
+  "notes": [
+    "x_fraction alone does not create enough HPWL spread when move_probability stays at 0.02.",
+    "Both 0.10 and 0.20 move_probability land inside the target 1.2x-2.0x HPWL band while keeping OpenROAD runtime near 5 seconds.",
+    "A 70/30 mixture keeps most samples near the useful 1.3x band while extending the negative tail to about 1.6x."
+  ]
+}

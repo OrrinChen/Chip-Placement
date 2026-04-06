@@ -76,6 +76,43 @@ def test_build_sampling_plan_propagates_random_controls():
     ]
 
 
+def test_build_sampling_plan_uses_layered_random_defaults_for_batch_generation():
+    plan = build_sampling_plan(
+        benchmark_name="mgc_pci_bridge32_1",
+        batch="full",
+        random_samples=10,
+        sa_truncation_steps=(),
+    )
+
+    random_rows = [row for row in plan if row["source"] == "random_perturbation"]
+    assert len(random_rows) == 10
+    assert sum(1 for row in random_rows if row["move_probability"] == 0.1) == 7
+    assert sum(1 for row in random_rows if row["move_probability"] == 0.2) == 3
+    assert {row["max_x_fraction"] for row in random_rows} == {0.1}
+    assert {row["row_window"] for row in random_rows} == {1}
+
+
+def test_build_sampling_plan_can_override_layered_defaults_with_single_tier():
+    plan = build_sampling_plan(
+        benchmark_name="mgc_pci_bridge32_1",
+        batch="pilot",
+        random_samples=4,
+        sa_truncation_steps=(),
+        random_tiers=(
+            {
+                "move_probability": 0.05,
+                "max_x_fraction": 0.1,
+                "row_window": 1,
+                "weight": 1.0,
+            },
+        ),
+    )
+
+    random_rows = [row for row in plan if row["source"] == "random_perturbation"]
+    assert len(random_rows) == 4
+    assert {row["move_probability"] for row in random_rows} == {0.05}
+
+
 def test_build_sample_placement_random_perturbation_moves_many_cells():
     from chip.problem import ChipProblem
     from chip.problem import DieArea

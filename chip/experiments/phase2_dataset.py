@@ -33,6 +33,20 @@ DEFAULT_RANDOM_PERTURBATION_STEPS = 5
 DEFAULT_RANDOM_MOVE_PROBABILITY = 0.02
 DEFAULT_RANDOM_MAX_X_FRACTION = 0.05
 DEFAULT_RANDOM_ROW_WINDOW = 1
+DEFAULT_FULL_RANDOM_TIERS = (
+    {
+        "move_probability": 0.1,
+        "max_x_fraction": 0.1,
+        "row_window": 1,
+        "weight": 0.7,
+    },
+    {
+        "move_probability": 0.2,
+        "max_x_fraction": 0.1,
+        "row_window": 1,
+        "weight": 0.3,
+    },
+)
 DEFAULT_TIMEOUT_SECONDS = 900
 MAX_RANDOM_NEIGHBOR_ATTEMPTS = 32
 
@@ -45,21 +59,33 @@ def build_sampling_plan(
     random_move_probability: float = DEFAULT_RANDOM_MOVE_PROBABILITY,
     random_max_x_fraction: float = DEFAULT_RANDOM_MAX_X_FRACTION,
     random_row_window: int = DEFAULT_RANDOM_ROW_WINDOW,
+    random_tiers: tuple[dict[str, float | int], ...] | None = None,
 ) -> list[dict[str, object]]:
     plan: list[dict[str, object]] = []
-    for index in range(random_samples):
-        plan.append(
-            {
-                "benchmark": benchmark_name,
-                "sample_id": f"rand_{index:04d}",
-                "source": "random_perturbation",
-                "batch": batch,
-                "random_steps": DEFAULT_RANDOM_PERTURBATION_STEPS,
-                "move_probability": random_move_probability,
-                "max_x_fraction": random_max_x_fraction,
-                "row_window": random_row_window,
-            }
-        )
+    tiers = _resolve_random_tiers(
+        batch=batch,
+        random_move_probability=random_move_probability,
+        random_max_x_fraction=random_max_x_fraction,
+        random_row_window=random_row_window,
+        random_tiers=random_tiers,
+    )
+    tier_counts = _allocate_random_samples(random_samples, tiers)
+    index = 0
+    for tier, count in zip(tiers, tier_counts):
+        for _ in range(count):
+            plan.append(
+                {
+                    "benchmark": benchmark_name,
+                    "sample_id": f"rand_{index:04d}",
+                    "source": "random_perturbation",
+                    "batch": batch,
+                    "random_steps": DEFAULT_RANDOM_PERTURBATION_STEPS,
+                    "move_probability": tier["move_probability"],
+                    "max_x_fraction": tier["max_x_fraction"],
+                    "row_window": tier["row_window"],
+                }
+            )
+            index += 1
     for steps in sa_truncation_steps:
         plan.append(
             {
@@ -71,6 +97,49 @@ def build_sampling_plan(
             }
         )
     return plan
+
+
+def _resolve_random_tiers(
+    batch: str,
+    random_move_probability: float,
+    random_max_x_fraction: float,
+    random_row_window: int,
+    random_tiers: tuple[dict[str, float | int], ...] | None,
+) -> tuple[dict[str, float | int], ...]:
+    if random_tiers is not None:
+        return random_tiers
+    if batch == "full":
+        return DEFAULT_FULL_RANDOM_TIERS
+    return (
+        {
+            "move_probability": random_move_probability,
+            "max_x_fraction": random_max_x_fraction,
+            "row_window": random_row_window,
+            "weight": 1.0,
+        },
+    )
+
+
+def _allocate_random_samples(
+    random_samples: int,
+    tiers: tuple[dict[str, float | int], ...],
+) -> list[int]:
+    if random_samples <= 0:
+        return [0 for _ in tiers]
+    weights = [float(tier.get("weight", 0.0)) for tier in tiers]
+    total_weight = sum(weights)
+    if total_weight <= 0.0:
+        raise ValueError("Random tier weights must sum to a positive value")
+    exact_counts = [(random_samples * weight) / total_weight for weight in weights]
+    base_counts = [int(count) for count in exact_counts]
+    remaining = random_samples - sum(base_counts)
+    remainders = sorted(
+        ((exact_counts[index] - base_counts[index], index) for index in range(len(tiers))),
+        reverse=True,
+    )
+    for _remainder, index in remainders[:remaining]:
+        base_counts[index] += 1
+    return base_counts
 
 
 def summarize_dataset_row(
