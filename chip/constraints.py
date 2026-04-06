@@ -3,6 +3,8 @@ from __future__ import annotations
 from chip.problem import ChipProblem
 from engine.constraints import ConstraintRegistry
 
+LEGALITY_EPSILON = 1e-9
+
 
 def build_constraint_registry(problem: ChipProblem, min_spacing: float = 0.0) -> ConstraintRegistry:
     registry = ConstraintRegistry()
@@ -25,7 +27,7 @@ def _boundary_violations(problem: ChipProblem, placement: dict[str, tuple[float,
         overflow = max(die.min_x - x, 0.0) + max(die.min_y - y, 0.0)
         overflow += max((x + macro.width) - die.max_x, 0.0)
         overflow += max((y + macro.height) - die.max_y, 0.0)
-        if overflow > 0:
+        if overflow > LEGALITY_EPSILON:
             violations.append({"macro": macro.name, "magnitude": overflow})
     return violations
 
@@ -46,7 +48,7 @@ def _non_overlap_violations(problem: ChipProblem, placement: dict[str, tuple[flo
         for other_x1, other_x2, other_y1, other_y2, other_name in active:
             overlap_x = min(x2, other_x2) - max(x1, other_x1)
             overlap_y = min(y2, other_y2) - max(y1, other_y1)
-            if overlap_x > 0 and overlap_y > 0:
+            if overlap_x > LEGALITY_EPSILON and overlap_y > LEGALITY_EPSILON:
                 violations.append(
                     {
                         "first": other_name,

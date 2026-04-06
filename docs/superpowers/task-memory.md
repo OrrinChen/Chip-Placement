@@ -73,7 +73,9 @@
 - The first Phase 2 sampling manifest has been generated at [phase2_dataset_manifest.json](C:/Users/14574/Chip/.worktrees/phase2-foundation/experiments/chip/phase2_dataset_manifest.json).
 - The current manifest contains `21` planned samples:
   - `4` random perturbations and `3` SA-truncated samples for each of the `3` stable benchmarks
+- The current manifest is explicitly tagged as `batch = smoke`.
 - Current manifest rows already carry `phase1_gate_status`, so downstream proxy work can keep infrastructure readiness and optimization-quality caveats separate.
+- Dataset collection scaffolding now distinguishes `success`, `timeout`, and `error` outcomes so large OpenROAD batches can retain failure metadata instead of silently dropping hard cases.
 
 ### Background Validation
 
@@ -81,3 +83,5 @@
 - Purpose:
   - verify whether the new legalization pass changes `sa_is_valid`
   - confirm the stable benchmark flow still works with locally reconstructed official inputs
+- A direct legality spot-check on [legalized.def](C:/Users/14574/Chip/.worktrees/phase2-foundation/tmp/mgc_pci_bridge32_1/legalized.def) now passes after adding an epsilon tolerance to the chip legality checker.
+  - The prior `quality_pending` state was partly due to `1e-14` scale floating-point residue in the checker rather than a real placement defect

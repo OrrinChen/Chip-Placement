@@ -8,6 +8,8 @@ class DecisionEnv(Protocol):
     def transition(self, state: Any, action: Any) -> Any: ...
 
 
+# Deprecated compatibility alias. Remove when Phase 2 foundation merges to main
+# and downstream callers have switched to DecisionEnv.
 TransitionModel = DecisionEnv
 
 
