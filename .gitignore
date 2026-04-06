@@ -4,4 +4,5 @@ __pycache__/
 /worktrees/
 orfs-export/
 orfs-work/
+tmp/
 *.pyc

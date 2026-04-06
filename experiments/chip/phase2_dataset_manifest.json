@@ -1,0 +1,158 @@
+[
+  {
+    "benchmark": "mgc_pci_bridge32_1",
+    "sample_id": "rand_0000",
+    "source": "random_perturbation",
+    "scale_bucket": "small",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_1",
+    "sample_id": "rand_0001",
+    "source": "random_perturbation",
+    "scale_bucket": "small",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_1",
+    "sample_id": "rand_0002",
+    "source": "random_perturbation",
+    "scale_bucket": "small",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_1",
+    "sample_id": "rand_0003",
+    "source": "random_perturbation",
+    "scale_bucket": "small",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_1",
+    "sample_id": "sa_0001",
+    "source": "sa_truncated",
+    "sa_iterations": 1,
+    "scale_bucket": "small",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_1",
+    "sample_id": "sa_0005",
+    "source": "sa_truncated",
+    "sa_iterations": 5,
+    "scale_bucket": "small",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_1",
+    "sample_id": "sa_0010",
+    "source": "sa_truncated",
+    "sa_iterations": 10,
+    "scale_bucket": "small",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_2",
+    "sample_id": "rand_0000",
+    "source": "random_perturbation",
+    "scale_bucket": "medium",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_2",
+    "sample_id": "rand_0001",
+    "source": "random_perturbation",
+    "scale_bucket": "medium",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_2",
+    "sample_id": "rand_0002",
+    "source": "random_perturbation",
+    "scale_bucket": "medium",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_2",
+    "sample_id": "rand_0003",
+    "source": "random_perturbation",
+    "scale_bucket": "medium",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_2",
+    "sample_id": "sa_0001",
+    "source": "sa_truncated",
+    "sa_iterations": 1,
+    "scale_bucket": "medium",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_2",
+    "sample_id": "sa_0005",
+    "source": "sa_truncated",
+    "sa_iterations": 5,
+    "scale_bucket": "medium",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_pci_bridge32_2",
+    "sample_id": "sa_0010",
+    "source": "sa_truncated",
+    "sa_iterations": 10,
+    "scale_bucket": "medium",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_des_perf_2",
+    "sample_id": "rand_0000",
+    "source": "random_perturbation",
+    "scale_bucket": "large",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_des_perf_2",
+    "sample_id": "rand_0001",
+    "source": "random_perturbation",
+    "scale_bucket": "large",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_des_perf_2",
+    "sample_id": "rand_0002",
+    "source": "random_perturbation",
+    "scale_bucket": "large",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_des_perf_2",
+    "sample_id": "rand_0003",
+    "source": "random_perturbation",
+    "scale_bucket": "large",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_des_perf_2",
+    "sample_id": "sa_0001",
+    "source": "sa_truncated",
+    "sa_iterations": 1,
+    "scale_bucket": "large",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_des_perf_2",
+    "sample_id": "sa_0005",
+    "source": "sa_truncated",
+    "sa_iterations": 5,
+    "scale_bucket": "large",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  },
+  {
+    "benchmark": "mgc_des_perf_2",
+    "sample_id": "sa_0010",
+    "source": "sa_truncated",
+    "sa_iterations": 10,
+    "scale_bucket": "large",
+    "phase1_gate_status": "infra_pass / quality_pending"
+  }
+]

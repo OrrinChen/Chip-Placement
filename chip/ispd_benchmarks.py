@@ -72,6 +72,7 @@ ACCEPTANCE_BENCHMARKS = [
         tech_lef_filename="tech.lef",
         cells_lef_filename="cells.lef",
         liberty_relpath="ispd2012/lib/contest.lib",
+        official_sdc_relpath="ispd2012/des_perf_fast/des_perf_fast.sdc",
         clock_port="ispd_clk",
         clock_period_ps=660.0,
         placement_density=0.88,
