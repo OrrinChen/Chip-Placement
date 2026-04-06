@@ -33,6 +33,34 @@ def test_summarize_acceptance_row_combines_baseline_and_openroad_metrics():
     assert row["sa_hpwl"] == 10.0
     assert row["built_in_total_routed_wirelength"] == 100.0
     assert row["sa_drc_violations"] == 1
+    assert row["phase1_gate_status"] == "infra_pass / quality_pass"
+    assert row["phase1_gate_reason"] is None
+
+
+def test_summarize_acceptance_row_marks_quality_pending_when_sa_is_invalid():
+    row = summarize_acceptance_row(
+        benchmark_name="ibm01",
+        scale_bucket="small",
+        design_stats={"node_count": 1000, "net_count": 1200},
+        sa_summary={"hpwl": 10.0, "is_valid": False, "runtime_seconds": 1.5},
+        built_in_metrics={
+            "total_routed_wirelength": 100.0,
+            "wns": -0.1,
+            "tns": -1.0,
+            "drc_violations": 0,
+            "runtime_seconds": 5.0,
+        },
+        sa_metrics={
+            "total_routed_wirelength": 110.0,
+            "wns": -0.2,
+            "tns": -2.0,
+            "drc_violations": 1,
+            "runtime_seconds": 2.5,
+        },
+    )
+
+    assert row["phase1_gate_status"] == "infra_pass / quality_pending"
+    assert "not legal yet" in row["phase1_gate_reason"]
 
 
 def test_run_acceptance_suite_surfaces_benchmark_failures(monkeypatch, tmp_path):

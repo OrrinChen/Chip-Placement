@@ -27,6 +27,7 @@ def summarize_acceptance_row(
     built_in_metrics: dict[str, float | int],
     sa_metrics: dict[str, float | int],
 ) -> dict[str, object]:
+    phase1_gate_status, phase1_gate_reason = _phase1_gate(sa_is_valid=bool(sa_summary["is_valid"]))
     return {
         "benchmark": benchmark_name,
         "scale_bucket": scale_bucket,
@@ -45,7 +46,18 @@ def summarize_acceptance_row(
         "sa_tns": sa_metrics["tns"],
         "sa_drc_violations": sa_metrics["drc_violations"],
         "sa_openroad_runtime_seconds": sa_metrics["runtime_seconds"],
+        "phase1_gate_status": phase1_gate_status,
+        "phase1_gate_reason": phase1_gate_reason,
     }
+
+
+def _phase1_gate(sa_is_valid: bool) -> tuple[str, str | None]:
+    if sa_is_valid:
+        return "infra_pass / quality_pass", None
+    return (
+        "infra_pass / quality_pending",
+        "SA placement is not legal yet, so routed and timing metrics are informative only and not directly comparable to the built-in placer.",
+    )
 
 
 def run_acceptance_suite(

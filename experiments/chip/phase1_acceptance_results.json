@@ -16,7 +16,9 @@
     "sa_wns": -811.59,
     "sa_tns": -529429.62,
     "sa_drc_violations": 32829,
-    "sa_openroad_runtime_seconds": 458.977279499999
+    "sa_openroad_runtime_seconds": 458.977279499999,
+    "phase1_gate_status": "infra_pass / quality_pending",
+    "phase1_gate_reason": "SA placement is not legal yet, so routed and timing metrics are informative only and not directly comparable to the built-in placer."
   },
   {
     "benchmark": "mgc_pci_bridge32_2",
@@ -35,7 +37,9 @@
     "sa_wns": -811.59,
     "sa_tns": -529429.62,
     "sa_drc_violations": 33544,
-    "sa_openroad_runtime_seconds": 451.67117499999586
+    "sa_openroad_runtime_seconds": 451.67117499999586,
+    "phase1_gate_status": "infra_pass / quality_pending",
+    "phase1_gate_reason": "SA placement is not legal yet, so routed and timing metrics are informative only and not directly comparable to the built-in placer."
   },
   {
     "benchmark": "mgc_des_perf_2",
@@ -54,6 +58,8 @@
     "sa_wns": -666.45,
     "sa_tns": -707973.5,
     "sa_drc_violations": 134172,
-    "sa_openroad_runtime_seconds": 1762.8849320000008
+    "sa_openroad_runtime_seconds": 1762.8849320000008,
+    "phase1_gate_status": "infra_pass / quality_pending",
+    "phase1_gate_reason": "SA placement is not legal yet, so routed and timing metrics are informative only and not directly comparable to the built-in placer."
   }
 ]
