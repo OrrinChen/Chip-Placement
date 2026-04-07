@@ -72,6 +72,7 @@ def collect_policy_rollout(
     reward_source: str = "analytic_hpwl",
     max_steps: int = 1,
     seed: int = 0,
+    deterministic: bool = False,
 ) -> dict[str, object]:
     torch.manual_seed(seed)
     adapter = ChipRLAdapter(problem=problem, grid_shape=grid_shape)
@@ -91,8 +92,12 @@ def collect_policy_rollout(
                 action_mask=batch.action_mask,
             )
         action_distribution = torch.distributions.Categorical(logits=logits)
-        action_index = int(action_distribution.sample().item())
-        log_prob = float(action_distribution.log_prob(torch.tensor([action_index])).item())
+        if deterministic:
+            action_index = int(logits.argmax(dim=1).item())
+            log_prob = float(action_distribution.log_prob(torch.tensor([action_index])).item())
+        else:
+            action_index = int(action_distribution.sample().item())
+            log_prob = float(action_distribution.log_prob(torch.tensor([action_index])).item())
         if bool(batch.action_mask.view(1, -1)[0, action_index]):
             invalid_action_count += 1
 
@@ -181,6 +186,54 @@ def run_single_ppo_update(
         "value_loss": float(value_loss.item()),
         "entropy": float(entropy.item()),
         "steps": float(len(transitions)),
+    }
+
+
+def train_ppo_policy(
+    *,
+    problem: ChipProblem,
+    policy: PPOPlacementPolicy,
+    grid_shape: tuple[int, int] = (32, 32),
+    reward_source: str = "analytic_hpwl",
+    max_steps: int = 1,
+    num_updates: int = 1,
+    learning_rate: float = 1e-3,
+    clip_epsilon: float = 0.2,
+    gamma: float = 0.99,
+    entropy_coef: float = 0.01,
+    value_coef: float = 0.5,
+    seed: int = 0,
+) -> dict[str, object]:
+    history: list[dict[str, float]] = []
+    for update_index in range(max(1, num_updates)):
+        history.append(
+            run_single_ppo_update(
+                problem=problem,
+                policy=policy,
+                grid_shape=grid_shape,
+                reward_source=reward_source,
+                max_steps=max_steps,
+                learning_rate=learning_rate,
+                clip_epsilon=clip_epsilon,
+                gamma=gamma,
+                entropy_coef=entropy_coef,
+                value_coef=value_coef,
+                seed=seed + update_index,
+            )
+        )
+
+    final_rollout = collect_policy_rollout(
+        problem=problem,
+        policy=policy,
+        grid_shape=grid_shape,
+        reward_source=reward_source,
+        max_steps=max_steps,
+        seed=seed,
+        deterministic=True,
+    )
+    return {
+        "history": history,
+        "final_rollout": final_rollout,
     }
 
 

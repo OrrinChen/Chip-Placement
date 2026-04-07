@@ -863,3 +863,73 @@
   - multi-epoch PPO trainer over repeated rollouts
   - comparison harness: random vs greedy vs beam vs BC vs PPO-from-scratch vs PPO-warm-start
   - optional stronger search guidance such as wider beam or proxy-guided search
+
+## 2026-04-07 Phase 3 Comparison Harness
+
+### Implemented
+
+- `chip/experiments/phase3_comparison.py`
+  - one-call harness for:
+    - masked random
+    - greedy
+    - beam
+    - behavior cloning
+    - PPO from scratch
+    - PPO warm-started from BC
+- `chip/experiments/phase3_ppo.py`
+  - policy rollout now supports deterministic evaluation mode for stable comparisons
+
+### Tiny-Benchmark Snapshot
+
+- `random`
+  - final HPWL `= 2.0`
+- `greedy`
+  - final HPWL `= 2.0`
+- `beam`
+  - final HPWL `= 2.0`
+- `behavior_cloning`
+  - final HPWL `= 2.0`
+  - masked accuracy `= 1.0`
+- `ppo_scratch`
+  - final HPWL `= 4.0`
+- `ppo_warm_start`
+  - final HPWL `= 2.0`
+
+Interpretation:
+
+- the comparison harness now surfaces the intended bring-up story
+- on the tiny benchmark, BC already recovers the search policy
+- warm-start PPO reaches the beam/BC solution immediately
+- scratch PPO still lags on the same setup
+
+### Verification
+
+- focused comparison suite:
+  - `pytest tests/chip/test_phase3_comparison.py tests/chip/test_phase3_imitation.py tests/chip/test_phase3_ppo.py tests/chip/test_phase3_search.py tests/chip/test_phase3_baselines.py tests/chip/test_rl_adapter.py tests/engine/test_ppo_policy.py tests/engine/test_rl_env.py -q`
+  - result: `26 passed`
+
+### Current Read
+
+- Phase 3 now has a direct apples-to-apples comparison surface for:
+  - search
+  - imitation
+  - PPO from scratch
+  - PPO warm-start
+- The next step is no longer "can these pieces talk to each other?"
+- The next step is "does warm-start remain helpful once PPO is trained for more than a single update and on larger problems?"
+
+### Multi-Update Tiny Snapshot
+
+- Re-ran the comparison harness with `ppo_epochs = 3` on the tiny benchmark.
+- Result:
+  - `beam = 2.0 HPWL`
+  - `behavior_cloning = 2.0`
+  - `ppo_scratch = 2.0`
+  - `ppo_warm_start = 2.0`
+- Interpretation:
+  - after three updates, scratch PPO can catch up on the trivial benchmark
+  - warm-start still shows a cleaner optimization profile:
+    - scratch `value_loss ≈ 33.51`
+    - warm-start `value_loss ≈ 2.30`
+- This means the next useful benchmark is no longer the one-step toy.
+- The next useful benchmark is a less trivial problem where sample-efficiency differences have room to show up.

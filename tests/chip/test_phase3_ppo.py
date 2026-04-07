@@ -9,6 +9,7 @@ from chip.experiments.phase3_ppo import collect_policy_rollout
 from chip.experiments.phase3_ppo import initialize_policy_for_problem
 from chip.experiments.phase3_ppo import load_policy_warm_start
 from chip.experiments.phase3_ppo import run_single_ppo_update
+from chip.experiments.phase3_ppo import train_ppo_policy
 from chip.experiments.phase3_search import build_demonstrations_from_trace
 from chip.experiments.phase3_search import run_beam_search_baseline
 from engine.ppo_policy import PPOPlacementPolicy
@@ -131,3 +132,22 @@ def test_behavior_cloning_checkpoint_can_warm_start_ppo_policy(tmp_path: Path):
 
     assert loaded is True
     assert rollout["invalid_action_count"] == 0
+
+
+def test_train_ppo_policy_records_multi_update_history():
+    policy = initialize_policy_for_problem(problem=build_problem(), grid_shape=(4, 4), hidden_dim=16)
+
+    result = train_ppo_policy(
+        problem=build_problem(),
+        policy=policy,
+        grid_shape=(4, 4),
+        reward_source="analytic_hpwl",
+        max_steps=1,
+        num_updates=3,
+        learning_rate=1e-3,
+        seed=0,
+    )
+
+    assert len(result["history"]) == 3
+    assert result["final_rollout"]["invalid_action_count"] == 0
+    assert all(torch.isfinite(torch.tensor(item["policy_loss"])) for item in result["history"])
