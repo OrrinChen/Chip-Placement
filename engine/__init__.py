@@ -14,13 +14,16 @@ from engine.graph import ProblemGraph
 from engine.gnn_proxy import GNNProxy
 from engine.gnn_proxy import GraphBatch
 from engine.gnn_proxy import batch_graph_tensors
-from engine.rl_env import PlacementEnv
+
+try:
+    from engine.rl_env import PlacementEnv
+except ModuleNotFoundError:  # Phase 2 anchor should not depend on Phase 3 scaffolding files.
+    PlacementEnv = None
 
 __all__ = [
     "ConstraintChecker",
     "DecisionEnv",
     "Evaluator",
-    "PlacementEnv",
     "ProblemGraph",
     "RLAdapter",
     "SearchStrategy",
@@ -28,3 +31,6 @@ __all__ = [
     "TrainingStrategy",
     "TransitionModel",
 ]
+
+if PlacementEnv is not None:
+    __all__.append("PlacementEnv")

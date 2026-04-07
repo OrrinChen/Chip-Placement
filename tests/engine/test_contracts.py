@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import importlib
 
 from engine.contracts import (
     ConstraintChecker,
@@ -60,3 +61,9 @@ def test_demo_objects_satisfy_engine_protocols():
     assert surrogate.predict({})["score"] == 0.5
     assert search.solve({"nodes": 1}, None)["problem"] == {"nodes": 1}
     assert trainer.fit([1, 2])["rows"] == 2
+
+
+def test_engine_package_imports_without_optional_rl_env_module():
+    engine_package = importlib.import_module("engine")
+
+    assert engine_package.ProblemGraph is not None
