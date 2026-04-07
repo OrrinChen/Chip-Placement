@@ -817,3 +817,49 @@
   - behavior-cloning trainer over search demonstrations
   - PPO rollout/update loop with optional BC warm-start
   - stronger search baseline such as wider beam or proxy-guided search
+
+## 2026-04-07 Phase 3 BC + PPO Loop
+
+### Implemented
+
+- `chip/experiments/phase3_imitation.py`
+  - behavior-cloning trainer that reuses the PPO policy architecture
+  - masked supervised loss
+  - tiny-dataset evaluation helper
+  - BC checkpoint export that intentionally excludes `value_head.*`
+- `chip/experiments/phase3_ppo.py`
+  - policy initialization helper for a concrete chip problem
+  - masked rollout collector using the PPO policy over the existing env/adapter
+  - single-step PPO update with clipped objective
+  - warm-start loader that explicitly ignores `value_head.*`
+
+### Verified Behaviors
+
+- tiny search demonstrations can be fit by behavior cloning with high masked accuracy
+- BC checkpoints can warm-start a fresh PPO policy
+- warm-started PPO still emits zero invalid actions on the tiny benchmark
+- single-step PPO update returns finite `policy_loss`, `value_loss`, and entropy
+
+### Tests
+
+- expanded:
+  - `tests/chip/test_phase3_imitation.py`
+  - `tests/chip/test_phase3_ppo.py`
+
+### Verification
+
+- focused:
+  - `pytest tests/chip/test_phase3_imitation.py tests/chip/test_phase3_ppo.py -q`
+  - green during TDD iterations
+- broader:
+  - `pytest tests/engine tests/chip -q`
+  - result: `141 passed`
+
+### Current Read
+
+- Phase 3 now has a minimal but real `search -> imitation -> PPO warm-start` execution path.
+- The next valuable slices are no longer basic trainers or loaders.
+- The highest-value next steps are:
+  - multi-epoch PPO trainer over repeated rollouts
+  - comparison harness: random vs greedy vs beam vs BC vs PPO-from-scratch vs PPO-warm-start
+  - optional stronger search guidance such as wider beam or proxy-guided search
