@@ -1,0 +1,25 @@
+{
+  "per_target_spearman": {
+    "hpwl": 0.20709270927092704,
+    "total_routed_wirelength": 0.2080174257957931
+  },
+  "mean_spearman": 0.20755506753336006,
+  "mean_openroad_runtime_seconds": 4.848515193999774,
+  "mean_proxy_runtime_seconds": 0.00028767499985406177,
+  "speedup_vs_openroad": 16854.14164059942,
+  "train_per_target_spearman": {
+    "hpwl": 0.933591839795995,
+    "total_routed_wirelength": 0.9316908916564415
+  },
+  "train_mean_spearman": 0.9326413657262183,
+  "base_per_target_spearman": {
+    "hpwl": 0.20709270927092704,
+    "total_routed_wirelength": 0.2080174257957931
+  },
+  "base_mean_spearman": 0.20755506753336006,
+  "residual_alpha": 0.0,
+  "train_row_count": 200,
+  "validation_row_count": 100,
+  "final_train_loss": 2691742208.0,
+  "holdout_benchmark": "mgc_pci_bridge32_2"
+}

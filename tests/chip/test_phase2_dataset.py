@@ -92,6 +92,22 @@ def test_build_sampling_plan_uses_layered_random_defaults_for_batch_generation()
     assert {row["row_window"] for row in random_rows} == {1}
 
 
+def test_build_sampling_plan_uses_benchmark_specific_override_for_mgc_des_perf_2():
+    plan = build_sampling_plan(
+        benchmark_name="mgc_des_perf_2",
+        batch="full",
+        random_samples=10,
+        sa_truncation_steps=(),
+    )
+
+    random_rows = [row for row in plan if row["source"] == "random_perturbation"]
+    assert len(random_rows) == 10
+    assert sum(1 for row in random_rows if row["move_probability"] == 0.1) == 7
+    assert sum(1 for row in random_rows if row["move_probability"] == 0.15) == 3
+    assert {row["max_x_fraction"] for row in random_rows} == {0.1}
+    assert {row["row_window"] for row in random_rows} == {1}
+
+
 def test_build_sampling_plan_can_override_layered_defaults_with_single_tier():
     plan = build_sampling_plan(
         benchmark_name="mgc_pci_bridge32_1",

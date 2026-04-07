@@ -16,7 +16,8 @@ def legalize_placement(
 ) -> Path:
     artifact_root = Path(artifact_dir)
     evaluator = bridge or OpenROADBridge(docker_image="openroad/orfs")
-    script_path = artifact_root / ".sa_legalize.tcl"
+    script_stem = Path(output_def_name).stem
+    script_path = artifact_root / f".sa_legalize_{script_stem}.tcl"
     script_path.write_text(
         evaluator.build_script(
             lef_paths,

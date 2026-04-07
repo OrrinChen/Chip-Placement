@@ -21,6 +21,8 @@ class EvaluationRequest:
     detailed_route_end_iter: int = 0
     placement_density: float | None = None
     write_def_path: str | None = None
+    script_stem: str | None = None
+    run_detailed_route: bool = True
 
 
 def build_evaluation_request(
@@ -35,6 +37,8 @@ def build_evaluation_request(
     detailed_route_end_iter: int = 0,
     placement_density: float | None = None,
     write_def_path: str | None = None,
+    script_stem: str | None = None,
+    run_detailed_route: bool = True,
 ) -> EvaluationRequest:
     return EvaluationRequest(
         benchmark_name=benchmark_name,
@@ -48,6 +52,8 @@ def build_evaluation_request(
         detailed_route_end_iter=detailed_route_end_iter,
         placement_density=placement_density,
         write_def_path=write_def_path,
+        script_stem=script_stem,
+        run_detailed_route=run_detailed_route,
     )
 
 
@@ -59,8 +65,6 @@ def parse_openroad_metrics(stdout: str) -> dict[str, float | int]:
         return float(match.group(1))
 
     violations = re.findall(r"Number of violations\s*=\s*(\d+)", stdout, re.IGNORECASE)
-    if not violations:
-        raise ValueError("Missing OpenROAD metric for DRC violations")
     total_wire_lengths = re.findall(r"Total wire length\s*=\s*([-\d.]+)\s*um\.?", stdout, re.IGNORECASE)
     routed_wirelength = float(total_wire_lengths[-1]) if total_wire_lengths else _sum_global_route_wirelength(stdout)
 
@@ -68,7 +72,7 @@ def parse_openroad_metrics(stdout: str) -> dict[str, float | int]:
         "total_routed_wirelength": routed_wirelength,
         "tns": extract_float(r"tns\s+max\s+([-\d.]+)"),
         "wns": extract_float(r"wns\s+max\s+([-\d.]+)"),
-        "drc_violations": int(violations[-1]),
+        "drc_violations": int(violations[-1]) if violations else 0,
     }
 
 
@@ -84,6 +88,7 @@ def build_openroad_script(
     detailed_route_end_iter: int = 0,
     global_placement_density: float | None = None,
     write_def_path: str | None = None,
+    run_detailed_route: bool = True,
 ) -> str:
     bridge = OpenROADBridge()
     return bridge.build_script(
@@ -97,6 +102,7 @@ def build_openroad_script(
         detailed_route_end_iter=detailed_route_end_iter,
         global_placement_density=global_placement_density,
         write_def_path=write_def_path,
+        run_detailed_route=run_detailed_route,
     )
 
 
@@ -105,6 +111,7 @@ def evaluate_openroad_request(
     bridge: OpenROADBridge | None = None,
     placement: dict[str, tuple[float, float]] | None = None,
     orientations: dict[str, str] | None = None,
+    timeout_seconds: int | None = None,
 ) -> dict[str, float | int]:
     evaluator = bridge or OpenROADBridge(docker_image="openroad/orfs")
     if not evaluator.is_available():
@@ -112,7 +119,8 @@ def evaluate_openroad_request(
         raise RuntimeError(f"OpenROAD target '{target}' is not available")
 
     artifact_dir = Path(request.artifact_dir)
-    script_path = artifact_dir / f".{request.placement_mode}_acceptance.tcl"
+    script_stem = request.script_stem or request.placement_mode
+    script_path = artifact_dir / f".{script_stem}_acceptance.tcl"
     script_text = build_openroad_script(
         lef_path=request.lef_path,
         def_path=request.def_path,
@@ -125,6 +133,7 @@ def evaluate_openroad_request(
         detailed_route_end_iter=request.detailed_route_end_iter,
         global_placement_density=request.placement_density,
         write_def_path=request.write_def_path,
+        run_detailed_route=request.run_detailed_route,
     )
     script_path.write_text(script_text)
 
@@ -146,6 +155,7 @@ def evaluate_openroad_request(
             check=True,
             capture_output=True,
             text=True,
+            timeout=timeout_seconds,
         )
     finally:
         script_path.unlink(missing_ok=True)

@@ -5,7 +5,7 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
-from chip.problem import ChipProblem, DieArea, Macro, Net
+from chip.problem import ChipProblem, DieArea, Macro, Net, PlacementRow
 from engine.graph import ProblemGraph
 
 
@@ -30,18 +30,6 @@ DEF_PIN_PLACEMENT_RE = re.compile(
     r"\+\s+PLACED\s+\(\s*(?P<x>\d+(?:\.\d+)?)\s+(?P<y>\d+(?:\.\d+)?)\s*\)\s+(?P<orientation>\S+)"
 )
 
-
-@dataclass(frozen=True)
-class PlacementRow:
-    name: str
-    origin_x: float
-    origin_y: float
-    orientation: str
-    site_count: int
-    step_x: float
-    step_y: float
-
-
 def load_chip_problem(lef_path: str | Path, def_path: str | Path) -> tuple[ProblemGraph, ChipProblem]:
     lef_text = Path(lef_path).read_text()
     def_text = Path(def_path).read_text()
@@ -55,7 +43,7 @@ def load_chip_problem(lef_path: str | Path, def_path: str | Path) -> tuple[Probl
     nets = _parse_nets(def_text)
     graph = _build_problem_graph(macros, nets, die_area)
 
-    return graph, ChipProblem(die_area=die_area, macros=macros, nets=nets)
+    return graph, ChipProblem(die_area=die_area, macros=macros, nets=nets, rows=tuple(rows))
 
 
 def _parse_lef(lef_text: str) -> dict[str, tuple[float, float]]:

@@ -4,6 +4,7 @@ from chip.problem import ChipProblem
 from chip.problem import DieArea
 from chip.problem import Macro
 from chip.problem import Net
+from chip.problem import PlacementRow
 
 
 def test_summarize_acceptance_row_combines_baseline_and_openroad_metrics():
@@ -111,7 +112,48 @@ def test_select_injectable_instances_excludes_fixed_pins_and_keeps_movable_macro
     assert orientations == {"U1": "N"}
 
 
-def test_run_single_benchmark_acceptance_uses_built_in_seed_def_for_sa(monkeypatch, tmp_path):
+def test_select_injectable_instances_snaps_both_axes_to_rows_and_uses_row_orientation():
+    problem = ChipProblem(
+        die_area=DieArea(0.0, 0.0, 100.0, 100.0),
+        macros={
+            "U1": Macro(name="U1", kind="M1", width=1.0, height=1.0, x=1.0, y=0.0, orientation="N", is_fixed=False),
+        },
+        nets=[Net(name="N1", pins=("U1",))],
+        rows=(
+            PlacementRow(name="row0", origin_x=0.0, origin_y=0.0, orientation="N", site_count=500, step_x=0.2, step_y=0.0),
+            PlacementRow(name="row1", origin_x=0.0, origin_y=2.0, orientation="FS", site_count=500, step_x=0.2, step_y=0.0),
+        ),
+    )
+
+    placement, orientations = _select_injectable_instances(problem, {"U1": (10.13, 1.6)})
+
+    assert placement == {"U1": (10.2, 2.0)}
+    assert orientations == {"U1": "FS"}
+
+
+def test_select_injectable_instances_can_skip_unchanged_macros():
+    problem = ChipProblem(
+        die_area=DieArea(0.0, 0.0, 100.0, 100.0),
+        macros={
+            "U1": Macro(name="U1", kind="M1", width=1.0, height=1.0, x=10.2, y=2.0, orientation="N", is_fixed=False),
+        },
+        nets=[Net(name="N1", pins=("U1",))],
+        rows=(
+            PlacementRow(name="row0", origin_x=0.0, origin_y=2.0, orientation="N", site_count=500, step_x=0.2, step_y=0.0),
+        ),
+    )
+
+    placement, orientations = _select_injectable_instances(
+        problem,
+        {"U1": (10.2, 2.0)},
+        changed_only=True,
+    )
+
+    assert placement == {}
+    assert orientations == {}
+
+
+def test_run_single_benchmark_acceptance_seeds_sa_from_clean_problem_and_legalizes_from_clean_def(monkeypatch, tmp_path):
     from chip.experiments import phase1_acceptance as module
 
     artifact_dir = tmp_path / "mgc_pci_bridge32_1"
@@ -142,6 +184,10 @@ def test_run_single_benchmark_acceptance_uses_built_in_seed_def_for_sa(monkeypat
         die_area=DieArea(0.0, 0.0, 100.0, 100.0),
         macros={"U1": Macro(name="U1", kind="M1", width=1.0, height=1.0, x=1.0, y=2.0, orientation="N", is_fixed=False)},
         nets=[Net(name="N1", pins=("U1",))],
+        rows=(
+            PlacementRow(name="row0", origin_x=0.0, origin_y=0.0, orientation="N", site_count=500, step_x=0.2, step_y=0.0),
+            PlacementRow(name="row1", origin_x=0.0, origin_y=2.0, orientation="FS", site_count=500, step_x=0.2, step_y=0.0),
+        ),
     )
 
     class FakeGraph:
@@ -172,8 +218,24 @@ def test_run_single_benchmark_acceptance_uses_built_in_seed_def_for_sa(monkeypat
         return FakeGraph(), problem
 
     monkeypatch.setattr(module, "load_chip_problem", fake_load_chip_problem)
-    monkeypatch.setattr(module, "_run_sa_baseline", lambda *_args, **_kwargs: ({"U1": (10.13, 20.0)}, {"hpwl": 1.0, "is_valid": True, "runtime_seconds": 0.1}))
-    monkeypatch.setattr(module, "legalize_placement", lambda **_kwargs: legalized_def_path)
+    monkeypatch.setattr(module, "QuadraticPlacementSolver", lambda: type("FakeQuadratic", (), {"solve": lambda self, _graph: {"U1": (10.13, 3.6)}})(), raising=False)
+
+    captured = {}
+
+    def fake_run_sa_baseline(problem, *, initial_placement, iterations):
+        captured["initial_placement"] = initial_placement
+        captured["iterations"] = iterations
+        return {"U1": (10.13, 3.6)}, {"hpwl": 1.0, "is_valid": True, "runtime_seconds": 0.1}
+
+    monkeypatch.setattr(module, "_run_sa_baseline", fake_run_sa_baseline)
+
+    legalize_calls = []
+
+    def fake_legalize_placement(**kwargs):
+        legalize_calls.append(kwargs)
+        return legalized_def_path
+
+    monkeypatch.setattr(module, "legalize_placement", fake_legalize_placement)
 
     def fake_build_evaluation_request(**kwargs):
         request_calls.append(kwargs)
@@ -198,8 +260,10 @@ def test_run_single_benchmark_acceptance_uses_built_in_seed_def_for_sa(monkeypat
 
     assert row["benchmark"] == benchmark.name
     assert str(prepared["def_path"]) in load_calls[0]
-    assert str(seed_def_path) in load_calls[1]
-    assert str(legalized_def_path) in load_calls[2]
+    assert str(seed_def_path) not in load_calls
+    assert str(legalized_def_path) in load_calls[1]
+    assert captured["initial_placement"] == {"U1": (10.2, 2.0)}
+    assert legalize_calls[0]["def_path"] == "floorplan_clean.def"
     assert request_calls[0]["write_def_path"] == "seed_placed.def"
-    assert request_calls[1]["def_path"] == "seed_placed.def"
+    assert request_calls[1]["def_path"] == "floorplan_clean.def"
     assert eval_calls[1]["placement"] == {"U1": (10.2, 2.0)}

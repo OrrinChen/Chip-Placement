@@ -1,0 +1,204 @@
+{
+    "generated_at":  "2026-04-07T00:29:08.7995386-04:00",
+    "canonical_dataset":  "C:\\Users\\14574\\Chip\\.worktrees\\phase2-foundation\\experiments\\chip\\phase2_dataset_full_stratified_main.json",
+    "sources":  {
+                    "pci_rows":  "C:\\Users\\14574\\Chip\\.worktrees\\phase2-foundation\\experiments\\chip\\phase2_dataset_full_stratified.json",
+                    "mgc_des_perf_2_override_rows":  "C:\\Users\\14574\\Chip\\.worktrees\\phase2-foundation\\experiments\\chip\\phase2_dataset_mgc_des_perf_2_override.json",
+                    "phase1_seed_metrics":  "C:\\Users\\14574\\Chip\\.worktrees\\phase2-foundation\\experiments\\chip\\phase1_acceptance_results.json"
+                },
+    "total_rows":  300,
+    "success_count":  300,
+    "timeout_count":  0,
+    "error_count":  0,
+    "benchmark_summaries":  [
+                                {
+                                    "benchmark":  "mgc_des_perf_2",
+                                    "rows":  100,
+                                    "hard_negative_cap":  0.15,
+                                    "seed_hpwl":  1373198.4500000109,
+                                    "seed_total_routed_wirelength":  1525100,
+                                    "overall":  {
+                                                    "rows":  100,
+                                                    "success_count":  100,
+                                                    "timeout_count":  0,
+                                                    "error_count":  0,
+                                                    "runtime_mean_s":  28.565938242999838,
+                                                    "runtime_p95_s":  49.8538631000265,
+                                                    "hpwl_ratio_mean":  1.5537419786630182,
+                                                    "hpwl_ratio_min":  1.4791719507111329,
+                                                    "hpwl_ratio_max":  1.7093784441717088,
+                                                    "routed_ratio_mean":  1.4836638777785072,
+                                                    "routed_ratio_min":  1.4048285358337158,
+                                                    "routed_ratio_max":  1.6572467379188249
+                                                },
+                                    "tiers":  [
+                                                  {
+                                                      "tier":  "base",
+                                                      "move_probability":  0.1,
+                                                      "stats":  {
+                                                                    "rows":  70,
+                                                                    "success_count":  70,
+                                                                    "timeout_count":  0,
+                                                                    "error_count":  0,
+                                                                    "runtime_mean_s":  22.421209321428403,
+                                                                    "runtime_p95_s":  29.2782549000112,
+                                                                    "hpwl_ratio_mean":  1.4913541081511381,
+                                                                    "hpwl_ratio_min":  1.4791719507111327,
+                                                                    "hpwl_ratio_max":  1.5033439121635941,
+                                                                    "routed_ratio_mean":  1.4166447820751802,
+                                                                    "routed_ratio_min":  1.4048285358337158,
+                                                                    "routed_ratio_max":  1.4274322995213429
+                                                                },
+                                                      "displacement_p90_mean_sites":  34.342857142857142,
+                                                      "moved_fraction_mean":  0.4561358920898711
+                                                  },
+                                                  {
+                                                      "tier":  "hard",
+                                                      "move_probability":  0.15,
+                                                      "stats":  {
+                                                                    "rows":  30,
+                                                                    "success_count":  30,
+                                                                    "timeout_count":  0,
+                                                                    "error_count":  0,
+                                                                    "runtime_mean_s":  42.90363905999984,
+                                                                    "runtime_p95_s":  56.5275076999969,
+                                                                    "hpwl_ratio_mean":  1.6993136765240739,
+                                                                    "hpwl_ratio_min":  1.6880111028380651,
+                                                                    "hpwl_ratio_max":  1.7093784441717084,
+                                                                    "routed_ratio_mean":  1.640041767752934,
+                                                                    "routed_ratio_min":  1.6244869188905646,
+                                                                    "routed_ratio_max":  1.6572467379188249
+                                                                },
+                                                      "displacement_p90_mean_sites":  86.166666666666671,
+                                                      "moved_fraction_mean":  0.53924073482239032
+                                                  }
+                                              ]
+                                },
+                                {
+                                    "benchmark":  "mgc_pci_bridge32_1",
+                                    "rows":  100,
+                                    "hard_negative_cap":  0.2,
+                                    "seed_hpwl":  276877.04500001232,
+                                    "seed_total_routed_wirelength":  339584,
+                                    "overall":  {
+                                                    "rows":  100,
+                                                    "success_count":  100,
+                                                    "timeout_count":  0,
+                                                    "error_count":  0,
+                                                    "runtime_mean_s":  4.9874680740002075,
+                                                    "runtime_p95_s":  5.2630496000056155,
+                                                    "hpwl_ratio_mean":  1.4096360137041484,
+                                                    "hpwl_ratio_min":  1.3148076071094561,
+                                                    "hpwl_ratio_max":  1.6221631699369548,
+                                                    "routed_ratio_mean":  1.2971164130229931,
+                                                    "routed_ratio_min":  1.21343172823219,
+                                                    "routed_ratio_max":  1.481147521673577
+                                                },
+                                    "tiers":  [
+                                                  {
+                                                      "tier":  "base",
+                                                      "move_probability":  0.1,
+                                                      "stats":  {
+                                                                    "rows":  70,
+                                                                    "success_count":  70,
+                                                                    "timeout_count":  0,
+                                                                    "error_count":  0,
+                                                                    "runtime_mean_s":  4.94885328285683,
+                                                                    "runtime_p95_s":  5.21447569999145,
+                                                                    "hpwl_ratio_mean":  1.3270926476200744,
+                                                                    "hpwl_ratio_min":  1.3148076071094548,
+                                                                    "hpwl_ratio_max":  1.3392014675683406,
+                                                                    "routed_ratio_mean":  1.224493203448926,
+                                                                    "routed_ratio_min":  1.21343172823219,
+                                                                    "routed_ratio_max":  1.2358002732755371
+                                                                },
+                                                      "displacement_p90_mean_sites":  23.700000000000006,
+                                                      "moved_fraction_mean":  0.38842193503318195
+                                                  },
+                                                  {
+                                                      "tier":  "hard",
+                                                      "move_probability":  0.2,
+                                                      "stats":  {
+                                                                    "rows":  30,
+                                                                    "success_count":  30,
+                                                                    "timeout_count":  0,
+                                                                    "error_count":  0,
+                                                                    "runtime_mean_s":  5.0775692533347563,
+                                                                    "runtime_p95_s":  5.32149180000124,
+                                                                    "hpwl_ratio_mean":  1.6022372012336559,
+                                                                    "hpwl_ratio_min":  1.584574643954245,
+                                                                    "hpwl_ratio_max":  1.6221631699369554,
+                                                                    "routed_ratio_mean":  1.4665705686958161,
+                                                                    "routed_ratio_min":  1.4537610723709009,
+                                                                    "routed_ratio_max":  1.481147521673577
+                                                                },
+                                                      "displacement_p90_mean_sites":  69.166666666666671,
+                                                      "moved_fraction_mean":  0.56032056506384131
+                                                  }
+                                              ]
+                                },
+                                {
+                                    "benchmark":  "mgc_pci_bridge32_2",
+                                    "rows":  100,
+                                    "hard_negative_cap":  0.2,
+                                    "seed_hpwl":  252682.84500001627,
+                                    "seed_total_routed_wirelength":  315774,
+                                    "overall":  {
+                                                    "rows":  100,
+                                                    "success_count":  100,
+                                                    "timeout_count":  0,
+                                                    "error_count":  0,
+                                                    "runtime_mean_s":  4.8485151939997744,
+                                                    "runtime_p95_s":  5.1623720999923535,
+                                                    "hpwl_ratio_mean":  1.4577971804931156,
+                                                    "hpwl_ratio_min":  1.352684805333672,
+                                                    "hpwl_ratio_max":  1.6782652775655271,
+                                                    "routed_ratio_mean":  1.322245435026316,
+                                                    "routed_ratio_min":  1.2313933382735753,
+                                                    "routed_ratio_max":  1.5143742043360124
+                                                },
+                                    "tiers":  [
+                                                  {
+                                                      "tier":  "base",
+                                                      "move_probability":  0.1,
+                                                      "stats":  {
+                                                                    "rows":  70,
+                                                                    "success_count":  70,
+                                                                    "timeout_count":  0,
+                                                                    "error_count":  0,
+                                                                    "runtime_mean_s":  4.8086041485714048,
+                                                                    "runtime_p95_s":  5.1242104999983,
+                                                                    "hpwl_ratio_mean":  1.3685383435620235,
+                                                                    "hpwl_ratio_min":  1.3526848053336704,
+                                                                    "hpwl_ratio_max":  1.3896402227067706,
+                                                                    "routed_ratio_mean":  1.2452784043560989,
+                                                                    "routed_ratio_min":  1.2313933382735753,
+                                                                    "routed_ratio_max":  1.2622318493606186
+                                                                },
+                                                      "displacement_p90_mean_sites":  27.328571428571433,
+                                                      "moved_fraction_mean":  0.42142601001280711
+                                                  },
+                                                  {
+                                                      "tier":  "hard",
+                                                      "move_probability":  0.2,
+                                                      "stats":  {
+                                                                    "rows":  30,
+                                                                    "success_count":  30,
+                                                                    "timeout_count":  0,
+                                                                    "error_count":  0,
+                                                                    "runtime_mean_s":  4.9416409666659709,
+                                                                    "runtime_p95_s":  5.20416020000994,
+                                                                    "hpwl_ratio_mean":  1.6660677999989966,
+                                                                    "hpwl_ratio_min":  1.644375363115637,
+                                                                    "hpwl_ratio_max":  1.6782652775655256,
+                                                                    "routed_ratio_mean":  1.5018351732568229,
+                                                                    "routed_ratio_min":  1.4834216876626956,
+                                                                    "routed_ratio_max":  1.5143742043360124
+                                                                },
+                                                      "displacement_p90_mean_sites":  69.620000000000076,
+                                                      "moved_fraction_mean":  0.5876055419722902
+                                                  }
+                                              ]
+                                }
+                            ]
+}

@@ -47,6 +47,22 @@ DEFAULT_FULL_RANDOM_TIERS = (
         "weight": 0.3,
     },
 )
+DEFAULT_FULL_RANDOM_TIER_OVERRIDES = {
+    "mgc_des_perf_2": (
+        {
+            "move_probability": 0.1,
+            "max_x_fraction": 0.1,
+            "row_window": 1,
+            "weight": 0.7,
+        },
+        {
+            "move_probability": 0.15,
+            "max_x_fraction": 0.1,
+            "row_window": 1,
+            "weight": 0.3,
+        },
+    ),
+}
 DEFAULT_TIMEOUT_SECONDS = 900
 MAX_RANDOM_NEIGHBOR_ATTEMPTS = 32
 
@@ -63,6 +79,7 @@ def build_sampling_plan(
 ) -> list[dict[str, object]]:
     plan: list[dict[str, object]] = []
     tiers = _resolve_random_tiers(
+        benchmark_name=benchmark_name,
         batch=batch,
         random_move_probability=random_move_probability,
         random_max_x_fraction=random_max_x_fraction,
@@ -100,6 +117,7 @@ def build_sampling_plan(
 
 
 def _resolve_random_tiers(
+    benchmark_name: str,
     batch: str,
     random_move_probability: float,
     random_max_x_fraction: float,
@@ -109,6 +127,8 @@ def _resolve_random_tiers(
     if random_tiers is not None:
         return random_tiers
     if batch == "full":
+        if benchmark_name in DEFAULT_FULL_RANDOM_TIER_OVERRIDES:
+            return DEFAULT_FULL_RANDOM_TIER_OVERRIDES[benchmark_name]
         return DEFAULT_FULL_RANDOM_TIERS
     return (
         {

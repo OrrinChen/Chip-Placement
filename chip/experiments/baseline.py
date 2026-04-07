@@ -78,14 +78,48 @@ def _neighbor(problem, placement, bounds, rng: random.Random) -> dict[str, tuple
     movable_macros = [name for name, macro in problem.macros.items() if not macro.is_fixed]
     if not movable_macros:
         return dict(placement)
+    updated = dict(placement)
+    if problem.rows:
+        if len(movable_macros) > 1 and rng.choice(["swap", "shift"]) == "swap":
+            macro_name = rng.choice(movable_macros)
+            macro = problem.macros[macro_name]
+            compatible_macros = [
+                other_name
+                for other_name in movable_macros
+                if other_name != macro_name
+                and abs(problem.macros[other_name].width - macro.width) <= 1e-9
+                and abs(problem.macros[other_name].height - macro.height) <= 1e-9
+            ]
+            if compatible_macros:
+                other_name = rng.choice(compatible_macros)
+                updated[macro_name], updated[other_name] = placement[other_name], placement[macro_name]
+                return updated
+
+        macro_name = rng.choice(movable_macros)
+        current_x, current_y = placement[macro_name]
+        axis = rng.choice(["x", "y"])
+        if axis == "y" and len(problem.rows) > 1:
+            current_row_index = problem.row_index(current_y)
+            if current_row_index is None:
+                current_row_index = 0
+            row_delta = rng.choice([-1, 1])
+            next_row_index = min(max(current_row_index + row_delta, 0), len(problem.rows) - 1)
+            target_y = problem.rows[next_row_index].origin_y
+            next_x, next_y, _ = problem.snap_movable_macro(macro_name, current_x, target_y)
+        else:
+            site_pitch = problem.site_pitch()
+            delta_x = rng.choice([-5, -2, -1, 1, 2, 5]) * site_pitch
+            next_x, next_y, _ = problem.snap_movable_macro(macro_name, current_x + delta_x, current_y)
+        updated[macro_name] = (next_x, next_y)
+        return updated
+
     macro_name = rng.choice(movable_macros)
     macro = problem.macros[macro_name]
+    current_x, current_y = placement[macro_name]
     delta_x = rng.choice([-5.0, 5.0])
     delta_y = rng.choice([-5.0, 5.0])
-    current_x, current_y = placement[macro_name]
     next_x = min(max(current_x + delta_x, min_x), max_x - macro.width)
     next_y = min(max(current_y + delta_y, min_y), max_y - macro.height)
-    updated = dict(placement)
     updated[macro_name] = (next_x, next_y)
     return updated
 

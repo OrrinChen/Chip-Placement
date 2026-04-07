@@ -20,6 +20,50 @@ def test_parser_loads_sample_benchmark():
     assert len(problem.nets) == 2
 
 
+def test_load_chip_problem_preserves_rows(tmp_path):
+    lef_path = tmp_path / "rows.lef"
+    def_path = tmp_path / "rows.def"
+    lef_path.write_text(
+        "\n".join(
+            [
+                "VERSION 5.8 ;",
+                "MACRO NAND2_X1",
+                "  CLASS CORE ;",
+                "  ORIGIN 0 0 ;",
+                "  SIZE 0.2 BY 2.0 ;",
+                "END NAND2_X1",
+                "END LIBRARY",
+                "",
+            ]
+        )
+    )
+    def_path.write_text(
+        "\n".join(
+            [
+                "VERSION 5.8 ;",
+                "UNITS DISTANCE MICRONS 1000 ;",
+                "DIEAREA ( 0 0 ) ( 2000 4000 ) ;",
+                "ROW core_SITE_ROW_0 core 0 0 N DO 10 BY 1 STEP 200 0 ;",
+                "ROW core_SITE_ROW_1 core 0 2000 FS DO 10 BY 1 STEP 200 0 ;",
+                "COMPONENTS 1 ;",
+                "  - U1 NAND2_X1 + PLACED ( 0 0 ) N ;",
+                "END COMPONENTS",
+                "NETS 0 ;",
+                "END NETS",
+                "END DESIGN",
+                "",
+            ]
+        )
+    )
+
+    _, problem = load_chip_problem(lef_path, def_path)
+
+    assert len(problem.rows) == 2
+    assert problem.rows[0].origin_y == 0.0
+    assert problem.rows[1].origin_y == 2.0
+    assert problem.rows[1].orientation == "FS"
+
+
 def test_parse_components_supports_source_and_fixed_attributes():
     def_text = """
 COMPONENTS 2 ;

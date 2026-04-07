@@ -1,0 +1,250 @@
+{
+  "mode": "all",
+  "model_family": "frozen-linear-base",
+  "pooling_mode": "mean",
+  "node_path_scale": 1.0,
+  "residual_alpha": 0.0,
+  "cross_design_folds": [
+    {
+      "per_target_spearman": {
+        "hpwl": 0.6065886588658865,
+        "total_routed_wirelength": 0.6011641164116411
+      },
+      "mean_spearman": 0.6038763876387638,
+      "mean_openroad_runtime_seconds": 28.565938242999838,
+      "mean_proxy_runtime_seconds": 0.0006305509997764602,
+      "speedup_vs_openroad": 45303.13686462616,
+      "train_per_target_spearman": {
+        "hpwl": 0.8738918472961826,
+        "total_routed_wirelength": 0.8759325552635444
+      },
+      "train_mean_spearman": 0.8749122012798636,
+      "base_per_target_spearman": {
+        "hpwl": 0.6065886588658865,
+        "total_routed_wirelength": 0.6011641164116411
+      },
+      "base_mean_spearman": 0.6038763876387638,
+      "residual_alpha": 0.0,
+      "train_row_count": 200,
+      "validation_row_count": 100,
+      "final_train_loss": 17292540.0,
+      "holdout_benchmark": "mgc_des_perf_2"
+    },
+    {
+      "per_target_spearman": {
+        "hpwl": 0.3437143714371437,
+        "total_routed_wirelength": 0.34862390826412015
+      },
+      "mean_spearman": 0.3461691398506319,
+      "mean_openroad_runtime_seconds": 4.9874680740002075,
+      "mean_proxy_runtime_seconds": 0.00027098299993667753,
+      "speedup_vs_openroad": 18405.09579997883,
+      "train_per_target_spearman": {
+        "hpwl": 0.9147858696467412,
+        "total_routed_wirelength": 0.916723511859178
+      },
+      "train_mean_spearman": 0.9157546907529597,
+      "base_per_target_spearman": {
+        "hpwl": 0.3437143714371437,
+        "total_routed_wirelength": 0.34862390826412015
+      },
+      "base_mean_spearman": 0.3461691398506319,
+      "residual_alpha": 0.0,
+      "train_row_count": 200,
+      "validation_row_count": 100,
+      "final_train_loss": 17754894336.0,
+      "holdout_benchmark": "mgc_pci_bridge32_1"
+    },
+    {
+      "per_target_spearman": {
+        "hpwl": 0.20709270927092704,
+        "total_routed_wirelength": 0.2080174257957931
+      },
+      "mean_spearman": 0.20755506753336006,
+      "mean_openroad_runtime_seconds": 4.848515193999774,
+      "mean_proxy_runtime_seconds": 0.00028767499985406177,
+      "speedup_vs_openroad": 16854.14164059942,
+      "train_per_target_spearman": {
+        "hpwl": 0.933591839795995,
+        "total_routed_wirelength": 0.9316908916564415
+      },
+      "train_mean_spearman": 0.9326413657262183,
+      "base_per_target_spearman": {
+        "hpwl": 0.20709270927092704,
+        "total_routed_wirelength": 0.2080174257957931
+      },
+      "base_mean_spearman": 0.20755506753336006,
+      "residual_alpha": 0.0,
+      "train_row_count": 200,
+      "validation_row_count": 100,
+      "final_train_loss": 2691742208.0,
+      "holdout_benchmark": "mgc_pci_bridge32_2"
+    }
+  ],
+  "same_design_folds": [
+    {
+      "per_target_spearman": {
+        "hpwl": 0.8962406015037594,
+        "total_routed_wirelength": 0.8842105263157894
+      },
+      "mean_spearman": 0.8902255639097745,
+      "mean_openroad_runtime_seconds": 4.847466749999148,
+      "mean_proxy_runtime_seconds": 0.0005959100002655759,
+      "speedup_vs_openroad": 8134.561842960857,
+      "train_per_target_spearman": {
+        "hpwl": 0.9595171120487577,
+        "total_routed_wirelength": 0.9596868242477514
+      },
+      "train_mean_spearman": 0.9596019681482546,
+      "base_per_target_spearman": {
+        "hpwl": 0.8962406015037594,
+        "total_routed_wirelength": 0.8842105263157894
+      },
+      "base_mean_spearman": 0.8902255639097745,
+      "residual_alpha": 0.0,
+      "train_row_count": 80,
+      "validation_row_count": 20,
+      "final_train_loss": 768974.125,
+      "benchmark": "mgc_pci_bridge32_2"
+    },
+    {
+      "per_target_spearman": {
+        "hpwl": 0.9278195488721804,
+        "total_routed_wirelength": 0.9233082706766916
+      },
+      "mean_spearman": 0.925563909774436,
+      "mean_openroad_runtime_seconds": 4.980529064999428,
+      "mean_proxy_runtime_seconds": 0.0005933400010690093,
+      "speedup_vs_openroad": 8394.055779192544,
+      "train_per_target_spearman": {
+        "hpwl": 0.9358180965775903,
+        "total_routed_wirelength": 0.9265353961556494
+      },
+      "train_mean_spearman": 0.9311767463666198,
+      "base_per_target_spearman": {
+        "hpwl": 0.9278195488721804,
+        "total_routed_wirelength": 0.9233082706766916
+      },
+      "base_mean_spearman": 0.925563909774436,
+      "residual_alpha": 0.0,
+      "train_row_count": 80,
+      "validation_row_count": 20,
+      "final_train_loss": 1017721.3125,
+      "benchmark": "mgc_pci_bridge32_1"
+    },
+    {
+      "per_target_spearman": {
+        "hpwl": 0.875187969924812,
+        "total_routed_wirelength": 0.8977443609022555
+      },
+      "mean_spearman": 0.8864661654135337,
+      "mean_openroad_runtime_seconds": 28.96518624500168,
+      "mean_proxy_runtime_seconds": 0.0004341799998655915,
+      "speedup_vs_openroad": 66712.39175910542,
+      "train_per_target_spearman": {
+        "hpwl": 0.9375527426160337,
+        "total_routed_wirelength": 0.9320675105485232
+      },
+      "train_mean_spearman": 0.9348101265822785,
+      "base_per_target_spearman": {
+        "hpwl": 0.875187969924812,
+        "total_routed_wirelength": 0.8977443609022555
+      },
+      "base_mean_spearman": 0.8864661654135337,
+      "residual_alpha": 0.0,
+      "train_row_count": 80,
+      "validation_row_count": 20,
+      "final_train_loss": 24220782.0,
+      "benchmark": "mgc_des_perf_2"
+    }
+  ],
+  "full_training_row_count": 300,
+  "max_rows_per_benchmark": null,
+  "active_target_names": [
+    "hpwl",
+    "total_routed_wirelength"
+  ],
+  "target_signal_summary": {
+    "row_count": 300,
+    "benchmarks": {
+      "mgc_des_perf_2": {
+        "row_count": 100,
+        "source_counts": {
+          "random_perturbation": 100
+        },
+        "targets": {
+          "hpwl": {
+            "unique_count": 100,
+            "min": 2031196.6300000201,
+            "max": 2347315.8300000206,
+            "spread_fraction": 0.1481626271426782
+          },
+          "total_routed_wirelength": {
+            "unique_count": 100,
+            "min": 2142504.0,
+            "max": 2527467.0,
+            "spread_fraction": 0.17013166247806452
+          }
+        },
+        "hpwl_vs_routed_spearman": 0.9884788478847883
+      },
+      "mgc_pci_bridge32_1": {
+        "row_count": 100,
+        "source_counts": {
+          "random_perturbation": 100
+        },
+        "targets": {
+          "hpwl": {
+            "unique_count": 100,
+            "min": 364040.0450000034,
+            "max": 449139.74499999685,
+            "spread_fraction": 0.21803895462336395
+          },
+          "total_routed_wirelength": {
+            "unique_count": 99,
+            "min": 412062.0,
+            "max": 502974.0,
+            "spread_fraction": 0.20639303516132562
+          }
+        },
+        "hpwl_vs_routed_spearman": 0.9915121257534147
+      },
+      "mgc_pci_bridge32_2": {
+        "row_count": 100,
+        "source_counts": {
+          "random_perturbation": 100
+        },
+        "targets": {
+          "hpwl": {
+            "unique_count": 100,
+            "min": 341800.2450000054,
+            "max": 424068.8449999994,
+            "spread_fraction": 0.22333729039160596
+          },
+          "total_routed_wirelength": {
+            "unique_count": 99,
+            "min": 388842.0,
+            "max": 478200.0,
+            "spread_fraction": 0.2140153851669792
+          }
+        },
+        "hpwl_vs_routed_spearman": 0.9919381696359366
+      }
+    }
+  },
+  "mean_openroad_runtime_seconds": 12.800640503666607,
+  "final_train_loss": 19351001088.0,
+  "cross_design_mean_spearman": 0.3858668650075853,
+  "cross_design_min_spearman": 0.20755506753336006,
+  "same_design_mean_spearman": 0.9007518796992482,
+  "same_design_min_spearman": 0.8864661654135337,
+  "phase2_gate": {
+    "same_design_threshold": 0.8,
+    "same_design_status": "pass",
+    "cross_design_sanity_threshold": 0.0,
+    "cross_design_status": "pass",
+    "cross_design_stretch_threshold": 0.5,
+    "cross_design_stretch_status": "fail",
+    "phase3_foundation_ready": true
+  }
+}

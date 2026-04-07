@@ -41,6 +41,27 @@ def test_parse_openroad_metrics_extracts_routed_wirelength_timing_and_drc():
     assert metrics["drc_violations"] == 7
 
 
+def test_parse_openroad_metrics_tolerates_global_route_only_output():
+    metrics = parse_openroad_metrics(
+        """
+        tns max -10.0
+        wns max -0.4
+        [INFO GRT-0278] Global route wire length by layer:
+        Layer    Wire length  Percentage
+        --------------------------------
+        metal2  80.00um    50%
+        metal3  40.00um    50%
+        --------------------------------
+        Total wire length = 120 um.
+        """
+    )
+
+    assert metrics["total_routed_wirelength"] == 120.0
+    assert metrics["tns"] == -10.0
+    assert metrics["wns"] == -0.4
+    assert metrics["drc_violations"] == 0
+
+
 def test_build_openroad_script_changes_only_the_injection_section():
     built_in = build_openroad_script("design.lef", "design.def", placement_mode="built_in")
     injected = build_openroad_script(

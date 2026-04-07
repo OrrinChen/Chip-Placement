@@ -17,6 +17,7 @@ from chip.openroad_bridge import OpenROADBridge
 from chip.openroad_eval import build_evaluation_request
 from chip.openroad_eval import evaluate_openroad_request
 from chip.problem import ChipProblem
+from engine.analytical_solver import QuadraticPlacementSolver
 from engine.sa_solver import SimulatedAnnealingSolver
 
 
@@ -83,7 +84,6 @@ def run_single_benchmark_acceptance(benchmark_root: Path, benchmark: ISPDBenchma
         design_stats = {"node_count": len(graph.node_ids), "net_count": len(problem.nets)}
         artifact_dir = Path(prepared["artifact_dir"])
         seed_def_name = "seed_placed.def"
-        seed_def_path = artifact_dir / seed_def_name
         lef_paths = tuple(
             _relative_path(path, artifact_dir)
             for path in [prepared["tech_lef_path"], prepared["site_fix_lef_path"], prepared["cells_lef_path"]]
@@ -103,13 +103,17 @@ def run_single_benchmark_acceptance(benchmark_root: Path, benchmark: ISPDBenchma
         )
         bridge = OpenROADBridge(docker_image="openroad/orfs")
         built_in_metrics = evaluate_openroad_request(built_in_request, bridge=bridge)
-        _, seed_problem = load_chip_problem(prepared["cells_lef_path"], seed_def_path)
-        sa_placement, sa_summary = _run_sa_baseline(seed_problem, iterations=benchmark.sa_iterations)
-        injectable_placement, orientations = _select_injectable_instances(seed_problem, sa_placement)
+        sa_initial_placement = _build_sa_initial_placement(graph, problem)
+        sa_placement, sa_summary = _run_sa_baseline(
+            problem,
+            initial_placement=sa_initial_placement,
+            iterations=benchmark.sa_iterations,
+        )
+        injectable_placement, orientations = _select_injectable_instances(problem, sa_placement)
         legalized_def_path = legalize_placement(
             artifact_dir=artifact_dir,
             lef_paths=lef_paths,
-            def_path=seed_def_name,
+            def_path=_relative_path(prepared["def_path"], artifact_dir),
             placement=injectable_placement,
             orientations=orientations,
             bridge=bridge,
@@ -129,7 +133,7 @@ def run_single_benchmark_acceptance(benchmark_root: Path, benchmark: ISPDBenchma
                 artifact_dir=str(artifact_dir),
                 lef_path=lef_paths[0],
                 lef_paths=lef_paths,
-                def_path=seed_def_name,
+                def_path=_relative_path(prepared["def_path"], artifact_dir),
                 liberty_path=_relative_path(prepared["liberty_path"], artifact_dir),
                 sdc_path=_relative_path(prepared["sdc_path"], artifact_dir),
                 placement_mode="sa_injected",
@@ -156,9 +160,27 @@ def run_single_benchmark_acceptance(benchmark_root: Path, benchmark: ISPDBenchma
     )
 
 
-def _run_sa_baseline(problem, iterations: int) -> tuple[dict[str, tuple[float, float]], dict[str, float | bool]]:
-    constraints = build_constraint_registry(problem)
+def _build_sa_initial_placement(
+    graph,
+    problem: ChipProblem,
+) -> dict[str, tuple[float, float]]:
+    analytical_solution = QuadraticPlacementSolver().solve(graph)
     initial_placement = problem.placement()
+    snapped_placement, _ = _select_injectable_instances(problem, analytical_solution)
+    candidate_placement = dict(initial_placement)
+    candidate_placement.update(snapped_placement)
+    if build_constraint_registry(problem).check_all(candidate_placement).is_valid:
+        return candidate_placement
+    return initial_placement
+
+
+def _run_sa_baseline(
+    problem,
+    *,
+    initial_placement: dict[str, tuple[float, float]],
+    iterations: int,
+) -> tuple[dict[str, tuple[float, float]], dict[str, float | bool]]:
+    constraints = build_constraint_registry(problem)
     bounds = (
         problem.die_area.min_x,
         problem.die_area.max_x,
@@ -186,6 +208,7 @@ def _select_injectable_instances(
     problem: ChipProblem,
     placement: dict[str, tuple[float, float]],
     site_pitch: float = 0.2,
+    changed_only: bool = False,
 ) -> tuple[dict[str, tuple[float, float]], dict[str, str]]:
     injectable_placement: dict[str, tuple[float, float]] = {}
     orientations: dict[str, str] = {}
@@ -194,12 +217,38 @@ def _select_injectable_instances(
             continue
         if name not in placement:
             continue
-        target_x, _ = placement[name]
-        snapped_x = round(target_x / site_pitch) * site_pitch
-        clamped_x = min(max(snapped_x, problem.die_area.min_x), problem.die_area.max_x - macro.width)
-        injectable_placement[name] = (round(clamped_x, 6), macro.y)
-        orientations[name] = macro.orientation
+        target_x, target_y = placement[name]
+        snapped_x, snapped_y, orientation = problem.snap_movable_macro(
+            name,
+            target_x,
+            target_y,
+            default_site_pitch=site_pitch,
+        )
+        if changed_only and _same_injected_state(
+            macro=macro,
+            snapped_x=snapped_x,
+            snapped_y=snapped_y,
+            orientation=orientation,
+        ):
+            continue
+        injectable_placement[name] = (snapped_x, snapped_y)
+        orientations[name] = orientation
     return injectable_placement, orientations
+
+
+def _same_injected_state(
+    macro,
+    *,
+    snapped_x: float,
+    snapped_y: float,
+    orientation: str,
+    epsilon: float = 1e-9,
+) -> bool:
+    return (
+        abs(macro.x - snapped_x) <= epsilon
+        and abs(macro.y - snapped_y) <= epsilon
+        and macro.orientation == orientation
+    )
 
 
 def _relative_path(path: Path, artifact_dir: Path) -> str:
