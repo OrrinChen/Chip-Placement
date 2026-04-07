@@ -14,6 +14,7 @@ from engine.graph import ProblemGraph
 from engine.gnn_proxy import GNNProxy
 from engine.gnn_proxy import GraphBatch
 from engine.gnn_proxy import batch_graph_tensors
+from engine.ppo_policy import PPOPlacementPolicy
 
 try:
     from engine.rl_env import PlacementEnv
@@ -25,6 +26,7 @@ __all__ = [
     "DecisionEnv",
     "Evaluator",
     "ProblemGraph",
+    "PPOPlacementPolicy",
     "RLAdapter",
     "SearchStrategy",
     "SurrogateModel",
