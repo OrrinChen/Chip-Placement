@@ -663,3 +663,157 @@
   - fold-local base differs from full-data fit
   - fold A base differs from fold B base
   - `alpha = 0` base-only path skips graph loading
+
+## 2026-04-07 Phase 3 Foundation Start
+
+### Roadmap Alignment
+
+- Started directly from roadmap Phase 3 foundation scope:
+  - domain-agnostic RL env
+  - chip-specific adapter
+  - simple smoke agent harness
+- Did not start PPO or curriculum training yet.
+- This keeps the work aligned with the roadmap's first RL deliverable slice instead of jumping ahead into optimizer work.
+
+### New Foundation Files
+
+- `engine/rl_env.py`
+  - Gymnasium-style `reset/step/render`
+  - engine owns the episode loop, adapter owns domain semantics
+- `chip/rl_adapter.py`
+  - chip-specific state/action/reward bridge
+  - supports `analytic_hpwl`, `proxy`, `oracle`, and `proxy_with_legality_penalty`
+  - random action sampling snaps to placement rows
+- `chip/experiments/phase3_random_agent.py`
+  - smoke harness for running a short random-policy episode and collecting a trace
+
+### Tests
+
+- Added:
+  - `tests/engine/test_rl_env.py`
+  - `tests/chip/test_rl_adapter.py`
+  - `tests/chip/test_phase3_random_agent.py`
+- Focused verification:
+  - `pytest tests/engine/test_rl_env.py tests/chip/test_rl_adapter.py tests/chip/test_phase3_random_agent.py -q`
+  - result: `10 passed`
+- Wider verification:
+  - `pytest tests/engine tests/chip -q`
+  - result: `124 passed`
+
+### Current Phase 3 Status
+
+- Environment/action/reward loop now exists and is green.
+- Current reward/debug path is ready for:
+  - deterministic sanity baselines
+  - policy-loop integration
+  - later PPO training work
+- PPO, curriculum scheduling, and benchmark comparison are still open.
+
+## 2026-04-07 Phase 3 PPO Bring-Up
+
+### Implemented
+
+- `chip/rl_adapter.py`
+  - now exposes PPO-facing observations:
+    - `current_macro`
+    - `current_macro_index`
+    - `placed_count`
+    - `graph`
+    - `canvas`
+    - `action_mask`
+  - placement order is deterministic and fixed as `(-area, name)`
+  - graph nodes now expose `placed_flag` and `current_macro_flag`
+  - random action sampling respects the current action mask
+- `engine/ppo_policy.py`
+  - GraphSAGE-style graph trunk
+  - canvas CNN trunk
+  - FiLM conditioning from graph embeddings into canvas features
+  - masked policy logits with `float("-inf")`
+  - scalar value head
+- `chip/experiments/phase3_baselines.py`
+  - masked-random baseline
+  - greedy one-step analytic-HPWL baseline
+
+### Tests Added
+
+- `tests/engine/test_ppo_policy.py`
+- `tests/chip/test_phase3_baselines.py`
+- expanded `tests/chip/test_rl_adapter.py`
+
+### Verification
+
+- focused bring-up suite:
+  - `pytest tests/engine/test_rl_env.py tests/chip/test_rl_adapter.py tests/chip/test_phase3_random_agent.py tests/engine/test_ppo_policy.py tests/chip/test_phase3_baselines.py -q`
+  - result: `15 passed`
+- broader suite:
+  - `pytest tests/engine tests/chip -q`
+  - result: `129 passed`
+
+### Current Read
+
+- PPO-facing model inputs and masking path now exist.
+- Bring-up baselines exist and can be used as pre-training checkpoints.
+- The next open slice is the actual PPO rollout/update loop, not more state-space plumbing.
+
+## 2026-04-07 Phase 3 Search + Imitation Hybrid Start
+
+### Design Decision
+
+- Phase 3 will not treat PPO as the only serious optimization line.
+- Hybrid direction chosen:
+  - search as a first-class baseline
+  - imitation as a warm-start bridge
+  - PPO as the RL mainline
+- New design/spec files:
+  - `docs/superpowers/specs/2026-04-07-phase3-search-imitation-hybrid-design.md`
+  - `docs/superpowers/plans/2026-04-07-phase3-search-imitation-hybrid.md`
+
+### Implemented In This Slice
+
+- `chip/experiments/phase3_search.py`
+  - deterministic beam-search baseline over the same masked discrete action space
+  - trace-to-demonstration export helper
+- `chip/imitation.py`
+  - `DemonstrationStep` schema
+  - JSON save/load helpers
+  - demonstration-to-observation reconstruction helper
+- `chip/experiments/phase3_imitation.py`
+  - masked behavior-cloning cross-entropy loss
+- `chip/experiments/phase3_ppo.py`
+  - policy warm-start loader that tolerates a missing value head
+
+### Key Behavioral Guarantees
+
+- Beam search:
+  - emits zero invalid actions
+  - matches or beats greedy on the tiny shared benchmark
+- Demonstrations:
+  - round-trip through JSON without losing placement coordinates
+  - can reconstruct adapter observations from stored placement snapshots
+- Warm-start:
+  - policy branch can be initialized without requiring a BC-trained value head
+
+### Tests Added
+
+- `tests/chip/test_phase3_search.py`
+- `tests/chip/test_imitation.py`
+- `tests/chip/test_phase3_imitation.py`
+- `tests/chip/test_phase3_ppo.py`
+
+### Verification
+
+- targeted hybrid suite:
+  - `pytest tests/chip/test_phase3_search.py tests/chip/test_imitation.py tests/chip/test_phase3_imitation.py tests/chip/test_phase3_ppo.py -q`
+  - result: all green during TDD iterations
+- broader suite:
+  - `pytest tests/engine tests/chip -q`
+  - result: `136 passed`
+
+### Current Read
+
+- The search/imitation/PPO interface is now a real data path, not just a design idea.
+- The biggest remaining open slice is not schema or wiring anymore.
+- The next valuable step is one of:
+  - behavior-cloning trainer over search demonstrations
+  - PPO rollout/update loop with optional BC warm-start
+  - stronger search baseline such as wider beam or proxy-guided search
