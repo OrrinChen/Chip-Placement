@@ -43,7 +43,14 @@
     "hold_wns": 0.0275383,
     "hold_tns": 0,
     "macro_count": 132,
-    "stdcell_count": 187049
+    "stdcell_count": 187049,
+    "runtime_minutes": 70.77376602490743,
+    "routing_overhead_ratio": 1.0877002606861736,
+    "orfs_completion_mode": "fast",
+    "timing_gated": false,
+    "timing_gate_note": "WNS/TNS are reported but not gated; SKIP_CTS_REPAIR_TIMING=1 is enabled for fast, repeatable completion.",
+    "recommended_rl_reward_role": "offline_eval_only",
+    "reward_role_note": "ORFS completion wall time is too high for PPO inner-loop reward; use this path for offline final evaluation only."
   },
   "ariane_phase3_gate_status": {
     "legality_perf": {
@@ -66,10 +73,26 @@
       "evaluation_path": "orfs_completion",
       "generic_eval_status": "blocked_generic_eval",
       "artifact_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45_reference_orfs_completion.json",
-      "note": "ORFS completion succeeds with FLOORPLAN_DEF and SKIP_CTS_REPAIR_TIMING=1"
+      "note": "ORFS completion succeeds with FLOORPLAN_DEF and SKIP_CTS_REPAIR_TIMING=1",
+      "runtime_seconds": 4246.425961494446,
+      "runtime_minutes": 70.77376602490743,
+      "routing_overhead_ratio": 1.0877002606861736
     },
     "rl_bring_up": {
       "status": "not_started"
+    }
+  },
+  "reward_architecture": {
+    "orfs_terminal_reward": {
+      "status": "offline_eval_only",
+      "runtime_seconds": 4246.425961494446,
+      "runtime_minutes": 70.77376602490743,
+      "mode": "fast",
+      "note": "Ariane ORFS completion takes about 70.8 minutes, so it is unsuitable for PPO terminal reward during bring-up."
+    },
+    "ppo_training_reward": {
+      "status": "keep_proxy_plus_analytic_hpwl",
+      "note": "Use seed-completed proxy delta plus analytic HPWL delta and legality penalty for PPO bring-up; reserve ORFS for offline final eval."
     }
   }
 }

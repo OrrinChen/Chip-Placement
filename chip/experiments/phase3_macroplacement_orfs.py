@@ -120,6 +120,7 @@ def collect_reference_orfs_completion_metrics(
 
     combined_lef_path = materialize_combined_lef(spec, output_dir=paths.work_home / "artifacts")
     _, problem = load_chip_problem(combined_lef_path, paths.final_def_path)
+    final_hpwl = hpwl_cost(problem)
 
     measured_runtime_seconds = runtime_seconds
     runtime_source = "wall_clock"
@@ -140,17 +141,28 @@ def collect_reference_orfs_completion_metrics(
         "orfs_log_dir": str(paths.log_dir),
         "flow_variant": flow_variant,
         "skip_cts_repair_timing": skip_cts_repair_timing,
+        "orfs_completion_mode": "fast" if skip_cts_repair_timing else "full",
         "runtime_seconds": measured_runtime_seconds,
+        "runtime_minutes": measured_runtime_seconds / 60.0,
         "runtime_source": runtime_source,
-        "final_hpwl": hpwl_cost(problem),
+        "final_hpwl": final_hpwl,
         "estimated_wirelength_after_global_place": estimated_wirelength_after_global_place,
         "estimated_wirelength_after_cts": cts_metrics["cts__route__wirelength__estimated"],
         "total_routed_wirelength": route_metrics["detailedroute__route__wirelength"],
+        "routing_overhead_ratio": route_metrics["detailedroute__route__wirelength"] / final_hpwl,
         "drc_violations": route_metrics["detailedroute__route__drc_errors"],
         "wns": finish_metrics["finish__timing__setup__ws"],
         "tns": finish_metrics["finish__timing__setup__tns"],
         "hold_wns": finish_metrics["finish__timing__hold__ws"],
         "hold_tns": finish_metrics["finish__timing__hold__tns"],
+        "timing_gated": False,
+        "timing_gate_note": (
+            "WNS/TNS are reported but not gated; SKIP_CTS_REPAIR_TIMING=1 is enabled for fast, repeatable completion."
+        ),
+        "recommended_rl_reward_role": "offline_eval_only",
+        "reward_role_note": (
+            "ORFS completion wall time is too high for PPO inner-loop reward; use this path for offline final evaluation only."
+        ),
         "macro_count": finish_metrics["finish__design__instance__count__macros"],
         "stdcell_count": finish_metrics["finish__design__instance__count__stdcell"],
         "finish_warning_count": finish_metrics["finish__flow__warnings__count"],

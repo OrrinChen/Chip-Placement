@@ -76,6 +76,8 @@
     - via `ORFS completion`
     - with `FLOORPLAN_DEF`
     - and `SKIP_CTS_REPAIR_TIMING=1`
+    - `runtime_minutes ≈ 70.77`
+    - `routing_overhead_ratio ≈ 1.088`
   - `rl_bring_up = not_started`
 
 ### Pure Eval Status
@@ -108,12 +110,30 @@
   - `placement_source = ariane_reference_floorplan_orfs_completion`
   - `final_hpwl = 7126309.775001906`
   - `total_routed_wirelength = 7751289`
+  - `routing_overhead_ratio ≈ 1.088`
   - `drc_violations = 0`
   - `wns = -0.676384`
   - `tns = -1473.26`
   - `runtime_seconds = 4246.43` (`file_timestamps`)
+- ORFS completion mode is explicitly:
+  - `fast`
+  - because `SKIP_CTS_REPAIR_TIMING=1` is enabled
+- Timing interpretation:
+  - `WNS/TNS` are reported but **not gated**
+  - this is intentional for fast, repeatable macro-placement completion
+  - signoff-quality timing comparison is deferred until a later final-eval slice
+- Reward interpretation:
+  - Ariane ORFS completion is **offline eval only**
+  - `~70.8` minutes is far too slow for PPO terminal reward during bring-up
+  - PPO bring-up should continue using:
+    - `seed-completed proxy delta`
+    - `analytic HPWL delta`
+    - `legality penalty`
 - Interpretation:
   - Ariane now passes both the legality-performance gate and the reference-floorplan routability gate.
+  - The reference floorplan now acts as a credible ceiling baseline:
+    - clean routing (`DRC = 0`)
+    - low routing overhead (`~8.8%`)
   - The remaining work is benchmark harness integration and later RL bring-up, not more ORFS root-cause hunting.
 
 ### Next Entry Point

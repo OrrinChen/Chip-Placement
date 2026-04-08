@@ -96,8 +96,13 @@ def test_collect_reference_orfs_completion_metrics_parses_orfs_outputs(tmp_path:
     assert metrics["wns"] == -0.68
     assert metrics["tns"] == -1473.26
     assert metrics["runtime_seconds"] == 123.4
+    assert metrics["runtime_minutes"] == 123.4 / 60.0
     assert metrics["runtime_source"] == "wall_clock"
     assert metrics["skip_cts_repair_timing"] is True
+    assert metrics["orfs_completion_mode"] == "fast"
+    assert metrics["routing_overhead_ratio"] == 7751289 / 4884882.0
+    assert metrics["timing_gated"] is False
+    assert metrics["recommended_rl_reward_role"] == "offline_eval_only"
 
 
 def test_collect_reference_orfs_completion_metrics_allows_missing_global_place_wirelength(tmp_path: Path) -> None:
@@ -158,3 +163,4 @@ def test_collect_reference_orfs_completion_metrics_allows_missing_global_place_w
         orfs_module.hpwl_cost = original_hpwl
 
     assert metrics["estimated_wirelength_after_global_place"] is None
+    assert metrics["orfs_completion_mode"] == "fast"
