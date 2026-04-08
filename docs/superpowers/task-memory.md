@@ -1077,3 +1077,55 @@ Interpretation:
   - keep the current ladder fixed
   - extend the protocol with stronger per-update curve summaries and teacher-strength sweeps
   - avoid adding new reward/proxy complexity before this comparison surface is exhausted
+
+## 2026-04-07 Phase 3 Teacher-Strength Sweep + Closeout
+
+### Implemented
+
+- `chip/experiments/phase3_comparison.py`
+  - comparison harness now accepts `beam_width`
+- `chip/experiments/phase3_teacher_sweep.py`
+  - teacher-strength sweep runner over fixed beam-width schedules
+- closeout note:
+  - [2026-04-07-phase3-sample-efficiency-closeout.md](C:/Users/14574/Chip/.worktrees/phase3-foundation/docs/superpowers/specs/2026-04-07-phase3-sample-efficiency-closeout.md)
+
+### Canonical Artifacts
+
+- teacher-strength sweep summary:
+  - [summary.json](C:/Users/14574/Chip/.worktrees/phase3-foundation/experiments/chip/phase3_teacher_strength_sweep/summary.json)
+- full sweep reports:
+  - [small_teacher_sweep.json](C:/Users/14574/Chip/.worktrees/phase3-foundation/experiments/chip/phase3_teacher_strength_sweep/small_teacher_sweep.json)
+  - [medium_teacher_sweep.json](C:/Users/14574/Chip/.worktrees/phase3-foundation/experiments/chip/phase3_teacher_strength_sweep/medium_teacher_sweep.json)
+
+### Verification
+
+- focused:
+  - `pytest tests/chip/test_phase3_comparison.py tests/chip/test_phase3_teacher_sweep.py tests/chip/test_phase3_benchmarks.py tests/chip/test_phase3_ppo.py -q`
+  - result: `15 passed in 11.93s`
+- full:
+  - `pytest tests/engine tests/chip -q`
+  - result: `151 passed in 15.85s`
+
+### Teacher-Strength Result
+
+- `small`
+  - beam width changes do not change teacher quality on the current benchmark
+  - warm-start stays at teacher level
+  - scratch remains behind under the same `3`-update budget
+- `medium`
+  - `beam_width = 1` gives `beam = 78.5`
+  - `beam_width = 2` gives `beam = 72.5`
+  - `beam_width = 4` matches width `2` on the current benchmark
+  - warm-start matches the stronger teacher immediately
+  - scratch PPO remains behind with:
+    - gap to beam `= 24.1` at width `1`
+    - gap to beam `= 30.1` at width `2` and `4`
+
+### Current Read
+
+- The sample-efficiency result now survives a teacher-strength check on the current ladder.
+- On `medium`, stronger teachers widen the fixed-budget warm-start vs scratch gap rather than removing it.
+- The next useful work is still experimental tightening, not new module invention:
+  - plot-ready per-update artifacts
+  - broader teacher sweep only where teacher quality actually changes
+  - keep reward and proxy setup fixed while doing so
