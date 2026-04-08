@@ -47,8 +47,12 @@
 
 - Probe implementation is in:
   - [phase3_macroplacement_probe.py](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/chip/experiments/phase3_macroplacement_probe.py)
+- ORFS completion wrapper is in:
+  - [phase3_macroplacement_orfs.py](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/chip/experiments/phase3_macroplacement_orfs.py)
 - Canonical Ariane status artifact:
   - [ariane133_ng45_status.json](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/experiments/chip/phase3_macroplacement_probe/ariane133_ng45_status.json)
+- Canonical Ariane ORFS completion artifact:
+  - [ariane133_ng45_reference_orfs_completion.json](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/experiments/chip/phase3_macroplacement_probe/ariane133_ng45_reference_orfs_completion.json)
 - Key probe numbers on `ariane133_ng45` with `32x32` grid:
   - `movable_macro_count = 133`
   - `single_legality_check_seconds ≈ 0.000865`
@@ -58,6 +62,21 @@
   - The legality-performance gate is healthy on Ariane.
   - Unlike the earlier `mgc_*` full-design probe, Ariane does **not** immediately fail on action-mask cost.
   - Under the current implementation, Ariane no longer appears blocked by legality latency.
+
+### Ariane Gate Status
+
+- The current structured gate state in [ariane133_ng45_status.json](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/experiments/chip/phase3_macroplacement_probe/ariane133_ng45_status.json) is:
+  - `legality_perf = pass`
+    - measured `0.000865s`
+    - explicit gate `<= 0.01s`
+    - about `11.6x` headroom
+  - `action_mask_perf = pass`
+    - measured `0.2665s` on `32x32`
+  - `reference_def_routability = pass`
+    - via `ORFS completion`
+    - with `FLOORPLAN_DEF`
+    - and `SKIP_CTS_REPAIR_TIMING=1`
+  - `rl_bring_up = not_started`
 
 ### Pure Eval Status
 
@@ -73,14 +92,36 @@
     - `EST-0005 Run global_route before estimating parasitics for global routing`
 - Interpretation:
   - `ariane133_fp_placed_macros.def` is a macro-floorplan initialization artifact, not a complete routed-flow input for the current generic eval harness.
-  - Closing the Ariane pure-eval gap now requires integration with a full ORFS/Cadence-style completion flow, not more tweaking of the generic `phase1_acceptance`-style script.
+  - This generic path remains blocked and is now explicitly distinct from the ORFS completion path below.
+
+### ORFS Completion Status
+
+- Ariane reference floorplan is now proven routable through the narrow ORFS completion path.
+- The working ORFS path uses:
+  - built-in Ariane config from ORFS
+  - `FLOORPLAN_DEF=<ariane133_fp_placed_macros.def>`
+  - `CORE_UTILIZATION=` blanked to avoid conflicting floorplan generation
+  - `SKIP_CTS_REPAIR_TIMING=1` as a narrow CTS workaround
+- The canonical completion artifact is:
+  - [ariane133_ng45_reference_orfs_completion.json](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/experiments/chip/phase3_macroplacement_probe/ariane133_ng45_reference_orfs_completion.json)
+- Key completion metrics:
+  - `placement_source = ariane_reference_floorplan_orfs_completion`
+  - `final_hpwl = 7126309.775001906`
+  - `total_routed_wirelength = 7751289`
+  - `drc_violations = 0`
+  - `wns = -0.676384`
+  - `tns = -1473.26`
+  - `runtime_seconds = 4246.43` (`file_timestamps`)
+- Interpretation:
+  - Ariane now passes both the legality-performance gate and the reference-floorplan routability gate.
+  - The remaining work is benchmark harness integration and later RL bring-up, not more ORFS root-cause hunting.
 
 ### Next Entry Point
 
 - Keep `Ariane133-NanGate45` as the first macro-placement benchmark.
 - Next action is **not** more PPO work yet.
 - The next narrow step is:
-  - integrate Ariane reference floorplans into a full ORFS completion flow so the benchmark can emit `HPWL / routed WL / WNS / TNS / runtime` under a true macro-placement evaluation protocol
+  - package the proven Ariane ORFS completion path into the macro-placement harness so the benchmark can emit `HPWL / routed WL / WNS / TNS / runtime` under the canonical Phase 3 protocol
 - Only after that should the benchmark ladder expand to:
   - `BlackParrot`
   - `MemPoolGroup`

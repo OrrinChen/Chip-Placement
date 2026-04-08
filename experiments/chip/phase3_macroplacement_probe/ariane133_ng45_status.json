@@ -28,5 +28,48 @@
     "stderr_tail": "",
     "stdout_tail": "ef, created 1 library cells\n[INFO ODB-0227] LEF file: ../../../tmp/MacroPlacement/Enablements/NanGate45/lef/fakeram45_64x256.lef, created 1 library cells\n[INFO ODB-0227] LEF file: ../../../tmp/MacroPlacement/Enablements/NanGate45/lef/fakeram45_64x62.lef, created 1 library cells\n[INFO ODB-0227] LEF file: ../../../tmp/MacroPlacement/Enablements/NanGate45/lef/fakeram45_64x64.lef, created 1 library cells\n[INFO ODB-0227] LEF file: ../../../tmp/MacroPlacement/Enablements/NanGate45/lef/NangateOpenCellLibrary.macro.mod.lef, created 135 library cells\n[INFO ODB-0127] Reading DEF file: ../../../tmp/MacroPlacement/Flows/NanGate45/ariane133/def/ariane133_fp_placed_macros.def\n[INFO ODB-0128] Design: ariane\n[INFO ODB-0130]     Created 495 pins.\n[INFO ODB-0131]     Created 133 components and 8113 component-terminals.\n[INFO ODB-0132]     Created 2 special nets and 266 connections.\n[INFO ODB-0134] Finished DEF file: ../../../tmp/MacroPlacement/Flows/NanGate45/ariane133/def/ariane133_fp_placed_macros.def\n[WARNING ORD-2002] Liberty cell LOGIC0_X1 pin Z missing from LEF macro.\n[WARNING ORD-2002] Liberty cell LOGIC1_X1 pin Z missing from LEF macro.\n[INFO DPL-0005] Max displacement: +/- 500 sites horizontally, +/- 100 rows vertically.\nMovements Summary\n---------------------------------------\nTotal cells:                       0\nDiamond Move Success:              0 (  0.00%)\nDiamond Move Failure:              0\nRip-up and replace Success:        0 (  0.00% of diamond failures)\nRip-up and replace Failure:        0\nTotal Placement Failures:          0\n---------------------------------------\nPlacement Analysis\n---------------------------------\ntotal displacement          0.0 u\naverage displacement        0.0 u\nmax displacement            0.0 u\noriginal HPWL               0.0 u\nlegalized HPWL              0.0 u\ndelta HPWL                    0 %\n\n[ERROR EST-0005] Run global_route before estimating parasitics for global routing.\nError: .ariane133_ng45_reference_eval_acceptance.tcl, 155 EST-0005\n"
   },
-  "variant": "ariane133"
+  "variant": "ariane133",
+  "reference_orfs_completion": {
+    "status": "pass",
+    "artifact_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45_reference_orfs_completion.json",
+    "placement_source": "ariane_reference_floorplan_orfs_completion",
+    "skip_cts_repair_timing": true,
+    "runtime_seconds": 4246.425961494446,
+    "final_hpwl": 7126309.775001906,
+    "total_routed_wirelength": 7751289,
+    "drc_violations": 0,
+    "wns": -0.676384,
+    "tns": -1473.26,
+    "hold_wns": 0.0275383,
+    "hold_tns": 0,
+    "macro_count": 132,
+    "stdcell_count": 187049
+  },
+  "ariane_phase3_gate_status": {
+    "legality_perf": {
+      "status": "pass",
+      "measured_seconds": 0.0008653000040794723,
+      "gate_seconds": 0.01,
+      "headroom_factor": 11.556685488102186
+    },
+    "action_mask_perf": {
+      "status": "pass",
+      "measured_seconds": 0.2665268999990076,
+      "grid_shape": [
+        32,
+        32
+      ],
+      "note": "32x32 action mask completes well under timeout on Ariane"
+    },
+    "reference_def_routability": {
+      "status": "pass",
+      "evaluation_path": "orfs_completion",
+      "generic_eval_status": "blocked_generic_eval",
+      "artifact_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45_reference_orfs_completion.json",
+      "note": "ORFS completion succeeds with FLOORPLAN_DEF and SKIP_CTS_REPAIR_TIMING=1"
+    },
+    "rl_bring_up": {
+      "status": "not_started"
+    }
+  }
 }
