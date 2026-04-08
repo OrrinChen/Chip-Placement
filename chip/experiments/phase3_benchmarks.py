@@ -11,6 +11,7 @@ from chip.problem import PlacementRow
 
 
 def build_phase3_benchmark_ladder() -> list[dict[str, object]]:
+    sample_paths = sample_artifact_paths()
     ladder = [
         {
             "name": "tiny",
@@ -21,6 +22,7 @@ def build_phase3_benchmark_ladder() -> list[dict[str, object]]:
             "name": "small",
             "problem": load_sample_problem(),
             "grid_shape": (6, 6),
+            "artifact_paths": sample_paths,
         },
         {
             "name": "medium",
@@ -54,11 +56,19 @@ def build_tiny_problem() -> ChipProblem:
 
 
 def load_sample_problem() -> ChipProblem:
+    paths = sample_artifact_paths()
+    _, problem = load_chip_problem(paths["lef_path"], paths["def_path"])
+    return problem
+
+
+def sample_artifact_paths() -> dict[str, Path]:
     root = Path(__file__).resolve().parents[2]
     lef_path = root / "chip" / "benchmarks" / "sample.lef"
     def_path = root / "chip" / "benchmarks" / "sample.def"
-    _, problem = load_chip_problem(lef_path, def_path)
-    return problem
+    return {
+        "lef_path": lef_path,
+        "def_path": def_path,
+    }
 
 
 def build_medium_problem() -> ChipProblem:

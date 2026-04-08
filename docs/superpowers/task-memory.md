@@ -1167,3 +1167,50 @@ Interpretation:
   - current mainline PPO comparisons still center on the ladder/sample-efficiency surface rather than a full `RL vs SA vs analytical vs OpenROAD` table
   - routed/timing/runtime metrics are not yet unified across `3+` real chip benchmarks
   - the current production reward path is broader than pure roadmap wording because the project is using the validated production proxy/reward stack rather than claiming a stronger GNN-proxy RL result than currently exists
+
+## 2026-04-07 Phase 3 Roadmap Eval Harness
+
+### Implemented
+
+- `chip/experiments/phase3_benchmarks.py`
+  - `small` ladder row now exposes sample artifact paths
+- `chip/experiments/phase3_roadmap_eval.py`
+  - unified roadmap-facing evaluation harness over the current ladder
+  - includes method rows for:
+    - `random`
+    - `greedy`
+    - `beam`
+    - `behavior_cloning`
+    - `ppo_scratch`
+    - `ppo_warm_start`
+    - `analytical`
+    - `sa`
+    - `openroad_default`
+- canonical artifact:
+  - [phase3_roadmap_eval.json](C:/Users/14574/Chip/.worktrees/phase3-foundation/experiments/chip/phase3_roadmap_eval.json)
+
+### Tests
+
+- added:
+  - `tests/chip/test_phase3_roadmap_eval.py`
+- expanded:
+  - `tests/chip/test_phase3_benchmarks.py`
+
+### Verification
+
+- focused:
+  - `pytest tests/chip/test_phase3_roadmap_eval.py -q`
+  - result: `2 passed`
+- full:
+  - `pytest tests/engine tests/chip -q`
+  - result: `157 passed in 36.71s`
+
+### Current Read
+
+- The roadmap-facing eval harness now makes the missing Phase 3 pieces explicit in one table-shaped artifact instead of scattered notes.
+- `analytical` and `sa` are now in the Phase 3 evaluation surface for all three current ladder benchmarks.
+- `openroad_default` is present only for the sample-backed `small` benchmark and is currently marked:
+  - `unsupported_missing_timing_artifacts`
+- This improves roadmap alignment, but it still does not justify marking roadmap Phase 3 fully complete.
+- The remaining hard gap is now very concrete:
+  - extend the final table from the current `tiny/small/medium` ladder to `3+` real chip benchmarks with unified routed/timing/runtime metrics
