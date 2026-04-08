@@ -186,6 +186,8 @@ def run_single_ppo_update(
         "value_loss": float(value_loss.item()),
         "entropy": float(entropy.item()),
         "steps": float(len(transitions)),
+        "final_hpwl": float(rollout["final_hpwl"]),
+        "invalid_action_count": float(rollout["invalid_action_count"]),
     }
 
 
@@ -205,21 +207,28 @@ def train_ppo_policy(
     seed: int = 0,
 ) -> dict[str, object]:
     history: list[dict[str, float]] = []
+    best_hpwl_so_far: float | None = None
     for update_index in range(max(1, num_updates)):
+        update_metrics = run_single_ppo_update(
+            problem=problem,
+            policy=policy,
+            grid_shape=grid_shape,
+            reward_source=reward_source,
+            max_steps=max_steps,
+            learning_rate=learning_rate,
+            clip_epsilon=clip_epsilon,
+            gamma=gamma,
+            entropy_coef=entropy_coef,
+            value_coef=value_coef,
+            seed=seed + update_index,
+        )
+        current_hpwl = float(update_metrics["final_hpwl"])
+        best_hpwl_so_far = current_hpwl if best_hpwl_so_far is None else min(best_hpwl_so_far, current_hpwl)
         history.append(
-            run_single_ppo_update(
-                problem=problem,
-                policy=policy,
-                grid_shape=grid_shape,
-                reward_source=reward_source,
-                max_steps=max_steps,
-                learning_rate=learning_rate,
-                clip_epsilon=clip_epsilon,
-                gamma=gamma,
-                entropy_coef=entropy_coef,
-                value_coef=value_coef,
-                seed=seed + update_index,
-            )
+            {
+                **update_metrics,
+                "best_hpwl_so_far": float(best_hpwl_so_far),
+            }
         )
 
     final_rollout = collect_policy_rollout(

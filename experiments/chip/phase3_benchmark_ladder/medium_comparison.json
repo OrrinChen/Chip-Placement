@@ -1,0 +1,677 @@
+{
+  "seed_count": 5,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "methods": {
+    "random": {
+      "final_hpwl": 118.3,
+      "final_hpwl_std": 9.521554494934112,
+      "invalid_action_count": 0.0,
+      "invalid_action_count_std": 0.0,
+      "steps": 8.0,
+      "steps_std": 0.0,
+      "per_seed": [
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 119.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 104.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 134.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 114.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 119.0
+        }
+      ],
+      "aggregate": {
+        "final_hpwl": 118.3,
+        "final_hpwl_std": 9.521554494934112,
+        "invalid_action_count": 0.0,
+        "invalid_action_count_std": 0.0,
+        "steps": 8.0,
+        "steps_std": 0.0
+      }
+    },
+    "greedy": {
+      "final_hpwl": 78.5,
+      "final_hpwl_std": 0.0,
+      "invalid_action_count": 0.0,
+      "invalid_action_count_std": 0.0,
+      "steps": 8.0,
+      "steps_std": 0.0,
+      "per_seed": [
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 78.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 78.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 78.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 78.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 78.5
+        }
+      ],
+      "aggregate": {
+        "final_hpwl": 78.5,
+        "final_hpwl_std": 0.0,
+        "invalid_action_count": 0.0,
+        "invalid_action_count_std": 0.0,
+        "steps": 8.0,
+        "steps_std": 0.0
+      }
+    },
+    "beam": {
+      "final_hpwl": 72.5,
+      "final_hpwl_std": 0.0,
+      "invalid_action_count": 0.0,
+      "invalid_action_count_std": 0.0,
+      "steps": 8.0,
+      "steps_std": 0.0,
+      "per_seed": [
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5
+        }
+      ],
+      "aggregate": {
+        "final_hpwl": 72.5,
+        "final_hpwl_std": 0.0,
+        "invalid_action_count": 0.0,
+        "invalid_action_count_std": 0.0,
+        "steps": 8.0,
+        "steps_std": 0.0
+      }
+    },
+    "behavior_cloning": {
+      "final_hpwl": 72.5,
+      "final_hpwl_std": 0.0,
+      "invalid_action_count": 0.0,
+      "invalid_action_count_std": 0.0,
+      "masked_accuracy": 1.0,
+      "masked_accuracy_std": 0.0,
+      "steps": 8.0,
+      "steps_std": 0.0,
+      "per_seed": [
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5,
+          "masked_accuracy": 1.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5,
+          "masked_accuracy": 1.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5,
+          "masked_accuracy": 1.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5,
+          "masked_accuracy": 1.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5,
+          "masked_accuracy": 1.0
+        }
+      ],
+      "aggregate": {
+        "final_hpwl": 72.5,
+        "final_hpwl_std": 0.0,
+        "invalid_action_count": 0.0,
+        "invalid_action_count_std": 0.0,
+        "masked_accuracy": 1.0,
+        "masked_accuracy_std": 0.0,
+        "steps": 8.0,
+        "steps_std": 0.0
+      }
+    },
+    "ppo_scratch": {
+      "entropy": 3.9856478691101076,
+      "entropy_std": 0.011288517587871492,
+      "final_hpwl": 102.6,
+      "final_hpwl_std": 19.071968959706282,
+      "invalid_action_count": 0.0,
+      "invalid_action_count_std": 0.0,
+      "policy_loss": 22.74209499359131,
+      "policy_loss_std": 5.3088120816458195,
+      "steps": 8.0,
+      "steps_std": 0.0,
+      "update_count": 3.0,
+      "update_count_std": 0.0,
+      "updates_to_bc_level": 4.0,
+      "updates_to_bc_level_std": 0.0,
+      "updates_to_beam_level": 4.0,
+      "updates_to_beam_level_std": 0.0,
+      "value_loss": 739.3704040527343,
+      "value_loss_std": 332.6543565791177,
+      "per_seed": [
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 92.0,
+          "update_count": 3.0,
+          "policy_loss": 19.464059829711914,
+          "value_loss": 507.19012451171875,
+          "entropy": 3.9757120609283447,
+          "curve": [
+            {
+              "policy_loss": 5.300240993499756,
+              "value_loss": 52.85755157470703,
+              "entropy": 3.9808242321014404,
+              "steps": 8.0,
+              "final_hpwl": 91.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 91.5
+            },
+            {
+              "policy_loss": 35.24812698364258,
+              "value_loss": 1526.1363525390625,
+              "entropy": 4.010809898376465,
+              "steps": 8.0,
+              "final_hpwl": 137.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 91.5
+            },
+            {
+              "policy_loss": 19.464059829711914,
+              "value_loss": 507.19012451171875,
+              "entropy": 3.9757120609283447,
+              "steps": 8.0,
+              "final_hpwl": 116.0,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 91.5
+            }
+          ],
+          "updates_to_beam_level": 4.0,
+          "updates_to_bc_level": 4.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 91.5,
+          "update_count": 3.0,
+          "policy_loss": 26.602428436279297,
+          "value_loss": 1202.483642578125,
+          "entropy": 3.984713315963745,
+          "curve": [
+            {
+              "policy_loss": 35.250370025634766,
+              "value_loss": 1529.0892333984375,
+              "entropy": 4.010807037353516,
+              "steps": 8.0,
+              "final_hpwl": 137.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 137.5
+            },
+            {
+              "policy_loss": 19.455678939819336,
+              "value_loss": 507.76080322265625,
+              "entropy": 3.975719451904297,
+              "steps": 8.0,
+              "final_hpwl": 116.0,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 116.0
+            },
+            {
+              "policy_loss": 26.602428436279297,
+              "value_loss": 1202.483642578125,
+              "entropy": 3.984713315963745,
+              "steps": 8.0,
+              "final_hpwl": 141.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 116.0
+            }
+          ],
+          "updates_to_beam_level": 4.0,
+          "updates_to_bc_level": 4.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 131.5,
+          "update_count": 3.0,
+          "policy_loss": 23.71134376525879,
+          "value_loss": 654.9384155273438,
+          "entropy": 4.007248401641846,
+          "curve": [
+            {
+              "policy_loss": 19.454065322875977,
+              "value_loss": 507.85382080078125,
+              "entropy": 3.9757044315338135,
+              "steps": 8.0,
+              "final_hpwl": 116.0,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 116.0
+            },
+            {
+              "policy_loss": 26.612382888793945,
+              "value_loss": 1201.8101806640625,
+              "entropy": 3.98470401763916,
+              "steps": 8.0,
+              "final_hpwl": 141.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 116.0
+            },
+            {
+              "policy_loss": 23.71134376525879,
+              "value_loss": 654.9384155273438,
+              "entropy": 4.007248401641846,
+              "steps": 8.0,
+              "final_hpwl": 120.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 116.0
+            }
+          ],
+          "updates_to_beam_level": 4.0,
+          "updates_to_bc_level": 4.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 118.0,
+          "update_count": 3.0,
+          "policy_loss": 29.487180709838867,
+          "value_loss": 1031.53271484375,
+          "entropy": 3.977693557739258,
+          "curve": [
+            {
+              "policy_loss": 26.422672271728516,
+              "value_loss": 1190.267822265625,
+              "entropy": 3.984713077545166,
+              "steps": 8.0,
+              "final_hpwl": 141.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 141.5
+            },
+            {
+              "policy_loss": 23.517759323120117,
+              "value_loss": 645.1510009765625,
+              "entropy": 4.007266998291016,
+              "steps": 8.0,
+              "final_hpwl": 120.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 120.5
+            },
+            {
+              "policy_loss": 29.487180709838867,
+              "value_loss": 1031.53271484375,
+              "entropy": 3.977693557739258,
+              "steps": 8.0,
+              "final_hpwl": 135.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 120.5
+            }
+          ],
+          "updates_to_beam_level": 4.0,
+          "updates_to_bc_level": 4.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 80.0,
+          "update_count": 3.0,
+          "policy_loss": 14.445462226867676,
+          "value_loss": 300.7071228027344,
+          "entropy": 3.9828720092773438,
+          "curve": [
+            {
+              "policy_loss": 23.54789161682129,
+              "value_loss": 647.8253784179688,
+              "entropy": 4.007265567779541,
+              "steps": 8.0,
+              "final_hpwl": 120.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 120.5
+            },
+            {
+              "policy_loss": 29.48793601989746,
+              "value_loss": 1033.124267578125,
+              "entropy": 3.9776930809020996,
+              "steps": 8.0,
+              "final_hpwl": 135.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 120.5
+            },
+            {
+              "policy_loss": 14.445462226867676,
+              "value_loss": 300.7071228027344,
+              "entropy": 3.9828720092773438,
+              "steps": 8.0,
+              "final_hpwl": 114.0,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 114.0
+            }
+          ],
+          "updates_to_beam_level": 4.0,
+          "updates_to_bc_level": 4.0
+        }
+      ],
+      "aggregate": {
+        "entropy": 3.9856478691101076,
+        "entropy_std": 0.011288517587871492,
+        "final_hpwl": 102.6,
+        "final_hpwl_std": 19.071968959706282,
+        "invalid_action_count": 0.0,
+        "invalid_action_count_std": 0.0,
+        "policy_loss": 22.74209499359131,
+        "policy_loss_std": 5.3088120816458195,
+        "steps": 8.0,
+        "steps_std": 0.0,
+        "update_count": 3.0,
+        "update_count_std": 0.0,
+        "updates_to_bc_level": 4.0,
+        "updates_to_bc_level_std": 0.0,
+        "updates_to_beam_level": 4.0,
+        "updates_to_beam_level_std": 0.0,
+        "value_loss": 739.3704040527343,
+        "value_loss_std": 332.6543565791177
+      }
+    },
+    "ppo_warm_start": {
+      "entropy": 0.018793754774014813,
+      "entropy_std": 0.036222224084340615,
+      "final_hpwl": 72.5,
+      "final_hpwl_std": 0.0,
+      "invalid_action_count": 0.0,
+      "invalid_action_count_std": 0.0,
+      "policy_loss": -1.4558425903320313,
+      "policy_loss_std": 2.0403597995738716,
+      "steps": 8.0,
+      "steps_std": 0.0,
+      "update_count": 3.0,
+      "update_count_std": 0.0,
+      "updates_to_bc_level": 1.0,
+      "updates_to_bc_level_std": 0.0,
+      "updates_to_beam_level": 1.0,
+      "updates_to_beam_level_std": 0.0,
+      "value_loss": 25.928219985961913,
+      "value_loss_std": 13.854179900754717,
+      "per_seed": [
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5,
+          "update_count": 3.0,
+          "policy_loss": -3.840893268585205,
+          "value_loss": 38.81664276123047,
+          "entropy": 0.0009231941075995564,
+          "curve": [
+            {
+              "policy_loss": -13.002969741821289,
+              "value_loss": 197.6998748779297,
+              "entropy": 6.14098462392576e-06,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            },
+            {
+              "policy_loss": -8.209489822387695,
+              "value_loss": 92.72543334960938,
+              "entropy": 4.773911496158689e-05,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            },
+            {
+              "policy_loss": -3.840893268585205,
+              "value_loss": 38.81664276123047,
+              "entropy": 0.0009231941075995564,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            }
+          ],
+          "updates_to_beam_level": 1.0,
+          "updates_to_bc_level": 1.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5,
+          "update_count": 3.0,
+          "policy_loss": 1.783506989479065,
+          "value_loss": 13.110712051391602,
+          "entropy": 0.09122740477323532,
+          "curve": [
+            {
+              "policy_loss": -11.810323715209961,
+              "value_loss": 146.68218994140625,
+              "entropy": 6.14098462392576e-06,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            },
+            {
+              "policy_loss": -7.556184768676758,
+              "value_loss": 62.709327697753906,
+              "entropy": 0.00016161330859176815,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            },
+            {
+              "policy_loss": 1.783506989479065,
+              "value_loss": 13.110712051391602,
+              "entropy": 0.09122740477323532,
+              "steps": 8.0,
+              "final_hpwl": 78.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            }
+          ],
+          "updates_to_beam_level": 1.0,
+          "updates_to_bc_level": 1.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5,
+          "update_count": 3.0,
+          "policy_loss": -0.7642679214477539,
+          "value_loss": 15.822677612304688,
+          "entropy": 1.3808441508444957e-05,
+          "curve": [
+            {
+              "policy_loss": -1.3451299667358398,
+              "value_loss": 17.722000122070312,
+              "entropy": 6.14098462392576e-06,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            },
+            {
+              "policy_loss": 0.31332144141197205,
+              "value_loss": 15.869574546813965,
+              "entropy": 8.64102621562779e-05,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            },
+            {
+              "policy_loss": -0.7642679214477539,
+              "value_loss": 15.822677612304688,
+              "entropy": 1.3808441508444957e-05,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            }
+          ],
+          "updates_to_beam_level": 1.0,
+          "updates_to_bc_level": 1.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5,
+          "update_count": 3.0,
+          "policy_loss": -1.0121549367904663,
+          "value_loss": 15.504959106445312,
+          "entropy": 7.939788338262588e-05,
+          "curve": [
+            {
+              "policy_loss": 5.769817352294922,
+              "value_loss": 47.852516174316406,
+              "entropy": 6.14098462392576e-06,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            },
+            {
+              "policy_loss": 2.2115631103515625,
+              "value_loss": 19.51788330078125,
+              "entropy": 1.830029214033857e-05,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            },
+            {
+              "policy_loss": -1.0121549367904663,
+              "value_loss": 15.504959106445312,
+              "entropy": 7.939788338262588e-05,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            }
+          ],
+          "updates_to_beam_level": 1.0,
+          "updates_to_bc_level": 1.0
+        },
+        {
+          "steps": 8.0,
+          "invalid_action_count": 0.0,
+          "final_hpwl": 72.5,
+          "update_count": 3.0,
+          "policy_loss": -3.445403814315796,
+          "value_loss": 46.3861083984375,
+          "entropy": 0.0017249686643481255,
+          "curve": [
+            {
+              "policy_loss": -10.33678913116455,
+              "value_loss": 145.42977905273438,
+              "entropy": 6.14098462392576e-06,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            },
+            {
+              "policy_loss": -6.74799919128418,
+              "value_loss": 81.9688491821289,
+              "entropy": 5.009697997593321e-05,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            },
+            {
+              "policy_loss": -3.445403814315796,
+              "value_loss": 46.3861083984375,
+              "entropy": 0.0017249686643481255,
+              "steps": 8.0,
+              "final_hpwl": 72.5,
+              "invalid_action_count": 0.0,
+              "best_hpwl_so_far": 72.5
+            }
+          ],
+          "updates_to_beam_level": 1.0,
+          "updates_to_bc_level": 1.0
+        }
+      ],
+      "aggregate": {
+        "entropy": 0.018793754774014813,
+        "entropy_std": 0.036222224084340615,
+        "final_hpwl": 72.5,
+        "final_hpwl_std": 0.0,
+        "invalid_action_count": 0.0,
+        "invalid_action_count_std": 0.0,
+        "policy_loss": -1.4558425903320313,
+        "policy_loss_std": 2.0403597995738716,
+        "steps": 8.0,
+        "steps_std": 0.0,
+        "update_count": 3.0,
+        "update_count_std": 0.0,
+        "updates_to_bc_level": 1.0,
+        "updates_to_bc_level_std": 0.0,
+        "updates_to_beam_level": 1.0,
+        "updates_to_beam_level_std": 0.0,
+        "value_loss": 25.928219985961913,
+        "value_loss_std": 13.854179900754717
+      }
+    }
+  }
+}

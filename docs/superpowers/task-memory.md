@@ -933,3 +933,147 @@ Interpretation:
     - warm-start `value_loss ≈ 2.30`
 - This means the next useful benchmark is no longer the one-step toy.
 - The next useful benchmark is a less trivial problem where sample-efficiency differences have room to show up.
+
+### Current Stable Checkpoint
+
+- Latest stable Phase 3 comparison checkpoint:
+  - commit `183e51c`
+  - message: `feat: add phase3 comparison harness`
+- Last broad verification at this checkpoint:
+  - `pytest tests/engine tests/chip -q`
+  - result: `145 passed`
+
+### Next Recommended Slice
+
+- Stop using the tiny one-macro benchmark as the main decision surface.
+- Move the comparison harness to a less trivial chip problem where:
+  - PPO from scratch does not trivially catch up in three updates
+  - BC warm-start can show a real sample-efficiency gap if it exists
+- Keep the same comparison row:
+  - `random`
+  - `greedy`
+  - `beam`
+  - `behavior_cloning`
+  - `ppo_scratch`
+  - `ppo_warm_start`
+
+## 2026-04-07 Phase 3 Benchmark Ladder + Sample-Efficiency Protocol
+
+### Implemented
+
+- `chip/experiments/phase3_benchmarks.py`
+  - deterministic benchmark ladder with:
+    - `tiny`
+    - `small`
+    - `medium`
+  - each row now carries:
+    - `problem`
+    - `grid_shape`
+    - `movable_macro_count`
+    - `node_count`
+    - `net_count`
+- `chip/experiments/phase3_ppo.py`
+  - per-update PPO history now records:
+    - `final_hpwl`
+    - `best_hpwl_so_far`
+    - `invalid_action_count`
+- `chip/experiments/phase3_comparison.py`
+  - comparison harness now supports:
+    - repeated `seeds`
+    - per-seed rows
+    - aggregate metrics
+    - PPO training curves
+    - `updates_to_beam_level`
+    - `updates_to_bc_level`
+- planning note:
+  - `docs/superpowers/plans/2026-04-07-phase3-benchmark-ladder.md`
+
+### Canonical Artifacts
+
+- benchmark ladder summary:
+  - [summary.json](C:/Users/14574/Chip/.worktrees/phase3-foundation/experiments/chip/phase3_benchmark_ladder/summary.json)
+- full comparison reports:
+  - [tiny_comparison.json](C:/Users/14574/Chip/.worktrees/phase3-foundation/experiments/chip/phase3_benchmark_ladder/tiny_comparison.json)
+  - [small_comparison.json](C:/Users/14574/Chip/.worktrees/phase3-foundation/experiments/chip/phase3_benchmark_ladder/small_comparison.json)
+  - [medium_comparison.json](C:/Users/14574/Chip/.worktrees/phase3-foundation/experiments/chip/phase3_benchmark_ladder/medium_comparison.json)
+
+### Verification
+
+- full suite:
+  - `pytest tests/engine tests/chip -q`
+  - result: `148 passed in 11.28s`
+
+### Benchmark Ladder Results
+
+- all three ladder benchmarks were run with:
+  - `5` seeds
+  - `3` PPO updates
+  - the same six-way comparison row:
+    - `random`
+    - `greedy`
+    - `beam`
+    - `behavior_cloning`
+    - `ppo_scratch`
+    - `ppo_warm_start`
+
+#### Tiny
+
+- `beam = 2.0`
+- `behavior_cloning = 2.0`
+- `ppo_warm_start = 2.0`
+- `ppo_scratch = 4.0`
+- mean updates to beam level:
+  - `ppo_warm_start = 1.0`
+  - `ppo_scratch = 2.2`
+
+Interpretation:
+
+- the tiny ladder row still separates warm-start from scratch on sample efficiency
+- but the task remains too easy to serve as the main experimental surface
+
+#### Small
+
+- `beam = 56.6`
+- `behavior_cloning = 56.6`
+- `ppo_warm_start = 56.6`
+- `ppo_scratch = 79.92`
+- mean updates to beam level:
+  - `ppo_warm_start = 1.0`
+  - `ppo_scratch = 4.0`
+
+Interpretation:
+
+- the `small` ladder row is the first non-trivial benchmark where warm-start clearly matters
+- under a fixed `3`-update budget, warm-start reaches the teacher immediately
+- scratch PPO does not reach the beam/BC level within the same budget
+
+#### Medium
+
+- `greedy = 78.5`
+- `beam = 72.5`
+- `behavior_cloning = 72.5`
+- `ppo_warm_start = 72.5`
+- `ppo_scratch = 102.6`
+- mean updates to beam level:
+  - `ppo_warm_start = 1.0`
+  - `ppo_scratch = 4.0`
+
+Interpretation:
+
+- the `medium` ladder row preserves the same pattern as `small`
+- beam remains a meaningfully stronger teacher than greedy
+- warm-start still reaches the teacher in one update
+- scratch PPO remains materially behind after three updates
+
+### Current Read
+
+- Phase 3 has now moved from "functional bring-up" to an experimentally meaningful ladder.
+- The key evidence is not just final HPWL, but fixed-budget sample efficiency:
+  - warm-start reaches beam/BC immediately on `small` and `medium`
+  - scratch PPO does not catch up within `3` updates
+- `value_loss` is still useful for debugging, but it is not the main success metric for this phase.
+  - the robust metric is `updates_to_beam_level` under repeated seeds.
+- The next valuable slice is:
+  - keep the current ladder fixed
+  - extend the protocol with stronger per-update curve summaries and teacher-strength sweeps
+  - avoid adding new reward/proxy complexity before this comparison surface is exhausted

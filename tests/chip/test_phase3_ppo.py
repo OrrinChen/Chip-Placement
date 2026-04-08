@@ -149,5 +149,8 @@ def test_train_ppo_policy_records_multi_update_history():
     )
 
     assert len(result["history"]) == 3
+    assert "final_hpwl" in result["history"][0]
+    assert "best_hpwl_so_far" in result["history"][0]
+    assert "invalid_action_count" in result["history"][0]
     assert result["final_rollout"]["invalid_action_count"] == 0
     assert all(torch.isfinite(torch.tensor(item["policy_loss"])) for item in result["history"])

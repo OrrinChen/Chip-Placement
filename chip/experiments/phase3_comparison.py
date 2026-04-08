@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
+from statistics import mean
+from statistics import pstdev
 
 from chip.experiments.phase3_baselines import run_greedy_hpwl_baseline
 from chip.experiments.phase3_baselines import run_masked_random_baseline
@@ -24,6 +26,55 @@ def run_phase3_comparison(
     ppo_epochs: int = 1,
     reward_source: str = "analytic_hpwl",
     seed: int = 0,
+    seeds: tuple[int, ...] | None = None,
+) -> dict[str, object]:
+    seed_values = tuple(seeds) if seeds is not None else (seed,)
+    per_seed_reports = [
+        _run_phase3_comparison_single_seed(
+            problem=problem,
+            grid_shape=grid_shape,
+            hidden_dim=hidden_dim,
+            bc_epochs=bc_epochs,
+            ppo_epochs=ppo_epochs,
+            reward_source=reward_source,
+            seed=current_seed,
+        )
+        for current_seed in seed_values
+    ]
+    methods = {}
+    method_names = per_seed_reports[0]["methods"].keys()
+    for method_name in method_names:
+        rows = [report["methods"][method_name] for report in per_seed_reports]
+        aggregate = _aggregate_method_rows(rows)
+        methods[method_name] = (
+            {
+                **rows[0],
+                "per_seed": rows,
+                "aggregate": aggregate,
+            }
+            if len(rows) == 1
+            else {
+                **aggregate,
+                "per_seed": rows,
+                "aggregate": aggregate,
+            }
+        )
+    return {
+        "seed_count": len(seed_values),
+        "seeds": list(seed_values),
+        "methods": methods,
+    }
+
+
+def _run_phase3_comparison_single_seed(
+    *,
+    problem: ChipProblem,
+    grid_shape: tuple[int, int],
+    hidden_dim: int,
+    bc_epochs: int,
+    ppo_epochs: int,
+    reward_source: str,
+    seed: int,
 ) -> dict[str, object]:
     random_result = run_masked_random_baseline(
         problem=problem,
@@ -105,7 +156,13 @@ def run_phase3_comparison(
             extra=_coerce_training_metrics(warm_training),
         ),
     }
-    return {"methods": methods}
+    beam_level = float(methods["beam"]["final_hpwl"])
+    bc_level = float(methods["behavior_cloning"]["final_hpwl"])
+    for method_name in ("ppo_scratch", "ppo_warm_start"):
+        curve = methods[method_name].get("curve", [])
+        methods[method_name]["updates_to_beam_level"] = float(_updates_to_level(curve, beam_level))
+        methods[method_name]["updates_to_bc_level"] = float(_updates_to_level(curve, bc_level))
+    return {"seed": float(seed), "methods": methods}
 
 
 def _summarize_baseline(result: dict[str, object]) -> dict[str, float]:
@@ -139,4 +196,27 @@ def _coerce_training_metrics(training: dict[str, object] | None) -> dict[str, fl
         "policy_loss": float(last["policy_loss"]),
         "value_loss": float(last["value_loss"]),
         "entropy": float(last["entropy"]),
+        "curve": [{key: float(value) for key, value in item.items()} for item in history],
     }
+
+
+def _aggregate_method_rows(rows: list[dict[str, float]]) -> dict[str, float]:
+    keys = sorted({key for row in rows for key in row.keys()})
+    aggregate: dict[str, float] = {}
+    for key in keys:
+        if key == "curve":
+            continue
+        values = [float(row[key]) for row in rows if key in row]
+        if not values:
+            continue
+        aggregate[key] = float(mean(values))
+        if len(values) > 1:
+            aggregate[f"{key}_std"] = float(pstdev(values))
+    return aggregate
+
+
+def _updates_to_level(curve: list[dict[str, float]], target_hpwl: float) -> int:
+    for index, point in enumerate(curve, start=1):
+        if float(point["final_hpwl"]) <= target_hpwl:
+            return index
+    return len(curve) + 1

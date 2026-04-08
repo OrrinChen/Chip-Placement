@@ -33,3 +33,20 @@ def test_phase3_comparison_reports_ppo_update_count():
 
     assert methods["ppo_scratch"]["update_count"] == 3.0
     assert methods["ppo_warm_start"]["update_count"] == 3.0
+    assert len(methods["ppo_scratch"]["curve"]) == 3
+    assert "updates_to_beam_level" in methods["ppo_warm_start"]
+
+
+def test_phase3_comparison_supports_multiple_seeds():
+    report = run_phase3_comparison(
+        problem=build_problem(),
+        grid_shape=(4, 4),
+        hidden_dim=16,
+        ppo_epochs=2,
+        seeds=(0, 1),
+    )
+    methods = report["methods"]
+
+    assert report["seed_count"] == 2
+    assert len(methods["ppo_warm_start"]["per_seed"]) == 2
+    assert "aggregate" in methods["ppo_warm_start"]
