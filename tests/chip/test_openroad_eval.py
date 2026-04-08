@@ -72,5 +72,5 @@ def test_build_openroad_script_changes_only_the_injection_section():
         orientations={"U1": "N"},
     )
 
-    assert 'place_inst -name U1 -location {1.0 2.0} -orientation R0 -status PLACED' in injected
+    assert 'place_inst -name {U1} -location {1.0 2.0} -orientation R0 -status PLACED' in injected
     assert built_in.split("global_route", maxsplit=1)[1] == injected.split("global_route", maxsplit=1)[1]

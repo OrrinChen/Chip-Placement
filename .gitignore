@@ -6,3 +6,4 @@ orfs-export/
 orfs-work/
 tmp/
 *.pyc
+experiments/chip/phase3_macroplacement_probe/*.combined.lef

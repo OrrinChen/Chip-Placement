@@ -84,8 +84,22 @@ def test_build_script_injects_place_inst_commands_for_movable_instances():
         orientations={"U1": "N", "U2": "FS"},
     )
 
-    assert 'place_inst -name U1 -location {10.0 20.0} -orientation R0 -status PLACED' in script
-    assert 'place_inst -name U2 -location {30.0 40.0} -orientation MX -status PLACED' in script
+    assert 'place_inst -name {U1} -location {10.0 20.0} -orientation R0 -status PLACED' in script
+    assert 'place_inst -name {U2} -location {30.0 40.0} -orientation MX -status PLACED' in script
+
+
+def test_build_script_braces_hierarchical_instance_names_for_tcl_safety():
+    bridge = OpenROADBridge()
+
+    script = bridge.build_script(
+        "design.lef",
+        "design.def",
+        {"top/block[0]/macro": (10.0, 20.0)},
+        placement_mode="sa_injected",
+        orientations={"top/block[0]/macro": "N"},
+    )
+
+    assert "place_inst -name {top/block[0]/macro}" in script
 
 
 def test_build_script_uses_same_tail_flow_for_built_in_and_sa():

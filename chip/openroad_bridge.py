@@ -70,7 +70,7 @@ class OpenROADBridge:
             for macro_name, (x, y) in placement.items():
                 orient = self._to_odb_orientation(orientation_by_macro.get(macro_name, "N"))
                 lines.append(
-                    f"place_inst -name {macro_name} -location {{{x} {y}}} -orientation {orient} -status PLACED"
+                    f"place_inst -name {{{macro_name}}} -location {{{x} {y}}} -orientation {orient} -status PLACED"
                 )
         elif placement_mode != "built_in":
             raise ValueError(f"Unknown placement mode: {placement_mode}")

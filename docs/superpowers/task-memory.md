@@ -1,5 +1,90 @@
 # Task Memory
 
+## 2026-04-08 Phase 3 MacroPlacement Switch
+
+### Current Branch State
+
+- Active worktree: [phase3-macroplacement](C:/Users/14574/Chip/.worktrees/phase3-macroplacement)
+- Active branch: `codex/phase3-macroplacement`
+- MacroPlacement benchmark repo cloned at:
+  - [tmp/MacroPlacement](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/tmp/MacroPlacement)
+- Fresh verification after the Ariane-first benchmark switch scaffolding:
+  - `pytest tests/engine tests/chip -q`
+  - `163 passed in 15.85s`
+
+### Problem-Formulation Decision
+
+- The `mgc_*` benchmarks remain valid for:
+  - `Phase 1` acceptance
+  - `Phase 2` proxy validation
+- They are not appropriate for `Phase 3` macro-placement RL.
+  - The earlier `mgc_*` probe established that these are standard-cell-dominant designs with `30k+ / 30k+ / 112k+` movable standard cells.
+  - This is a problem-formulation mismatch, not a data-quality issue.
+- `Phase 3` therefore switches to true macro-placement benchmarks from TILOS MacroPlacement, starting with `Ariane` only.
+
+### Ariane Asset Discovery
+
+- Ariane-first benchmark spec is implemented in:
+  - [phase3_macroplacement_benchmarks.py](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/chip/experiments/phase3_macroplacement_benchmarks.py)
+- Current first benchmark:
+  - `variant = ariane133`
+  - `platform = NanGate45`
+  - benchmark name: `ariane133_ng45`
+- Key discovered assets:
+  - reference macro-placement DEF:
+    - [ariane133_fp_placed_macros.def](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/tmp/MacroPlacement/Flows/NanGate45/ariane133/def/ariane133_fp_placed_macros.def)
+  - floorplan DEF:
+    - [ariane133_fp.def](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/tmp/MacroPlacement/Flows/NanGate45/ariane133/def/ariane133_fp.def)
+  - manual human floorplan DEF:
+    - [manual_floorplan.def](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/tmp/MacroPlacement/Flows/NanGate45/ariane133/def/manual_floorplan.def)
+  - constraints:
+    - [ariane.sdc](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/tmp/MacroPlacement/Flows/NanGate45/ariane133/constraints/ariane.sdc)
+  - enablement LEFs / liberty:
+    - [Enablements/NanGate45/lef](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/tmp/MacroPlacement/Enablements/NanGate45/lef)
+    - [Enablements/NanGate45/lib](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/tmp/MacroPlacement/Enablements/NanGate45/lib)
+
+### Ariane Feasibility Probe
+
+- Probe implementation is in:
+  - [phase3_macroplacement_probe.py](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/chip/experiments/phase3_macroplacement_probe.py)
+- Canonical Ariane status artifact:
+  - [ariane133_ng45_status.json](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/experiments/chip/phase3_macroplacement_probe/ariane133_ng45_status.json)
+- Key probe numbers on `ariane133_ng45` with `32x32` grid:
+  - `movable_macro_count = 133`
+  - `single_legality_check_seconds ≈ 0.000865`
+  - `build_action_mask_seconds ≈ 0.2665`
+  - `valid_action_fraction = 0.15625`
+- Interpretation:
+  - The legality-performance gate is healthy on Ariane.
+  - Unlike the earlier `mgc_*` full-design probe, Ariane does **not** immediately fail on action-mask cost.
+  - Under the current implementation, Ariane no longer appears blocked by legality latency.
+
+### Pure Eval Status
+
+- A generic `read_def + injected placement + detailed_placement + global_route` eval was attempted on:
+  - [ariane133_fp_placed_macros.def](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/tmp/MacroPlacement/Flows/NanGate45/ariane133/def/ariane133_fp_placed_macros.def)
+- Current result:
+  - `status = blocked_generic_eval`
+- Evidence in the status artifact shows:
+  - OpenROAD successfully reads the LEFs and the macro DEF.
+  - The DEF contains `133` components and `495` pins, i.e. the macro floorplan itself.
+  - `detailed_placement` reports `0` movable cells and `0.0u` HPWL.
+  - The run then fails with:
+    - `EST-0005 Run global_route before estimating parasitics for global routing`
+- Interpretation:
+  - `ariane133_fp_placed_macros.def` is a macro-floorplan initialization artifact, not a complete routed-flow input for the current generic eval harness.
+  - Closing the Ariane pure-eval gap now requires integration with a full ORFS/Cadence-style completion flow, not more tweaking of the generic `phase1_acceptance`-style script.
+
+### Next Entry Point
+
+- Keep `Ariane133-NanGate45` as the first macro-placement benchmark.
+- Next action is **not** more PPO work yet.
+- The next narrow step is:
+  - integrate Ariane reference floorplans into a full ORFS completion flow so the benchmark can emit `HPWL / routed WL / WNS / TNS / runtime` under a true macro-placement evaluation protocol
+- Only after that should the benchmark ladder expand to:
+  - `BlackParrot`
+  - `MemPoolGroup`
+
 ## 2026-04-06 Phase 2 Stratified Rerun
 
 ### Current Branch State
