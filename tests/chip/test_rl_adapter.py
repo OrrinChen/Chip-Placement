@@ -19,6 +19,11 @@ class StubProxy:
         return self.prediction
 
 
+class StepProxy:
+    def predict(self, observation):
+        return float(observation["placed_count"])
+
+
 @dataclass(frozen=True)
 class StubOracle:
     value: float
@@ -121,3 +126,13 @@ def test_chip_rl_adapter_proxy_with_legality_penalty_subtracts_penalty_for_inval
     reward = adapter.compute_reward(adapter.initial_state(), illegal_state, "proxy_with_legality_penalty")
 
     assert reward == -35.0
+
+
+def test_chip_rl_adapter_proxy_delta_uses_seed_completed_delta():
+    adapter = ChipRLAdapter(problem=build_problem(), proxy=StepProxy(), grid_shape=(4, 4))
+    state = adapter.initial_state()
+    next_state = adapter.apply_action(state, {"macro": "u1", "target": (4.0, 0.0)})
+
+    reward = adapter.compute_reward(state, next_state, "proxy_delta")
+
+    assert reward == -1.0

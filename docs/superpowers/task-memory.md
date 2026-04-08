@@ -1129,3 +1129,41 @@ Interpretation:
   - plot-ready per-update artifacts
   - broader teacher sweep only where teacher quality actually changes
   - keep reward and proxy setup fixed while doing so
+
+## 2026-04-07 Phase 3 Roadmap Closeout Slice
+
+### Implemented
+
+- `chip/rl_adapter.py`
+  - `proxy_delta` is now a first-class reward source in `compute_reward`
+  - the reward now preserves `placed_macros` when computing proxy deltas, so step-to-step deltas are real rather than silently collapsing to step `0`
+- `chip/experiments/phase3_final_report.py`
+  - canonical builder for a roadmap-facing Phase 3 status report
+- canonical artifact:
+  - [phase3_final_report.json](C:/Users/14574/Chip/.worktrees/phase3-foundation/experiments/chip/phase3_final_report.json)
+
+### Tests
+
+- added:
+  - `tests/chip/test_phase3_final_report.py`
+- expanded:
+  - `tests/chip/test_rl_adapter.py`
+
+### Verification
+
+- focused:
+  - `pytest tests/chip/test_rl_adapter.py tests/chip/test_phase3_final_report.py -q`
+  - result: `10 passed in 1.54s`
+- full:
+  - `pytest tests/engine tests/chip -q`
+  - result: `154 passed in 14.56s`
+
+### Current Read
+
+- This slice makes the current Phase 3 state easier to evaluate against the roadmap, but it does **not** fully close roadmap Phase 3.
+- The canonical status in [phase3_final_report.json](C:/Users/14574/Chip/.worktrees/phase3-foundation/experiments/chip/phase3_final_report.json) is intentionally:
+  - `roadmap_phase3_status = partial`
+- Remaining roadmap gaps are now explicit rather than implicit:
+  - current mainline PPO comparisons still center on the ladder/sample-efficiency surface rather than a full `RL vs SA vs analytical vs OpenROAD` table
+  - routed/timing/runtime metrics are not yet unified across `3+` real chip benchmarks
+  - the current production reward path is broader than pure roadmap wording because the project is using the validated production proxy/reward stack rather than claiming a stronger GNN-proxy RL result than currently exists

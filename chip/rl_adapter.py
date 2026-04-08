@@ -95,6 +95,8 @@ class ChipRLAdapter:
             return self.current_hpwl(previous_state) - self.current_hpwl(next_state)
         if reward_source == "proxy":
             return -self._proxy_cost(next_state)
+        if reward_source == "proxy_delta":
+            return self.proxy_delta(previous_state, next_state, len(previous_state.placed_macros))
         if reward_source == "oracle":
             return -self._oracle_cost(next_state)
         if reward_source == "proxy_with_legality_penalty":
@@ -131,8 +133,20 @@ class ChipRLAdapter:
         return dict(state.placement)
 
     def proxy_delta(self, previous_state: ChipRLState, next_state: ChipRLState, step_index: int) -> float:
-        previous_cost = self._proxy_cost(ChipRLState(problem=previous_state.problem, placement=self.seed_completed_placement(previous_state, step_index)))
-        next_cost = self._proxy_cost(ChipRLState(problem=next_state.problem, placement=self.seed_completed_placement(next_state, step_index + 1)))
+        previous_cost = self._proxy_cost(
+            ChipRLState(
+                problem=previous_state.problem,
+                placement=self.seed_completed_placement(previous_state, step_index),
+                placed_macros=previous_state.placed_macros,
+            )
+        )
+        next_cost = self._proxy_cost(
+            ChipRLState(
+                problem=next_state.problem,
+                placement=self.seed_completed_placement(next_state, step_index + 1),
+                placed_macros=next_state.placed_macros,
+            )
+        )
         return -(next_cost - previous_cost)
 
     def build_canvas(
