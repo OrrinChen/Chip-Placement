@@ -25,6 +25,7 @@ def run_phase3_comparison(
     bc_epochs: int = 120,
     ppo_epochs: int = 1,
     reward_source: str = "analytic_hpwl",
+    beam_width: int = 2,
     seed: int = 0,
     seeds: tuple[int, ...] | None = None,
 ) -> dict[str, object]:
@@ -37,6 +38,7 @@ def run_phase3_comparison(
             bc_epochs=bc_epochs,
             ppo_epochs=ppo_epochs,
             reward_source=reward_source,
+            beam_width=beam_width,
             seed=current_seed,
         )
         for current_seed in seed_values
@@ -62,6 +64,7 @@ def run_phase3_comparison(
     return {
         "seed_count": len(seed_values),
         "seeds": list(seed_values),
+        "beam_width": int(beam_width),
         "methods": methods,
     }
 
@@ -74,6 +77,7 @@ def _run_phase3_comparison_single_seed(
     bc_epochs: int,
     ppo_epochs: int,
     reward_source: str,
+    beam_width: int,
     seed: int,
 ) -> dict[str, object]:
     random_result = run_masked_random_baseline(
@@ -83,7 +87,7 @@ def _run_phase3_comparison_single_seed(
         seed=seed,
     )
     greedy_result = run_greedy_hpwl_baseline(problem=problem, grid_shape=grid_shape)
-    beam_result = run_beam_search_baseline(problem=problem, grid_shape=grid_shape, beam_width=2)
+    beam_result = run_beam_search_baseline(problem=problem, grid_shape=grid_shape, beam_width=beam_width)
     demonstrations = build_demonstrations_from_trace(
         problem=problem,
         grid_shape=grid_shape,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from chip.experiments.phase3_benchmarks import build_phase3_benchmark_ladder
 from chip.experiments.phase3_comparison import run_phase3_comparison
 from tests.chip.test_rl_adapter import build_problem
 
@@ -50,3 +51,28 @@ def test_phase3_comparison_supports_multiple_seeds():
     assert report["seed_count"] == 2
     assert len(methods["ppo_warm_start"]["per_seed"]) == 2
     assert "aggregate" in methods["ppo_warm_start"]
+
+
+def test_phase3_comparison_respects_teacher_beam_width():
+    benchmark = {item["name"]: item for item in build_phase3_benchmark_ladder()}["medium"]
+
+    narrow = run_phase3_comparison(
+        problem=benchmark["problem"],
+        grid_shape=benchmark["grid_shape"],
+        hidden_dim=16,
+        ppo_epochs=1,
+        beam_width=1,
+        seeds=(0,),
+    )
+    wider = run_phase3_comparison(
+        problem=benchmark["problem"],
+        grid_shape=benchmark["grid_shape"],
+        hidden_dim=16,
+        ppo_epochs=1,
+        beam_width=2,
+        seeds=(0,),
+    )
+
+    assert narrow["beam_width"] == 1
+    assert wider["beam_width"] == 2
+    assert wider["methods"]["beam"]["final_hpwl"] <= narrow["methods"]["beam"]["final_hpwl"]

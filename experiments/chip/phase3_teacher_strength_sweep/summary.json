@@ -1,0 +1,66 @@
+{
+  "small": [
+    {
+      "beam_width": 1.0,
+      "beam_final_hpwl_mean": 56.6,
+      "warm_start_final_hpwl_mean": 56.6,
+      "scratch_final_hpwl_mean": 79.92,
+      "warm_start_updates_to_beam_mean": 1.0,
+      "scratch_updates_to_beam_mean": 4.0,
+      "warm_start_gap_to_beam_mean": 0.0,
+      "scratch_gap_to_beam_mean": 23.32
+    },
+    {
+      "beam_width": 2.0,
+      "beam_final_hpwl_mean": 56.6,
+      "warm_start_final_hpwl_mean": 56.6,
+      "scratch_final_hpwl_mean": 79.92,
+      "warm_start_updates_to_beam_mean": 1.0,
+      "scratch_updates_to_beam_mean": 4.0,
+      "warm_start_gap_to_beam_mean": 0.0,
+      "scratch_gap_to_beam_mean": 23.32
+    },
+    {
+      "beam_width": 4.0,
+      "beam_final_hpwl_mean": 56.6,
+      "warm_start_final_hpwl_mean": 56.6,
+      "scratch_final_hpwl_mean": 79.92,
+      "warm_start_updates_to_beam_mean": 1.0,
+      "scratch_updates_to_beam_mean": 4.0,
+      "warm_start_gap_to_beam_mean": 0.0,
+      "scratch_gap_to_beam_mean": 23.32
+    }
+  ],
+  "medium": [
+    {
+      "beam_width": 1.0,
+      "beam_final_hpwl_mean": 78.5,
+      "warm_start_final_hpwl_mean": 78.5,
+      "scratch_final_hpwl_mean": 102.6,
+      "warm_start_updates_to_beam_mean": 1.0,
+      "scratch_updates_to_beam_mean": 4.0,
+      "warm_start_gap_to_beam_mean": 0.0,
+      "scratch_gap_to_beam_mean": 24.099999999999994
+    },
+    {
+      "beam_width": 2.0,
+      "beam_final_hpwl_mean": 72.5,
+      "warm_start_final_hpwl_mean": 72.5,
+      "scratch_final_hpwl_mean": 102.6,
+      "warm_start_updates_to_beam_mean": 1.0,
+      "scratch_updates_to_beam_mean": 4.0,
+      "warm_start_gap_to_beam_mean": 0.0,
+      "scratch_gap_to_beam_mean": 30.099999999999994
+    },
+    {
+      "beam_width": 4.0,
+      "beam_final_hpwl_mean": 72.5,
+      "warm_start_final_hpwl_mean": 72.5,
+      "scratch_final_hpwl_mean": 102.6,
+      "warm_start_updates_to_beam_mean": 1.0,
+      "scratch_updates_to_beam_mean": 4.0,
+      "warm_start_gap_to_beam_mean": 0.0,
+      "scratch_gap_to_beam_mean": 30.099999999999994
+    }
+  ]
+}
