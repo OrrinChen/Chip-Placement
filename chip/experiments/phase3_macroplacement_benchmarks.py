@@ -16,6 +16,7 @@ class MacroPlacementBenchmarkSpec:
     reference_def_path: Path
     floorplan_def_path: Path
     manual_def_path: Path | None
+    grouped_netlist_pbtxt_path: Path
     tech_lef_path: Path
     macro_lef_path: Path
     lef_paths: tuple[Path, ...]
@@ -57,6 +58,7 @@ def resolve_ariane_benchmark(
     reference_def_path = def_dir / f"{variant}_fp_placed_macros.def"
     floorplan_def_path = def_dir / f"{variant}_fp.def"
     manual_def_path = (def_dir / "manual_floorplan.def") if (def_dir / "manual_floorplan.def").exists() else None
+    grouped_netlist_pbtxt_path = flow_dir / "netlist" / "output_CT_Grouping" / "netlist.pb.txt"
     tech_lef_path = enablement_dir / "lef" / "NangateOpenCellLibrary.tech.lef"
     macro_lef_path = enablement_dir / "lef" / "NangateOpenCellLibrary.macro.mod.lef"
     all_lef_paths = _ordered_lef_paths(enablement_dir / "lef", tech_lef_path)
@@ -67,6 +69,7 @@ def resolve_ariane_benchmark(
     required_paths = [
         reference_def_path,
         floorplan_def_path,
+        grouped_netlist_pbtxt_path,
         tech_lef_path,
         macro_lef_path,
         standard_liberty_path,
@@ -89,6 +92,7 @@ def resolve_ariane_benchmark(
         reference_def_path=reference_def_path,
         floorplan_def_path=floorplan_def_path,
         manual_def_path=manual_def_path,
+        grouped_netlist_pbtxt_path=grouped_netlist_pbtxt_path,
         tech_lef_path=tech_lef_path,
         macro_lef_path=macro_lef_path,
         lef_paths=all_lef_paths,

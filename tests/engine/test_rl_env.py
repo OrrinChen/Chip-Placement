@@ -11,6 +11,9 @@ class StubState:
 
 
 class StubAdapter:
+    def __init__(self) -> None:
+        self.reward_reset_count = 0
+
     def initial_state(self) -> StubState:
         return StubState(value=0.0)
 
@@ -29,6 +32,9 @@ class StubAdapter:
 
     def render(self, state: StubState) -> dict[str, object]:
         return {"value": state.value}
+
+    def reset_reward_state(self) -> None:
+        self.reward_reset_count += 1
 
 
 def test_rl_env_reset_and_step_follow_gymnasium_shape():
@@ -62,3 +68,23 @@ def test_rl_env_render_returns_adapter_snapshot():
     env.step({"delta": 2.0})
 
     assert env.render()["value"] == 2.0
+
+
+def test_rl_env_reset_calls_adapter_reward_reset_hook():
+    adapter = StubAdapter()
+    env = PlacementEnv(adapter=adapter, max_steps=2, reward_source="analytic_hpwl")
+
+    env.reset()
+    env.reset()
+
+    assert adapter.reward_reset_count == 2
+
+
+def test_rl_env_reset_supports_explicit_initial_state():
+    adapter = StubAdapter()
+    env = PlacementEnv(adapter=adapter, max_steps=5, reward_source="analytic_hpwl")
+
+    observation, _ = env.reset(options={"initial_state": StubState(value=7.0), "initial_step_index": 3})
+
+    assert observation["step_index"] == 3
+    assert observation["value"] == 7.0

@@ -1,5 +1,120 @@
 # Task Memory
 
+## 2026-04-08 Phase 3 Ariane Bring-Up
+
+### Milestone A Status
+
+- `Milestone A` is now `pass`.
+- Root cause of the earlier `A3` failure was identified via control-variable probing:
+  - the sequential Ariane env was treating **future movable macros at their seed locations as active obstacles**
+  - this made `build_action_mask()` far too restrictive and caused artificial dead-ends
+- Evidence before the fix:
+  - current semantics:
+    - `valid_actions_step0 = 160`
+    - greedy dead-ended after `50` steps
+    - greedy improvement over masked-random mean HPWL was only `~10.97%`
+- Evidence from the probe after switching to `fixed + placed + current` semantics:
+  - step `0` valid actions jumped from `160` to `928`
+  - active-only greedy reached `105` steps with `final_hpwl ≈ 1.6826M`
+- Implementation change:
+  - `chip/rl_adapter.py`
+    - legality / action-mask / canvas occupancy now treat only:
+      - fixed macros
+      - already placed macros
+      - the current macro candidate
+    - future movable macros no longer reserve space before they are placed
+- Supporting tests were added/updated in:
+  - [test_rl_adapter.py](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/tests/chip/test_rl_adapter.py)
+  - [test_phase3_baselines.py](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/tests/chip/test_phase3_baselines.py)
+
+### Updated Ariane Milestone A Artifacts
+
+- masked-random artifact:
+  - [phase3_masked_random_ariane.json](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/experiments/chip/phase3_masked_random_ariane.json)
+- greedy artifact:
+  - [phase3_greedy_ariane.json](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/experiments/chip/phase3_greedy_ariane.json)
+
+Current canonical numbers:
+
+- reward pipeline:
+  - `single_step_reward_seconds_mean ≈ 0.00353s`
+  - still comfortably below the `50ms` gate
+- masked random:
+  - `100` episodes
+  - `mean final_hpwl ≈ 3.2218M`
+  - `mean runtime ≈ 38.17s`
+  - `completed_episode_rate = 0.0`
+  - typical dead-end depth moved from the earlier `~50` range to roughly `80-90` steps
+- greedy one-step analytic HPWL:
+  - `final_hpwl ≈ 1.6826M`
+  - `steps = 105`
+  - `termination_reason = no_valid_actions`
+  - improvement over masked-random mean HPWL:
+    - `~47.77%`
+  - `passes_20_percent_gate = true`
+
+Interpretation:
+
+- `Milestone A1`: pass
+- `Milestone A2`: pass
+- `Milestone A3`: pass
+- Ariane `32x32` still does not fully complete the `133`-macro sequence under random or greedy, but the user-defined gate was the `>=20%` greedy improvement check, and that gate is now satisfied.
+- Dead-end handling remains a known property of the current formulation and must be treated as a normal termination mode during PPO bring-up.
+
+### Milestone B1 Status
+
+- New Ariane PPO bring-up entry point:
+  - [phase3_macroplacement_ppo.py](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/chip/experiments/phase3_macroplacement_ppo.py)
+- Supporting generic PPO helpers were added in:
+  - [phase3_ppo.py](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/chip/experiments/phase3_ppo.py)
+- New capabilities:
+  - `uniform_legal_policy` rollout mode for plumbing checks
+  - fixed-rollout replay for single-episode overfit checks
+  - rollout metrics now include:
+    - `episode_return`
+    - `termination_reason`
+    - `completed_episode`
+    - `is_legal`
+    - `approx_kl`
+- Fresh verification after these additions:
+  - `pytest tests/engine tests/chip -q`
+  - `184 passed in 18.19s`
+
+### Milestone B1 Ariane Smoke
+
+- uniform-policy plumbing smoke artifact:
+  - [phase3_uniform_policy_plumbing_ariane.json](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/experiments/chip/phase3_macroplacement_bringup/phase3_uniform_policy_plumbing_ariane.json)
+- fixed-episode overfit smoke artifact:
+  - [phase3_overfit_single_episode_ariane.json](C:/Users/14574/Chip/.worktrees/phase3-macroplacement/experiments/chip/phase3_macroplacement_bringup/phase3_overfit_single_episode_ariane.json)
+
+Smoke results:
+
+- uniform-policy plumbing (`3` updates):
+  - did not crash
+  - all policy/value losses finite
+  - invalid action count remained `0`
+- fixed-episode overfit (`10` updates):
+  - `final_return_improved = true`
+  - overfit sanity therefore points in the correct direction
+
+Interpretation:
+
+- `Milestone B1` smoke is positive.
+- Two formal `100`-update runs were launched after the smoke:
+  - `plumbing`
+  - `overfit`
+- At the time of this memory update they were still running in the background, so `Milestone B1` formal status is:
+  - `in_progress`
+
+### Current Next Entry Point
+
+- Do **not** start Milestone C or expand to `BlackParrot / MemPool` yet.
+- Wait for the formal `100`-update `Milestone B1` Ariane runs to finish.
+- If they pass:
+  - proceed to `Milestone B2` with the Ariane `2000`-update PPO checkpoint
+- If they fail:
+  - stop and debug under the user’s milestone discipline instead of pushing forward blindly
+
 ## 2026-04-08 Phase 3 MacroPlacement Switch
 
 ### Current Branch State
@@ -1360,3 +1475,731 @@ Interpretation:
 - This improves roadmap alignment, but it still does not justify marking roadmap Phase 3 fully complete.
 - The remaining hard gap is now very concrete:
   - extend the final table from the current `tiny/small/medium` ladder to `3+` real chip benchmarks with unified routed/timing/runtime metrics
+
+## 2026-04-08 Ariane Reward-Hacking Debug
+
+### Investigation
+
+- Reproduced the bad `B1` behavior on Ariane:
+  - `phase3_overfit_single_episode_ariane.json` showed entropy collapsing to `0`
+  - final HPWL worsened while episode return improved
+  - termination stayed `no_valid_actions`
+- Control-variable probes isolated three distinct causes:
+  - `Phase 2` frozen linear proxy is badly OOD on macro-placement Ariane
+    - training target range: about `0.39M .. 2.53M`
+    - Ariane seed prediction: `317.8M`
+    - Ariane first-step prediction: `-786.8M`
+    - first-step proxy delta: `-1.10B`
+    - Ariane first-step `displacement_max_sites`: `3400.6` vs Phase 2 training max about `361`
+  - per-episode reward normalization destroyed reward semantics for Ariane bring-up
+    - with `w_proxy=0` but normalization still on, masked-random `episode_return` vs final HPWL correlation stayed near `0.05`
+    - with `w_proxy=0` and normalization off, the same correlation became effectively `-1.0`
+  - `collect_rollout_for_action_trace()` incorrectly marked exhausted partial traces as `completed`
+    - this made the fixed-rollout teacher artifact look cleaner than it really was
+
+### Fixes
+
+- `chip/experiments/phase3_macroplacement_bringup.py`
+  - Ariane PPO bring-up reward now uses:
+    - `w_proxy = 0.0`
+    - `w_hpwl = 1.0`
+    - `normalize_rewards = False`
+  - rationale:
+    - Phase 2 proxy remains valid for Phase 2
+    - it is not valid as an online reward term on macro-placement Ariane
+- `chip/experiments/phase3_ppo.py`
+  - `collect_rollout_for_action_trace()` now distinguishes:
+    - `completed`
+    - `no_valid_actions`
+    - `truncated`
+    - `trace_exhausted`
+  - it no longer silently marks partial traces as completed
+
+### Regression Tests
+
+- added:
+  - `tests/chip/test_phase3_macroplacement_bringup.py`
+  - `tests/chip/test_phase3_ppo_regressions.py`
+- new guards:
+  - Ariane reward builder keeps `w_proxy = 0.0`, `w_hpwl = 1.0`, `normalize_rewards = False`
+  - partial action traces are not reported as completed
+
+### Post-Fix Read
+
+- reward-hacking is fixed in the important sense:
+  - return no longer explodes to `1e9 .. 1e10`
+  - final HPWL no longer gets worse as return improves
+- updated Ariane overfit artifact:
+  - initial eval HPWL: about `3.1705M`
+  - final eval HPWL after `40` updates: about `3.1410M`
+  - entropy still drops in fixed-rollout overfit, but this now behaves like expected deterministic fitting rather than reward exploitation
+- updated uniform-policy plumbing artifact:
+  - losses remain finite
+  - entropy stays high (`~5.1`)
+  - no invalid actions
+
+### Current Judgment
+
+- `reward-hacking` was caused by an interaction between:
+  - OOD proxy magnitudes
+  - episode normalization
+  - dead-end-prone action space
+- after the fix, the remaining entropy drop in the fixed-rollout overfit check is not the same bug:
+  - it reflects deterministic memorization pressure in the overfit sanity test
+  - not a reward exploit
+- next Phase 3 milestone should continue from the repaired Ariane reward setup, not the old proxy-driven one
+
+## 2026-04-09 Ariane BC / Warm-Start Milestone B Update
+
+### Root Cause
+
+- Ariane behavior cloning was not numerically unstable on its own; the real bug was trace semantics.
+- `run_greedy_episode()` and `run_masked_random_episode()` were recording `step_index` after `env.step()`, i.e. post-action.
+- `build_demonstrations_from_trace()` interpreted `step_index` as pre-action and rebuilt the observation at the wrong decision point.
+- This made teacher actions look illegal inside their reconstructed observations:
+  - `demo_count = 128`
+  - `invalid_target_count = 52`
+  - `all_invalid_row_count = 51`
+- Because masked cross-entropy was being asked to learn actions that were already masked out, Ariane BC produced:
+  - `masked_accuracy ~= 0.0857`
+  - `final_loss = NaN`
+
+### Fixes
+
+- `chip/experiments/phase3_baselines.py`
+  - episode traces now record pre-action `step_index`
+- `chip/experiments/phase3_search.py`
+  - `build_demonstrations_from_trace()` now derives `step_index` from replay state (`len(state.placed_macros)`) instead of trusting external trace metadata
+- added regression coverage:
+  - `tests/chip/test_phase3_imitation.py`
+    - greedy demonstrations preserve valid teacher actions
+  - `tests/chip/test_phase3_baselines.py`
+    - greedy trace uses pre-action step indices
+
+### Verification
+
+- focused:
+  - `python -m pytest tests/chip/test_phase3_baselines.py tests/chip/test_phase3_imitation.py -q`
+  - result: `11 passed in 2.49s`
+- full:
+  - `python -m pytest tests/engine tests/chip -q`
+  - result: `190 passed in 18.73s`
+
+### Post-Fix Read
+
+- the teacher/demo pipeline is now healthy:
+  - `invalid_target_count = 0`
+  - `all_invalid_row_count = 0`
+  - `masked_accuracy = 1.0`
+  - `final_loss = 0.0`
+- deterministic BC rollout on Ariane is materially better than masked random but still above greedy:
+  - `bc_rollout_hpwl ~= 3.0026M`
+- quick `5`-update PPO comparison on the repaired setup:
+  - `scratch_5_final_hpwl ~= 3.0853M`
+  - `warm_5_final_hpwl ~= 3.1360M`
+  - `warm-start` did not immediately improve on scratch under the current PPO update regime
+- interpretation:
+  - Milestone B is no longer blocked by bad demonstrations
+  - the current blocker has shifted to PPO update dynamics on Ariane, not BC data quality
+
+### Current Status
+
+- a longer Ariane comparison run is in flight:
+  - artifact target:
+    - `experiments/chip/phase3_macroplacement_compare_100/phase3_ariane_compare_100.json`
+  - compares:
+    - deterministic BC rollout
+    - `ppo_scratch_100`
+    - `ppo_warm_start_100`
+- this is the current Milestone B gate readout path; do not restart from the old `phase3_macroplacement_warmstart_pilot.json`
+
+## 2026-04-09 Ariane Milestone B2 Training-Dynamics Diagnosis
+
+### First checkpoint readout
+
+- `phase3_macroplacement_compare_100/phase3_ariane_compare_100.json` is now complete.
+- Current same-protocol Ariane comparison:
+  - `bc_rollout_hpwl ~= 3.0026M`
+  - `ppo_scratch_100 final_hpwl ~= 3.1507M`
+  - `ppo_warm_start_100 final_hpwl ~= 3.3519M`
+- Both PPO variants fail the current B2 gate.
+- Warm-start is worse than scratch at `100` updates under the current training dynamics.
+
+### What the curves say
+
+- `scratch`
+  - starts high-entropy (`~5.17`)
+  - improves gradually and reaches best rollout around update `81`
+    - `best_hpwl ~= 3.0346M`
+  - then degrades again as entropy collapses toward `0`
+- `warm-start`
+  - starts from a much better first rollout
+    - update `1 hpwl ~= 2.8579M`
+  - but this is also its best rollout
+  - degrades almost immediately across the next few updates
+  - entropy starts low (`~0.65`) and collapses to near-zero by about update `10`
+
+### Control-variable probes
+
+- Probe 1: remove value loss (`value_coef = 0.0`) for `20` updates
+  - `scratch`
+    - best rollout improves to about `3.0147M`
+    - final entropy stays much higher (`~4.17`)
+  - `warm-start`
+    - still degrades, but entropy collapse is less severe
+    - final entropy stays around `0.12` instead of numerical zero
+- Interpretation:
+  - giant value loss on raw returns is a real negative contributor
+  - shared-trunk PPO is being pulled around by value regression at Ariane reward scale
+
+- Probe 2: keep `value_coef = 0.0`, raise entropy bonus for warm-start
+  - `entropy_coef = 0.1`
+    - final hpwl after `10` updates: about `3.0637M`
+    - final entropy: about `0.92`
+  - `entropy_coef = 1.0`
+    - final hpwl after `10` updates: about `2.9341M`
+    - final entropy: about `0.72`
+- Interpretation:
+  - warm-start degradation is not just "PPO cannot learn"
+  - the current training dynamics are over-exploiting a low-entropy BC initialization
+  - stronger entropy regularization materially preserves the good warm-start region
+
+### Current read
+
+- B2 is now narrowed to a training-scale problem:
+  - `value loss magnitude` is too large for the current shared trunk
+  - `entropy regularization` is too weak for BC-warm-started policies
+- This is not a reward bug and not a demonstration bug anymore.
+- The next minimal fix should change PPO update dynamics, not benchmark/data plumbing.
+
+## 2026-04-09 Ariane B2 Tuned PPO Config
+
+### Decision
+
+- Ariane checkpoint training now has an explicit tuned config:
+  - `init_seed = 0`
+  - `learning_rate = 1e-3`
+  - `value_coef = 0.0`
+  - `entropy_coef = 1.0`
+- rationale:
+  - `value_coef = 0.0` removes the large shared-trunk value regression term that was destabilizing both scratch and warm-start
+  - `entropy_coef = 1.0` preserves exploration and stops BC warm-start from collapsing immediately into a bad low-entropy region
+  - `init_seed = 0` makes Ariane checkpoint artifacts reproducible instead of depending on policy initialization noise
+
+### Code / Test Status
+
+- `chip/experiments/phase3_macroplacement_ppo.py`
+  - now exposes `build_ariane_checkpoint_training_config()`
+  - `run_ariane_ppo_checkpoint()` seeds torch and records `training_config` in artifact metadata
+- regression:
+  - `tests/chip/test_phase3_macroplacement_ppo.py`
+  - verifies:
+    - `value_coef == 0.0`
+    - `entropy_coef == 1.0`
+    - `init_seed == 0`
+    - config is forwarded into `train_ppo_policy()`
+
+### Verification
+
+- focused:
+  - `python -m pytest tests/chip/test_phase3_macroplacement_ppo.py tests/engine tests/chip -q`
+  - result: `23 passed`
+
+### Tuned 10-update probe
+
+- artifact:
+  - `experiments/chip/phase3_b2_tuned_compare_10/phase3_b2_tuned_compare_10.json`
+- results:
+  - `bc_rollout_hpwl ~= 3.0026M`
+  - `ppo_scratch_10 final ~= 3.1779M`, `best ~= 3.0832M`
+  - `ppo_warm_start_10 final ~= 2.9341M`, `best ~= 2.8579M`
+- interpretation:
+  - under the tuned config, warm-start is again better than scratch at equal budget
+  - the warm-start policy still drifts away from its initial best rollout, but it no longer catastrophically degrades the way it did under the old config
+
+### Next action
+
+- use the tuned config for the next `compare_100` Ariane run
+- do not interpret old `phase3_macroplacement_compare_100/phase3_ariane_compare_100.json` as the current B2 status once the tuned artifact exists
+- 2026-04-09 B2 dynamics diagnosis update:
+  - Added `advantage normalization` in `chip/experiments/phase3_ppo.py`.
+  - Regression tests:
+    - `tests/chip/test_phase3_ppo.py`
+    - `python -m pytest tests/chip/test_phase3_ppo.py tests/chip/test_phase3_macroplacement_ppo.py -q`
+    - `13 passed`
+  - Full suite after this change:
+    - `python -m pytest tests/engine tests/chip -q`
+    - `193 passed in 22.84s`
+  - Ariane short-run artifact after advantage normalization:
+    - `experiments/chip/phase3_b2_advnorm_compare_10/phase3_b2_advnorm_compare_10.json`
+    - `scratch final_hpwl ~= 3.1078M`
+    - `warm-start final_hpwl ~= 3.1464M`
+    - Interpretation: normalization helps scratch but does not by itself preserve warm-start quality.
+  - Warm-start learning-rate probe:
+    - `experiments/chip/phase3_b2_warm_lr1e4_10/phase3_b2_warm_lr1e4_10.json`
+    - Compared against `phase3_b2_advnorm_compare_10.json`:
+      - `BC rollout ~= 3.0026M`
+      - `scratch @ 1e-3 ~= 3.1078M`
+      - `warm-start @ 1e-3 ~= 3.1464M`
+      - `warm-start @ 1e-4 ~= 2.9768M`
+      - `warm-start @ 1e-4 best-history hpwl ~= 2.8311M`
+    - Current diagnosis:
+      - warm-start drift is now best explained by update size mismatch rather than reward or demonstration quality
+      - scratch and warm-start should not share the same learning-rate default in Ariane B2 bring-up
+
+## 2026-04-10 Ariane B2 Termination Diagnosis
+
+### Current checkpoint position
+
+- canonical Ariane PPO checkpoint artifact:
+  - `experiments/chip/phase3_macroplacement_checkpoint_2000/phase3_ppo_ariane_checkpoint.json`
+- key numbers:
+  - `final_hpwl ~= 2.8402M`
+  - `legality_rate = 1.0`
+  - `completed_episode_rate = 0.0`
+  - `termination_reason = no_valid_actions`
+  - `steps = 85`
+
+### B2 gate interpretation
+
+- with canonical baselines:
+  - masked random mean HPWL: `3.2218M`
+  - BC rollout HPWL: `3.0026M`
+  - greedy HPWL: `1.6826M`
+- `scratch @ 1e-3, 100 updates` and the later `warm-start` checkpoint both remain below the B2 quality gate:
+  - not `>= 30%` better than masked random
+  - not close to `80%` of the greedy gap
+
+### Separated-config result
+
+- artifact:
+  - `experiments/chip/phase3_b2_separated_compare_200/phase3_b2_separated_compare_200.json`
+- final results:
+  - `BC rollout ~= 3.0026M`
+  - `scratch @ 1e-3 ~= 3.4000M`
+  - `warm + entropy x5 @ 1e-4 ~= 2.9677M`
+  - `warm + value-prefit @ 1e-4 ~= 3.0888M`
+- best-history results:
+  - `scratch best ~= 3.0222M`
+  - `warm + entropy x5 best ~= 2.7183M`
+  - `warm + value-prefit best ~= 2.8311M`
+- interpretation:
+  - warm-start is still useful on Ariane
+  - the best current PPO recipe is:
+    - warm-start from BC
+    - `learning_rate = 1e-4`
+    - `entropy_coef = 5.0`
+  - value-prefit helps somewhat but is not the strongest fix
+
+### Failure-mode diagnosis
+
+- a full retraining-based termination audit was started, but it was too expensive to keep on the critical path
+- instead, cheaper probes were used to separate policy failure from formulation limits
+
+- probe 1: map PPO failure step onto greedy trace
+  - PPO fails at step `85`
+  - failing macro:
+    - `i_cache_subsystem/i_nbdcache/sram_block[3].tag_sram/macro_mem[0].i_ram`
+  - remaining macros at PPO failure: `48`
+  - on the greedy trace at the same step, that same macro still has `104` legal actions
+  - interpretation:
+    - PPO is not hitting a hard "physically no legal slots exist anywhere" wall at step 85
+    - PPO is reaching a policy-induced dead-end earlier than greedy
+
+- probe 2: greedy tail audit
+  - greedy itself does **not** complete under the current formulation
+  - greedy stops at step `105`
+  - termination reason: `no_valid_actions`
+  - remaining macros: `28`
+  - failing macro:
+    - `i_cache_subsystem/i_nbdcache/sram_block[5].data_sram/macro_mem[6].i_ram`
+  - legal-action counts in the last 25 greedy steps shrink from `135 -> 6`
+  - interpretation:
+    - the current `32x32 + fixed descending-area order` formulation has a real late-stage packing cliff
+    - greedy is a useful heuristic ceiling, but it is **not** a completion ceiling under the current action formulation
+
+### Current diagnosis summary
+
+- there are two separate blockers now:
+  1. **policy divergence blocker**
+     - PPO dies much earlier than greedy
+     - this is a training-dynamics / exploration-quality issue
+  2. **formulation ceiling**
+     - even greedy eventually dies with `no_valid_actions`
+     - this points to action-space / ordering / late-stage packing limits
+
+- therefore:
+  - Ariane B2 is **not** a reward bug anymore
+  - it is **not** a legality bug anymore
+  - it is now a combination of:
+    - PPO policy quality not preserving enough optionality
+    - current `32x32` fixed-order formulation not being strong enough to finish all 133 macros
+
+### Implication for next work
+
+- do not assume "pass B2 by tuning PPO harder" is sufficient
+- the next meaningful decision point is whether to:
+  - improve policy against the current formulation, or
+  - explicitly treat the formulation ceiling as the next object of work
+
+## 2026-04-10 Ariane formulation diagnosis and promotion
+
+### Greedy formulation sweep
+
+- artifact:
+  - `experiments/chip/phase3_macroplacement_formulation_sweep/phase3_ariane_formulation_sweep.json`
+- sweep axes:
+  - grid: `32x32`, `64x64`
+  - macro order: `descending_area`, `seed_yx`
+- results:
+  - `g32x32_descending_area`
+    - `steps = 105`
+    - `termination = no_valid_actions`
+    - `final_hpwl ~= 1.6826M`
+  - `g32x32_seed_yx`
+    - `steps = 105`
+    - `termination = no_valid_actions`
+    - `final_hpwl ~= 1.8306M`
+  - `g64x64_descending_area`
+    - `steps = 133`
+    - `termination = completed`
+    - `final_hpwl ~= 1.0913M`
+  - `g64x64_seed_yx`
+    - `steps = 133`
+    - `termination = completed`
+    - `final_hpwl ~= 1.2678M`
+
+### Interpretation
+
+- the dominant formulation lever is **grid resolution**, not macro order
+- `seed_yx` is consistently worse than `descending_area`
+- `64x64 + descending_area` is the best current Ariane formulation:
+  - completion restored under greedy
+  - HPWL improves by about `0.591M` relative to the old canonical `32x32 + descending_area`
+  - this is the first formulation result that turns the late-stage packing cliff from "ceiling" into "avoidable under the same heuristic"
+
+### Performance gate for 64x64
+
+- quick mask probe:
+  - `32x32 build_action_mask ~= 0.144s`
+  - `64x64 build_action_mask ~= 0.585s`
+- interpretation:
+  - `64x64` is about `4x` slower per mask, as expected
+  - but it is still sub-second and remains practical for Ariane bring-up
+
+### PPO apples-to-apples short checkpoint
+
+- artifacts:
+  - `experiments/chip/phase3_macroplacement_checkpoint_32x32_20/phase3_ppo_ariane_checkpoint.json`
+  - `experiments/chip/phase3_macroplacement_checkpoint_64x64_20/phase3_ppo_ariane_checkpoint.json`
+- same PPO recipe, `20` updates, warm-start canonical config:
+  - `32x32`
+    - `final_hpwl ~= 3.0277M`
+    - `steps = 85`
+    - `completed_episode_rate = 0.0`
+  - `64x64`
+    - `final_hpwl ~= 2.9962M`
+    - `steps = 118`
+    - `completed_episode_rate = 0.1`
+- interpretation:
+  - formulation promotion helps PPO too, not just greedy
+  - the gain is modest in HPWL at `20` updates, but substantial in survivability:
+    - `+33` extra placed macros
+    - first nonzero completion rate under PPO
+
+### Canonical Ariane formulation
+
+- Ariane PPO bring-up now defaults to:
+  - `grid_shape = (64, 64)`
+  - `macro_order_strategy = descending_area`
+- code:
+  - `chip/experiments/phase3_macroplacement_bringup.py`
+    - `build_ariane_formulation_config()`
+  - `chip/experiments/phase3_macroplacement_ppo.py`
+    - Ariane runners resolve `grid_shape` from the canonical formulation when not explicitly overridden
+
+## 2026-04-10 / 2026-04-11 Canonical64 B2 checkpoint
+
+### 100-update checkpoint result
+
+- artifact:
+  - `experiments/chip/phase3_macroplacement_checkpoint_64x64_100/phase3_ppo_ariane_checkpoint.json`
+- run status:
+  - completed successfully
+  - no lingering training process remains for this checkpoint
+- key numbers:
+  - `final_hpwl ~= 2.9421M`
+  - `best_hpwl ~= 2.8127M`
+  - `steps = 129`
+  - `termination_reason = no_valid_actions`
+  - `completed_episode_rate = 0.02`
+  - `legality_rate = 1.0`
+  - `entropy_final ~= 6.01`
+  - `entropy_min ~= 1.41`
+
+### Interpretation
+
+- canonical `64x64` shows a **real upward shift** relative to the old formulation:
+  - compared with `64x64 @ 20 updates`, HPWL improves from about `2.9962M -> 2.9421M`
+  - survivability also improves from `118 -> 129` steps
+- however, `Milestone B2` is still **not passed**
+  - completion remains rare (`2%`)
+  - rollout still dies via `no_valid_actions`
+  - PPO quality is improved, but still far from the greedy ceiling
+
+### Important bookkeeping note
+
+- the checkpoint artifact's `reference_levels` fields were serialized as `0`
+- do **not** trust the auto-computed gate booleans in this artifact as the final B2 verdict
+- compare against the separately established Ariane baselines instead:
+  - masked random:
+    - `experiments/chip/phase3_masked_random_ariane.json`
+  - greedy:
+    - `experiments/chip/phase3_greedy_ariane.json`
+  - formulation sweep:
+    - `experiments/chip/phase3_macroplacement_formulation_sweep/phase3_ariane_formulation_sweep.json`
+
+### Current B2 status
+
+- status: `in_progress / not passed`
+- current best formulation-backed PPO evidence:
+  - canonical `64x64 + descending_area` is better than `32x32`
+  - but PPO still primarily fails by late-stage `no_valid_actions`
+- next likely work:
+  - fix `reference_levels` serialization in checkpoint artifacts
+  - continue B2 diagnosis from the new canonical64 baseline rather than reopening old 32x32 runs
+
+## 2026-04-11 / 2026-04-12 completion-bonus counterfactual
+
+### Why this probe was run
+
+- canonical `64x64 @ 100 updates` showed:
+  - `max steps = 133`
+  - `completed_episode_rate = 0.02`
+- this means PPO already occasionally reaches full completion on Ariane, but too rarely for that signal to dominate training
+- hypothesis:
+  - a terminal completion bonus might improve credit assignment and increase completion frequency
+
+### Probe setup
+
+- artifact:
+  - `experiments/chip/phase3_macroplacement_checkpoint_64x64_20_completion_bonus/phase3_ppo_ariane_checkpoint.json`
+- config:
+  - canonical Ariane formulation: `64x64 + descending_area`
+  - `20` updates
+  - reward override:
+    - `w_proxy = 0.0`
+    - `w_hpwl = 1.0`
+    - `legality_penalty = 10.0`
+    - `completion_bonus = 250000.0`
+
+### Result
+
+- final checkpoint:
+  - `final_hpwl ~= 2.9245M`
+  - `completed_episode_rate = 0.05`
+  - `remaining_macro_count = 13`
+- comparison vs baseline `64x64 @ 20 updates`:
+  - baseline:
+    - `final_hpwl ~= 2.9962M`
+    - `completed_episode_rate = 0.10`
+  - completion bonus:
+    - slightly better aggregate HPWL
+    - **worse completion rate**
+- completed-only subset:
+  - exactly `1` completed episode in the 20-update history
+  - completed HPWL `~= 3.2047M`
+  - this is materially worse than the current best non-completed rollouts
+- non-completed subset:
+  - `19` episodes
+  - best HPWL `~= 2.8127M`
+  - median HPWL `~= 3.1538M`
+
+### Interpretation
+
+- `completion_bonus = 250k` does **not** fix the B2 bottleneck
+- it produces the bad failure mode we explicitly wanted to check for:
+  - completion happens slightly/rarely
+  - but completed rollouts are poor-quality placements
+- the only full-completion rollout in this probe occurs at `update 3`
+  - after that it disappears
+  - this supports a "forgetting / instability" interpretation rather than a pure lack-of-capability interpretation
+
+### Geometry note
+
+- final rollout geometry in this completion-bonus probe:
+  - `placed_macro_count = 120`
+  - `remaining_macro_count = 13`
+  - `largest_component_vs_remaining_area_ratio ~= 9.41`
+- interpretation:
+  - the failure is not simple lack of total free area
+  - it is more consistent with late-stage packing / contiguity / ordering quality
+
+### Current conclusion
+
+- keep completion bonus out of the canonical Ariane PPO config for now
+- do not continue scaling this specific reward tweak
+- the next cheaper lever is more likely a curriculum-style terminal-stage training setup than a larger completion bonus
+
+## 2026-04-13 / 2026-04-14 reverse curriculum v1 and v2 pivot
+
+### Reverse curriculum v1 result
+
+- artifact:
+  - `experiments/chip/phase3_reverse_curriculum_probe_10/phase3_reverse_curriculum_probe.json`
+- result:
+  - `scratch_control_final_hpwl ~= 3.0120M`
+  - `reverse_curriculum_final_hpwl ~= 3.1453M`
+- behavior-level interpretation:
+  - reverse curriculum v1 increased survivability slightly but made full-episode quality worse
+  - it learned more of a `tail rescuer` than a better full-episode placer
+
+### Why v1 failed
+
+- the original v1 probe used a **self-generated** prefix pool from a short `base_updates=10` run
+- that means two apparent causes were actually one shared bootstrap problem:
+  - weak prefix pool
+  - weak base run
+- `tail_steps=5` also made the curriculum too narrow:
+  - reverse history effectively trained on `5-step` suffixes only
+  - this produced low-entropy local rescue behavior that did not transfer back to from-scratch eval
+
+### V2 design decision
+
+- do **not** bootstrap the reverse curriculum from its own short base run
+- v2 must consume an **external high-quality prefix artifact**
+- v2 should keep:
+  - `tail_steps = 10` as the first widened horizon
+  - prefix filtering by `final_hpwl`
+  - a salvage gate:
+    - keep only prefixes whose greedy suffix can still complete
+- keep scratch control fully independent from reverse curriculum training
+
+### V2 implementation status
+
+- reverse curriculum runner now supports:
+  - `prefix_source_path`
+  - `prefix_source_hpwl_threshold`
+  - external replay via serialized `action_indices`
+  - prefix salvage evaluation (`random` + `greedy`)
+  - independent scratch / reverse warm-start policies
+- exporter now exists for generating replayable external prefix artifacts:
+  - `chip/experiments/phase3_macroplacement_ppo.py::export_ariane_prefix_pool`
+- this means the **plumbing blocker is closed**
+
+### What still blocks reverse curriculum v2 execution
+
+- there is still **no strong external prefix artifact** in the repo today
+- existing Ariane checkpoint JSON artifacts mostly contain aggregate history, not replayable `action_indices`
+- next required step is therefore:
+  - generate a replayable external prefix pool with `export_ariane_prefix_pool`
+  - then rerun reverse curriculum v2 against that external artifact
+
+### Exporter smoke status
+
+- `export_ariane_prefix_pool` now has a real Ariane smoke pass
+- smoke artifact:
+  - `experiments/chip/phase3_external_prefix_pool_smoke/phase3_ariane_prefix_pool.json`
+- smoke config:
+  - `num_updates = 1`
+  - `candidate_rollouts = 1`
+  - `grid_shape = 64x64`
+- observed outcome:
+  - exporter completed successfully
+  - rollout row includes replayable `action_indices`
+  - smoke `base_final_rollout.final_hpwl ~= 3.0238M`
+- interpretation:
+  - the exporter path is real and working on Ariane
+  - the remaining blocker is now purely the runtime cost of generating a **strong** external prefix pool, not missing implementation
+
+## 2026-04-14 protocol hardening for reverse curriculum v2
+
+### What changed
+
+- reverse curriculum v2 is no longer just a runner change
+- the surrounding data protocol is now explicit in code:
+  - accepted prefix-pool criteria
+  - multi-seed exported prefix sources
+  - separate salvage calibration artifact
+
+### New capabilities
+
+- `chip/experiments/phase3_macroplacement_ppo.py::export_ariane_prefix_pool`
+  - now supports:
+    - `policy_seeds`
+    - `hpwl_threshold`
+    - `remaining_macro_range`
+    - `geometry_packing_factor`
+    - `min_accepted_prefixes`
+  - exported rollouts now record:
+    - replayable `action_indices`
+    - `policy_seed`
+    - acceptance flags for reverse curriculum
+    - geometry summary when available
+  - artifact now reports:
+    - `acceptance_criteria`
+    - `acceptance_summary`
+    - pass / partial / fail status for the pool
+
+- `chip/experiments/phase3_macroplacement_ppo.py::calibrate_ariane_prefix_pool`
+  - consumes an external prefix artifact
+  - runs prefix-level salvage evaluation
+  - records per-prefix `greedy` / `random` suffix outcomes
+  - summarizes how many prefixes are actually completable
+
+### Current methodology record
+
+- reverse curriculum v2 should **not** be run directly after export
+- first:
+  1. export a multi-seed prefix pool
+  2. check whether the pool itself passes acceptance
+  3. run standalone salvage calibration
+  4. only then run the reverse-only v2 probe
+
+### Test / verification status
+
+- focused reverse-curriculum / exporter suite:
+  - `17 passed`
+- full suite:
+  - `python -m pytest tests/engine tests/chip -q`
+  - `218 passed`
+
+### Remaining blocker
+
+- reverse curriculum v2 is now blocked only by **runtime cost of producing a strong external pool**
+- code and artifact schema are no longer the blocker
+
+### Option-B reuse check on existing canonical64 artifact
+
+- checked:
+  - `experiments/chip/phase3_macroplacement_checkpoint_64x64_100/phase3_ppo_ariane_checkpoint.json`
+- result:
+  - this artifact contains only aggregate history + final rollout
+  - it does **not** contain replayable `rollouts`, `action_indices`, or `transitions`
+- conclusion:
+  - the old canonical `100-update` run cannot be reused directly as the external prefix source for reverse curriculum v2
+  - future long runs should preserve replayable rollout data when they may feed downstream curriculum work
+
+### Calibration dry-run on smoke prefix artifact
+
+- smoke calibration artifact:
+  - `experiments/chip/phase3_external_prefix_pool_smoke/phase3_ariane_prefix_calibration_smoke.json`
+- dry-run config:
+  - source = `phase3_external_prefix_pool_smoke/phase3_ariane_prefix_pool.json`
+  - `tail_steps = 10`
+  - `hpwl_threshold = 2.92`
+- result:
+  - calibration path completed successfully on real Ariane data
+  - `total_candidates = 0`
+- interpretation:
+  - this is expected because the single smoke rollout had `final_hpwl ~= 3.042M`, so it was filtered out before salvage
+  - the important outcome is that the calibration pipeline itself is real and functioning
+
+### Current status summary
+
+- canonical Ariane PPO line:
+  - still `Milestone B2 in progress / not passed`
+- reverse curriculum:
+  - `v1`: negative result, but informative
+  - `v2 plumbing`: implemented and tested
+  - `v2 experiment`: blocked only on producing the first strong external prefix source

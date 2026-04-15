@@ -41,6 +41,7 @@ def train_behavior_cloning_policy(
     epochs: int = 200,
     learning_rate: float = 1e-3,
     checkpoint_path: Path | None = None,
+    max_macro_index: int | None = None,
 ) -> dict[str, object]:
     if not demonstrations:
         raise ValueError("Expected at least one demonstration")
@@ -53,7 +54,11 @@ def train_behavior_cloning_policy(
         grid_channels=train_data.canvas.shape[1],
         grid_shape=grid_shape,
         hidden_dim=hidden_dim,
-        max_macro_index=max(int(train_data.current_macro_index.max().item()) + 2, 8),
+        max_macro_index=max(
+            int(train_data.current_macro_index.max().item()) + 2,
+            int(max_macro_index) if max_macro_index is not None else 0,
+            8,
+        ),
     )
     optimizer = torch.optim.Adam(policy.parameters(), lr=learning_rate)
 

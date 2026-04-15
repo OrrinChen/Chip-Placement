@@ -30,9 +30,18 @@ class PlacementEnv:
         seed: int | None = None,
         options: dict[str, object] | None = None,
     ) -> tuple[dict[str, object], dict[str, object]]:
-        del seed, options
-        self._state = self.adapter.initial_state()
-        self._step_index = 0
+        del seed
+        opts = options or {}
+        if hasattr(self.adapter, "reset_reward_state"):
+            self.adapter.reset_reward_state()
+        initial_state = opts.get("initial_state")
+        initial_step_index = opts.get("initial_step_index")
+        if initial_state is None:
+            self._state = self.adapter.initial_state()
+            self._step_index = 0
+        else:
+            self._state = initial_state
+            self._step_index = int(initial_step_index if initial_step_index is not None else len(getattr(initial_state, "placed_macros", ())))
         return self.adapter.observe(self.state, self._step_index), {"reward_source": self.reward_source}
 
     def step(

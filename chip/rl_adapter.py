@@ -3,9 +3,11 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 
+from chip.constraints import LEGALITY_EPSILON
 from chip.constraints import build_constraint_registry
 from chip.cost import hpwl_cost
 from chip.problem import ChipProblem
+from engine.constraints import ConstraintViolation
 from engine.constraints import ConstraintReport
 from engine.graph import ProblemGraph
 
@@ -17,23 +19,41 @@ class ChipRLState:
     placed_macros: frozenset[str] = frozenset()
 
 
+def build_macro_order(problem: ChipProblem, strategy: str = "descending_area") -> tuple[str, ...]:
+    movable = [macro for macro in problem.macros.values() if not macro.is_fixed]
+    if strategy == "descending_area":
+        ordered = sorted(movable, key=lambda macro: (-(macro.width * macro.height), macro.name))
+        return tuple(macro.name for macro in ordered)
+    if strategy == "seed_yx":
+        ordered = sorted(movable, key=lambda macro: (macro.y, macro.x, macro.name))
+        return tuple(macro.name for macro in ordered)
+    raise ValueError(f"Unknown macro ordering strategy: {strategy}")
+
+
 class ChipRLAdapter:
     def __init__(
         self,
         problem: ChipProblem,
         proxy=None,
         oracle=None,
+        reward_model=None,
+        hpwl_evaluator=None,
         legality_penalty: float = 100.0,
         min_spacing: float = 0.0,
         grid_shape: tuple[int, int] = (32, 32),
+        macro_order: tuple[str, ...] | None = None,
     ) -> None:
         self.problem = problem
         self.proxy = proxy
         self.oracle = oracle
+        self.reward_model = reward_model
+        self.hpwl_evaluator = hpwl_evaluator
         self.legality_penalty = legality_penalty
         self.grid_shape = grid_shape
+        self.min_spacing = min_spacing
         self.constraint_registry = build_constraint_registry(problem, min_spacing=min_spacing)
         self._movable_macros = tuple(name for name, macro in problem.macros.items() if not macro.is_fixed)
+        self._macro_order = tuple(macro_order) if macro_order is not None else build_macro_order(problem, "descending_area")
         self._base_edges = self._build_edges(problem)
 
     @property
@@ -41,8 +61,7 @@ class ChipRLAdapter:
         return self._movable_macros
 
     def ordered_macros(self) -> tuple[str, ...]:
-        movable = [self.problem.macros[name] for name in self.movable_macros]
-        return tuple(macro.name for macro in sorted(movable, key=lambda macro: (-(macro.width * macro.height), macro.name)))
+        return self._macro_order
 
     def current_macro_for_step(self, step_index: int) -> str | None:
         ordered = self.ordered_macros()
@@ -97,6 +116,16 @@ class ChipRLAdapter:
             return -self._proxy_cost(next_state)
         if reward_source == "proxy_delta":
             return self.proxy_delta(previous_state, next_state, len(previous_state.placed_macros))
+        if reward_source == "phase3_proxy_hpwl":
+            if self.reward_model is None:
+                raise ValueError("Phase 3 reward requested without a reward model")
+            return float(
+                self.reward_model.compute_step_reward(
+                    previous_state,
+                    next_state,
+                    is_legal=self.constraint_report(next_state).is_valid,
+                )
+            )
         if reward_source == "oracle":
             return -self._oracle_cost(next_state)
         if reward_source == "proxy_with_legality_penalty":
@@ -107,14 +136,19 @@ class ChipRLAdapter:
         raise ValueError(f"Unknown reward source: {reward_source}")
 
     def is_terminal(self, state: ChipRLState, step_index: int, max_steps: int) -> bool:
-        del state, step_index, max_steps
-        return False
+        del state, max_steps
+        return self.current_macro_for_step(step_index) is None
 
     def current_hpwl(self, state: ChipRLState) -> float:
+        if self.hpwl_evaluator is not None:
+            if hasattr(self.hpwl_evaluator, "evaluate"):
+                return float(self.hpwl_evaluator.evaluate(state.placement))
+            return float(self.hpwl_evaluator(state.placement))
         return hpwl_cost(state.problem, placement=state.placement)
 
     def constraint_report(self, state: ChipRLState) -> ConstraintReport:
-        return self.constraint_registry.check_all(state.placement)
+        active_names = self._active_macro_names(state)
+        return self._constraint_report_for_names(state.placement, active_names)
 
     def sample_random_action(self, state: ChipRLState, rng: random.Random) -> dict[str, object]:
         current_macro = self.current_macro_for_step(len(state.placed_macros))
@@ -130,7 +164,18 @@ class ChipRLAdapter:
 
     def seed_completed_placement(self, state: ChipRLState, step_index: int) -> dict[str, tuple[float, float]]:
         del step_index
+        if self.reward_model is not None and hasattr(self.reward_model, "seed_complete"):
+            return dict(
+                self.reward_model.seed_complete(
+                    state.placement,
+                    placed_macros=state.placed_macros,
+                )
+            )
         return dict(state.placement)
+
+    def reset_reward_state(self) -> None:
+        if self.reward_model is not None and hasattr(self.reward_model, "reset_episode"):
+            self.reward_model.reset_episode()
 
     def proxy_delta(self, previous_state: ChipRLState, next_state: ChipRLState, step_index: int) -> float:
         previous_cost = self._proxy_cost(
@@ -169,7 +214,10 @@ class ChipRLAdapter:
         y_coords = torch.linspace(0.0, 1.0, steps=rows, dtype=torch.float32).unsqueeze(1).repeat(1, cols)
         x_coords = torch.linspace(0.0, 1.0, steps=cols, dtype=torch.float32).unsqueeze(0).repeat(rows, 1)
 
+        active_names = self._active_macro_names(state)
         for name, macro in state.problem.macros.items():
+            if name not in active_names:
+                continue
             x, y = state.placement[name]
             row_index, col_index = self.coordinate_to_grid_index((x, y), grid_shape)
             occupancy[row_index, col_index] = 1.0
@@ -268,6 +316,78 @@ class ChipRLAdapter:
         if self.oracle is None:
             raise ValueError("Oracle reward requested without an evaluator")
         return float(self.oracle.evaluate(state))
+
+    def _active_macro_names(self, state: ChipRLState) -> set[str]:
+        return {
+            name
+            for name, macro in self.problem.macros.items()
+            if macro.is_fixed or name in state.placed_macros
+        }
+
+    def _constraint_report_for_names(
+        self,
+        placement: dict[str, tuple[float, float]],
+        active_names: set[str],
+    ) -> ConstraintReport:
+        violations: list[ConstraintViolation] = []
+        die = self.problem.die_area
+        rectangles = []
+        active_macros = [self.problem.macros[name] for name in active_names]
+
+        for macro in active_macros:
+            x, y = placement[macro.name]
+            overflow = max(die.min_x - x, 0.0) + max(die.min_y - y, 0.0)
+            overflow += max((x + macro.width) - die.max_x, 0.0)
+            overflow += max((y + macro.height) - die.max_y, 0.0)
+            if overflow > LEGALITY_EPSILON:
+                violations.append(
+                    ConstraintViolation(
+                        name="boundary",
+                        magnitude=float(overflow),
+                        penalty_weight=5.0,
+                        details={"macro": macro.name},
+                    )
+                )
+            if macro.width > 0.0 and macro.height > 0.0:
+                rectangles.append((x, x + macro.width, y, y + macro.height, macro.name))
+
+        rectangles.sort(key=lambda rect: rect[0])
+        active_rectangles: list[tuple[float, float, float, float, str]] = []
+        for x1, x2, y1, y2, name in rectangles:
+            active_rectangles = [rect for rect in active_rectangles if rect[1] > x1]
+            for other_x1, other_x2, other_y1, other_y2, other_name in active_rectangles:
+                overlap_x = min(x2, other_x2) - max(x1, other_x1)
+                overlap_y = min(y2, other_y2) - max(y1, other_y1)
+                if overlap_x > LEGALITY_EPSILON and overlap_y > LEGALITY_EPSILON:
+                    violations.append(
+                        ConstraintViolation(
+                            name="non_overlap",
+                            magnitude=float(overlap_x * overlap_y),
+                            penalty_weight=10.0,
+                            details={"first": other_name, "second": name},
+                        )
+                    )
+            active_rectangles.append((x1, x2, y1, y2, name))
+
+        if self.min_spacing > 0.0:
+            for index, first in enumerate(active_macros):
+                x1, y1 = placement[first.name]
+                for second in active_macros[index + 1 :]:
+                    x2, y2 = placement[second.name]
+                    gap_x = max(x2 - (x1 + first.width), x1 - (x2 + second.width), 0.0)
+                    gap_y = max(y2 - (y1 + first.height), y1 - (y2 + second.height), 0.0)
+                    if gap_x == 0.0 and gap_y == 0.0:
+                        continue
+                    if gap_x < self.min_spacing and gap_y < self.min_spacing:
+                        violations.append(
+                            ConstraintViolation(
+                                name="min_spacing",
+                                magnitude=float(self.min_spacing - min(gap_x, gap_y)),
+                                penalty_weight=3.0,
+                                details={"first": first.name, "second": second.name},
+                            )
+                        )
+        return ConstraintReport(violations=violations)
 
     @staticmethod
     def _build_edges(problem: ChipProblem) -> tuple[tuple[str, str, dict[str, float]], ...]:

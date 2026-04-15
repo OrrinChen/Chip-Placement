@@ -81,7 +81,7 @@ def build_demonstrations_from_trace(
     demonstrations: list[DemonstrationStep] = []
 
     for event in trace:
-        step_index = int(event["step_index"])
+        step_index = len(state.placed_macros)
         action = dict(event["action"])
         observation = adapter.observe(state, step_index=step_index)
         action_mask = observation["action_mask"].reshape(-1).tolist()
