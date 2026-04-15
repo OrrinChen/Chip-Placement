@@ -1,0 +1,185 @@
+{
+  "benchmark": "ariane133_ng45",
+  "reward_metadata": {
+    "benchmark": "ariane133_ng45",
+    "reference_def_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "combined_lef_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane133_ng45.combined.lef",
+    "seed_macro_count": 133,
+    "reward_weights": {
+      "w_proxy": 0.0,
+      "w_hpwl": 1.0,
+      "legality_penalty": 10.0
+    }
+  },
+  "greedy": {
+    "steps": 105,
+    "final_hpwl": 1682632.2428999988,
+    "episode_return": 1260110.2861159996,
+    "termination_reason": "no_valid_actions",
+    "completed_episode": false
+  },
+  "behavior_cloning": {
+    "masked_accuracy": 0.4095238149166107,
+    "final_loss": 1.810828685760498,
+    "checkpoint_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
+  },
+  "bc_rollout": {
+    "steps": 105,
+    "final_hpwl": 3002608.8321400015,
+    "episode_return": -59866.30312400311,
+    "termination_reason": "no_valid_actions",
+    "completed_episode": false
+  },
+  "ppo_scratch_40": {
+    "final_rollout": {
+      "steps": 66,
+      "final_hpwl": 3162123.5334660066,
+      "episode_return": -219381.00445000827,
+      "termination_reason": "no_valid_actions",
+      "completed_episode": false
+    },
+    "history_tail": [
+      {
+        "policy_loss": -7963.29931640625,
+        "value_loss": 4438734848.0,
+        "entropy": 0.008230134844779968,
+        "steps": 66.0,
+        "final_hpwl": 3168741.2254060023,
+        "invalid_action_count": 0.0,
+        "episode_return": -225998.6963900039,
+        "completed_episode": 0.0,
+        "is_legal": 1.0,
+        "approx_kl": 0.0,
+        "best_hpwl_so_far": 3046831.9120660033
+      },
+      {
+        "policy_loss": 30802.15625,
+        "value_loss": 5302419968.0,
+        "entropy": 0.0008193848188966513,
+        "steps": 66.0,
+        "final_hpwl": 3168741.2254060023,
+        "invalid_action_count": 0.0,
+        "episode_return": -225998.6963900039,
+        "completed_episode": 0.0,
+        "is_legal": 1.0,
+        "approx_kl": 0.0,
+        "best_hpwl_so_far": 3046831.9120660033
+      },
+      {
+        "policy_loss": -7977.91845703125,
+        "value_loss": 4437316096.0,
+        "entropy": 0.003823046339675784,
+        "steps": 66.0,
+        "final_hpwl": 3168741.2254060023,
+        "invalid_action_count": 0.0,
+        "episode_return": -225998.6963900039,
+        "completed_episode": 0.0,
+        "is_legal": 1.0,
+        "approx_kl": 0.0,
+        "best_hpwl_so_far": 3046831.9120660033
+      },
+      {
+        "policy_loss": 30786.53515625,
+        "value_loss": 5300072960.0,
+        "entropy": 0.001512014539912343,
+        "steps": 66.0,
+        "final_hpwl": 3168741.2254060023,
+        "invalid_action_count": 0.0,
+        "episode_return": -225998.6963900039,
+        "completed_episode": 0.0,
+        "is_legal": 1.0,
+        "approx_kl": 0.0,
+        "best_hpwl_so_far": 3046831.9120660033
+      },
+      {
+        "policy_loss": -7996.3056640625,
+        "value_loss": 4435822080.0,
+        "entropy": 3.6891724448651075e-06,
+        "steps": 66.0,
+        "final_hpwl": 3168741.2254060023,
+        "invalid_action_count": 0.0,
+        "episode_return": -225998.6963900039,
+        "completed_episode": 0.0,
+        "is_legal": 1.0,
+        "approx_kl": 0.0,
+        "best_hpwl_so_far": 3046831.9120660033
+      }
+    ]
+  },
+  "ppo_warm_start_40": {
+    "final_rollout": {
+      "steps": 128,
+      "final_hpwl": 3376449.3580060042,
+      "episode_return": -433706.8289900059,
+      "termination_reason": "no_valid_actions",
+      "completed_episode": false
+    },
+    "history_tail": [
+      {
+        "policy_loss": -35760.328125,
+        "value_loss": 3453894144.0,
+        "entropy": 1.2234735446980949e-09,
+        "steps": 128.0,
+        "final_hpwl": 3404321.3759399913,
+        "invalid_action_count": 0.0,
+        "episode_return": -461578.84692399297,
+        "completed_episode": 0.0,
+        "is_legal": 1.0,
+        "approx_kl": 0.0,
+        "best_hpwl_so_far": 2857926.951498001
+      },
+      {
+        "policy_loss": -29560.86328125,
+        "value_loss": 2972036864.0,
+        "entropy": 1.2419737460689362e-09,
+        "steps": 128.0,
+        "final_hpwl": 3365027.046720003,
+        "invalid_action_count": 0.0,
+        "episode_return": -422284.5177040044,
+        "completed_episode": 0.0,
+        "is_legal": 1.0,
+        "approx_kl": 0.0,
+        "best_hpwl_so_far": 2857926.951498001
+      },
+      {
+        "policy_loss": -1987.5853271484375,
+        "value_loss": 3277110272.0,
+        "entropy": 0.0046450053341686726,
+        "steps": 128.0,
+        "final_hpwl": 3407038.113974005,
+        "invalid_action_count": 0.0,
+        "episode_return": -464295.5849580066,
+        "completed_episode": 0.0,
+        "is_legal": 1.0,
+        "approx_kl": -6.103515625e-05,
+        "best_hpwl_so_far": 2857926.951498001
+      },
+      {
+        "policy_loss": -3576.853515625,
+        "value_loss": 3692571904.0,
+        "entropy": 0.0021101930178701878,
+        "steps": 128.0,
+        "final_hpwl": 3453027.4613740034,
+        "invalid_action_count": 0.0,
+        "episode_return": -510284.9323580051,
+        "completed_episode": 0.0,
+        "is_legal": 1.0,
+        "approx_kl": 0.0,
+        "best_hpwl_so_far": 2857926.951498001
+      },
+      {
+        "policy_loss": -34994.6796875,
+        "value_loss": 3375585280.0,
+        "entropy": 5.5631284340051934e-05,
+        "steps": 128.0,
+        "final_hpwl": 3423134.9604160003,
+        "invalid_action_count": 0.0,
+        "episode_return": -480392.431400002,
+        "completed_episode": 0.0,
+        "is_legal": 1.0,
+        "approx_kl": 0.0,
+        "best_hpwl_so_far": 2857926.951498001
+      }
+    ]
+  }
+}
