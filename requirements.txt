@@ -1,0 +1,10 @@
+# Core Python dependencies for repo-owned code under chip/, engine/, and their
+# reproducible experiment entrypoints.
+#
+# External system dependencies such as OpenROAD / ORFS, Docker, benchmark assets,
+# and MacroPlacement's Plc_client are documented in README.md and are not
+# installable from this file alone.
+
+torch>=2.2,<3
+scipy>=1.13,<2
+cvxpy>=1.6,<2

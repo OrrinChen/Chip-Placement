@@ -73,11 +73,9 @@ docs/superpowers/
 
 - Python `3.11+`
 - The repository currently declares only minimal packaging metadata in `pyproject.toml`
-- In practice, you will also need at least:
-  - `torch`
-  - `scipy`
-  - `cvxpy`
-  - `pytest`
+- Install Python dependencies from:
+  - `requirements.txt`
+  - `requirements-dev.txt`
 
 ### External tools
 
@@ -131,7 +129,7 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e .
-python -m pip install torch scipy cvxpy pytest
+python -m pip install -r requirements-dev.txt
 ```
 
 ### 2. Run the core test suite
@@ -238,7 +236,7 @@ Current Ariane facts on `main`:
 ## Known Limits
 
 - This is still a research repo, not a fully packaged framework.
-- `pyproject.toml` does not yet pin the full runtime dependency set.
+- `pyproject.toml` still contains only minimal package metadata; the practical Python environment is currently described by `requirements.txt` and `requirements-dev.txt`.
 - Benchmark assets are not vendored into the repository.
 - `Phase 3` is not closed:
   - the unified final table across RL / SA / analytical / OpenROAD on `3+` real macro-placement benchmarks is still missing
