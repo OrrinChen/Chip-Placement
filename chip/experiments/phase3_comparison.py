@@ -195,12 +195,22 @@ def _coerce_training_metrics(training: dict[str, object] | None) -> dict[str, fl
     if not history:
         return {"update_count": 0.0}
     last = history[-1]
+
+    def _coerce_scalar_row(row: dict[str, object]) -> dict[str, float]:
+        coerced: dict[str, float] = {}
+        for key, value in row.items():
+            try:
+                coerced[key] = float(value)
+            except (TypeError, ValueError):
+                continue
+        return coerced
+
     return {
         "update_count": float(len(history)),
         "policy_loss": float(last["policy_loss"]),
         "value_loss": float(last["value_loss"]),
         "entropy": float(last["entropy"]),
-        "curve": [{key: float(value) for key, value in item.items()} for item in history],
+        "curve": [_coerce_scalar_row(item) for item in history],
     }
 
 

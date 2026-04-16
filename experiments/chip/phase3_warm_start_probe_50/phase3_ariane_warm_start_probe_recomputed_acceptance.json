@@ -1,0 +1,450 @@
+{
+  "acceptance_criteria": {
+    "geometry_packing_factor": 1.0,
+    "hpwl_threshold": 2.85,
+    "hpwl_threshold_raw": 2850000.0,
+    "hpwl_threshold_sweep": [
+      2.85,
+      2.88,
+      2.9,
+      2.92
+    ],
+    "hpwl_threshold_sweep_raw": [
+      2850000.0,
+      2880000.0,
+      2900000.0,
+      2920000.0
+    ],
+    "min_accepted_prefixes": 20,
+    "remaining_macro_range": [
+      8,
+      13
+    ],
+    "remaining_macro_ranges_sweep": [
+      [
+        8,
+        13
+      ],
+      [
+        10,
+        15
+      ],
+      [
+        12,
+        17
+      ],
+      [
+        15,
+        20
+      ]
+    ]
+  },
+  "cohorts": {
+    "update0": {
+      "acceptance_summary": {
+        "accepted_prefixes": 0,
+        "geometry_eligible": 16,
+        "hpwl_eligible": 0,
+        "meets_min_prefix_count": false,
+        "remaining_eligible": 2,
+        "status": "fail",
+        "threshold_sweep": [
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 2,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 2
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 2,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 2
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 2,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 2
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          }
+        ],
+        "total_rollouts": 25,
+        "unique_source_rollouts": 0
+      },
+      "completed_count": 9,
+      "completion_rate": 0.36,
+      "distribution": {
+        "final_hpwl": {
+          "count": 25,
+          "max": 3164366.4969440056,
+          "mean": 2934966.7893410404,
+          "median": 2949438.405035993,
+          "min": 2687943.143475994,
+          "p10": 2788176.3237139983,
+          "p90": 3063752.757442006
+        },
+        "steps": {
+          "count": 25,
+          "max": 133.0,
+          "mean": 130.64,
+          "median": 132.0,
+          "min": 124.0,
+          "p10": 126.4,
+          "p90": 133.0
+        },
+        "threshold_hit_rates": [
+          {
+            "count": 5,
+            "hit_rate": 0.2,
+            "hpwl_threshold": 2.85
+          },
+          {
+            "count": 7,
+            "hit_rate": 0.28,
+            "hpwl_threshold": 2.88
+          },
+          {
+            "count": 8,
+            "hit_rate": 0.32,
+            "hpwl_threshold": 2.9
+          },
+          {
+            "count": 9,
+            "hit_rate": 0.36,
+            "hpwl_threshold": 2.92
+          }
+        ]
+      },
+      "rollout_count": 25
+    },
+    "update1": {
+      "acceptance_summary": {
+        "accepted_prefixes": 0,
+        "geometry_eligible": 23,
+        "hpwl_eligible": 0,
+        "meets_min_prefix_count": false,
+        "remaining_eligible": 3,
+        "status": "fail",
+        "threshold_sweep": [
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          }
+        ],
+        "total_rollouts": 25,
+        "unique_source_rollouts": 0
+      },
+      "completed_count": 2,
+      "completion_rate": 0.08,
+      "distribution": {
+        "final_hpwl": {
+          "count": 25,
+          "max": 3284997.760387995,
+          "mean": 3015928.698511443,
+          "median": 3040066.4726259955,
+          "min": 2675147.0067560077,
+          "p10": 2862777.3724512053,
+          "p90": 3148639.927290809
+        },
+        "steps": {
+          "count": 25,
+          "max": 133.0,
+          "mean": 128.6,
+          "median": 129.0,
+          "min": 121.0,
+          "p10": 125.4,
+          "p90": 132.0
+        },
+        "threshold_hit_rates": [
+          {
+            "count": 2,
+            "hit_rate": 0.08,
+            "hpwl_threshold": 2.85
+          },
+          {
+            "count": 3,
+            "hit_rate": 0.12,
+            "hpwl_threshold": 2.88
+          },
+          {
+            "count": 4,
+            "hit_rate": 0.16,
+            "hpwl_threshold": 2.9
+          },
+          {
+            "count": 5,
+            "hit_rate": 0.2,
+            "hpwl_threshold": 2.92
+          }
+        ]
+      },
+      "rollout_count": 25
+    }
+  }
+}

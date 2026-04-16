@@ -1,0 +1,105 @@
+{
+  "benchmark": "ariane133_ng45",
+  "diagnostic_config": {
+    "diagnostic_eval_seeds": [
+      2,
+      3,
+      4,
+      5,
+      7
+    ],
+    "policy_epochs": 3
+  },
+  "metadata": {
+    "benchmark": "ariane133_ng45",
+    "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_warm_start_substep_diagnostic_completed_seeds\\ariane133_ng45.combined.lef",
+    "grid_shape": [
+      32,
+      32
+    ],
+    "hidden_dim": 64,
+    "ordered_macro_count": 133,
+    "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "reward_metadata": {
+      "benchmark": "ariane133_ng45",
+      "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_warm_start_substep_diagnostic_completed_seeds\\ariane133_ng45.combined.lef",
+      "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+      "reward_weights": {
+        "completion_bonus": 0.0,
+        "legality_penalty": 10.0,
+        "w_hpwl": 1.0,
+        "w_proxy": 0.0
+      },
+      "seed_macro_count": 133
+    },
+    "seed_macro_count": 133,
+    "training_config": {
+      "entropy_coef": 5.0,
+      "init_seed": 0,
+      "kl_anchor_beta": 5.0,
+      "learning_rate": 0.0001,
+      "value_coef": 0.0
+    },
+    "warm_start_checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
+  },
+  "update_metrics": {
+    "approx_kl": 0.13475865125656128,
+    "completed_episode": 0.0,
+    "entropy": 0.7713073492050171,
+    "episode_return": 84815.57751799747,
+    "final_hpwl": 2857926.951498001,
+    "invalid_action_count": 0.0,
+    "is_legal": 1.0,
+    "kl_anchor_beta": 5.0,
+    "kl_anchor_loss": 0.11543874442577362,
+    "policy_epochs": 3.0,
+    "policy_loss": 0.027857279404997826,
+    "pre_update_diagnostic": {
+      "heldout_completion_rate": 0.0,
+      "heldout_log_prob_delta_mean": -3.8025411118525198e-06,
+      "heldout_mean_hpwl": 2830326.1591304042,
+      "heldout_rollout_count": 5.0,
+      "update_batch_kl_to_reference": 0.0
+    },
+    "steps": 105.0,
+    "substep_history": [
+      {
+        "approx_kl": 0.21728980541229248,
+        "entropy": 0.768976092338562,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.2586140630277146,
+        "heldout_mean_hpwl": 2848394.641258399,
+        "heldout_rollout_count": 5.0,
+        "policy_loss": 0.03795987367630005,
+        "substep_index": 0.0,
+        "update_batch_kl_to_reference": Infinity,
+        "value_loss": 18230317056.0
+      },
+      {
+        "approx_kl": 0.09305477887392044,
+        "entropy": 0.796574592590332,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.08508228040060892,
+        "heldout_mean_hpwl": 2837851.8596992013,
+        "heldout_rollout_count": 5.0,
+        "policy_loss": 0.005839438643306494,
+        "substep_index": 1.0,
+        "update_batch_kl_to_reference": 0.12429530173540115,
+        "value_loss": 18230312960.0
+      },
+      {
+        "approx_kl": 0.13475865125656128,
+        "entropy": 0.7713073492050171,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.11449785209021464,
+        "heldout_mean_hpwl": 2949490.534031601,
+        "heldout_rollout_count": 5.0,
+        "policy_loss": 0.027857279404997826,
+        "substep_index": 2.0,
+        "update_batch_kl_to_reference": 0.11543874442577362,
+        "value_loss": 18230308864.0
+      }
+    ],
+    "value_loss": 18230308864.0
+  }
+}

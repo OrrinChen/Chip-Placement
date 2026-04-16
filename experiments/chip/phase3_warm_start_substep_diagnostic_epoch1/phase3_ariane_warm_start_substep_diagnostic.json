@@ -1,0 +1,153 @@
+{
+  "benchmark": "ariane133_ng45",
+  "diagnostic_config": {
+    "diagnostic_eval_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "policy_epochs": 1
+  },
+  "metadata": {
+    "benchmark": "ariane133_ng45",
+    "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_warm_start_substep_diagnostic_epoch1\\ariane133_ng45.combined.lef",
+    "grid_shape": [
+      32,
+      32
+    ],
+    "hidden_dim": 64,
+    "ordered_macro_count": 133,
+    "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "reward_metadata": {
+      "benchmark": "ariane133_ng45",
+      "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_warm_start_substep_diagnostic_epoch1\\ariane133_ng45.combined.lef",
+      "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+      "reward_weights": {
+        "completion_bonus": 0.0,
+        "legality_penalty": 10.0,
+        "w_hpwl": 1.0,
+        "w_proxy": 0.0
+      },
+      "seed_macro_count": 133
+    },
+    "seed_macro_count": 133,
+    "training_config": {
+      "entropy_coef": 5.0,
+      "init_seed": 0,
+      "kl_anchor_beta": 5.0,
+      "learning_rate": 0.0001,
+      "value_coef": 0.0
+    },
+    "warm_start_checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
+  },
+  "update_metrics": {
+    "approx_kl": 0.21728980541229248,
+    "batch_diagnostic": {
+      "normalized_advantage_summary": {
+        "count": 105.0,
+        "max": 2.2278430461883545,
+        "mean": 1.1353266105018633e-09,
+        "min": -1.0492266416549683
+      },
+      "old_value_summary": {
+        "count": 105.0,
+        "max": 58.5754508972168,
+        "mean": 52.4898681640625,
+        "min": 49.50460433959961
+      },
+      "raw_advantage_summary": {
+        "count": 105.0,
+        "max": 266975.0,
+        "mean": -27515.5,
+        "min": -166208.96875
+      },
+      "return_summary": {
+        "count": 105.0,
+        "max": 267030.78125,
+        "mean": -27463.009765625,
+        "min": -166157.3125
+      },
+      "top_abs_advantages": [
+        {
+          "normalized_advantage": 2.2278430461883545,
+          "old_value": 55.7714958190918,
+          "raw_advantage": 266975.0,
+          "return": 267030.78125,
+          "reward": 27220.514699999243,
+          "transition_index": 12.0
+        },
+        {
+          "normalized_advantage": 2.1019043922424316,
+          "old_value": 56.18556594848633,
+          "raw_advantage": 250327.609375,
+          "return": 250383.796875,
+          "reward": -13976.67437999975,
+          "transition_index": 11.0
+        },
+        {
+          "normalized_advantage": 2.0577595233917236,
+          "old_value": 56.314247131347656,
+          "raw_advantage": 244492.28125,
+          "return": 244548.59375,
+          "reward": -3331.373507999815,
+          "transition_index": 10.0
+        },
+        {
+          "normalized_advantage": 2.0402464866638184,
+          "old_value": 55.314388275146484,
+          "raw_advantage": 242177.28125,
+          "return": 242232.59375,
+          "reward": 11025.143639999442,
+          "transition_index": 13.0
+        },
+        {
+          "normalized_advantage": 1.9745068550109863,
+          "old_value": 55.469757080078125,
+          "raw_advantage": 233487.40625,
+          "return": 233542.875,
+          "reward": 23644.943799999077,
+          "transition_index": 14.0
+        }
+      ],
+      "value_return_correlation": 0.8505042195320129
+    },
+    "completed_episode": 0.0,
+    "entropy": 0.768976092338562,
+    "episode_return": 84815.57751799747,
+    "final_hpwl": 2857926.951498001,
+    "invalid_action_count": 0.0,
+    "is_legal": 1.0,
+    "kl_anchor_beta": 5.0,
+    "kl_anchor_loss": Infinity,
+    "policy_epochs": 1.0,
+    "policy_loss": 0.03795987367630005,
+    "pre_update_diagnostic": {
+      "heldout_completion_rate": 0.0,
+      "heldout_log_prob_delta_mean": -1.0941246310558483e-05,
+      "heldout_mean_hpwl": 2844907.741634004,
+      "heldout_rollout_count": 5.0,
+      "update_batch_kl_to_reference": 0.0
+    },
+    "steps": 105.0,
+    "substep_history": [
+      {
+        "approx_kl": 0.21728980541229248,
+        "entropy": 0.768976092338562,
+        "global_grad_norm": 82.0613061480692,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.24412042877987988,
+        "heldout_mean_hpwl": 2871586.3915480026,
+        "heldout_rollout_count": 5.0,
+        "policy_head_grad_norm": 21.20030739039642,
+        "policy_loss": 0.03795987367630005,
+        "substep_index": 0.0,
+        "update_batch_kl_to_reference": Infinity,
+        "value_head_grad_norm": 0.0,
+        "value_loss": 18230317056.0
+      }
+    ],
+    "value_loss": 18230317056.0
+  }
+}

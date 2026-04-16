@@ -1,0 +1,1203 @@
+{
+  "benchmark": "ariane133_ng45",
+  "diagnostic_config": {
+    "diagnostic_eval_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "followup_updates": 10,
+    "policy_epochs": 1,
+    "prefit_epochs": 20,
+    "prefit_rollout_seeds": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "warm_start_baseline_hpwl": 2881799.084470007
+  },
+  "followup_eval": {
+    "final_hpwl_distribution": {
+      "count": 5,
+      "max": 3092355.674153997,
+      "mean": 2943492.748790802,
+      "median": 2939367.2212920035,
+      "min": 2788418.082662006,
+      "p10": 2828647.2944604047,
+      "p90": 3058746.065967598
+    },
+    "rollout_count": 5
+  },
+  "followup_training": {
+    "final_rollout": {
+      "completed_episode": false,
+      "episode_return": 125518.72912999894,
+      "final_hpwl": 2817223.7998859994,
+      "invalid_action_count": 0,
+      "is_legal": true,
+      "steps": 101,
+      "termination_reason": "no_valid_actions"
+    },
+    "history": [
+      {
+        "approx_kl": 0.5800111293792725,
+        "batch_diagnostic": {
+          "normalized_advantage_summary": {
+            "count": 102.0,
+            "max": 2.3091695308685303,
+            "mean": 1.2855903896991094e-08,
+            "min": -1.3354768753051758
+          },
+          "old_value_summary": {
+            "count": 102.0,
+            "max": -1570.73974609375,
+            "mean": -1646.3743896484375,
+            "min": -1763.899658203125
+          },
+          "raw_advantage_summary": {
+            "count": 102.0,
+            "max": 169240.359375,
+            "mean": -97871.5234375,
+            "min": -252352.0625
+          },
+          "return_summary": {
+            "count": 102.0,
+            "max": 167531.953125,
+            "mean": -99517.890625,
+            "min": -253929.1875
+          },
+          "top_abs_advantages": [
+            {
+              "normalized_advantage": -1.3354768753051758,
+              "old_value": -1577.125,
+              "raw_advantage": -252352.0625,
+              "return": -253929.1875,
+              "reward": -27713.609099999536,
+              "transition_index": 45.0
+            },
+            {
+              "normalized_advantage": -1.2263014316558838,
+              "old_value": -1617.215087890625,
+              "raw_advantage": -239723.25,
+              "return": -241340.46875,
+              "reward": -15361.265569999814,
+              "transition_index": 49.0
+            },
+            {
+              "normalized_advantage": -1.1524994373321533,
+              "old_value": -1570.73974609375,
+              "raw_advantage": -231186.234375,
+              "return": -232756.96875,
+              "reward": 18632.94000000041,
+              "transition_index": 44.0
+            },
+            {
+              "normalized_advantage": -1.126604676246643,
+              "old_value": -1636.671630859375,
+              "raw_advantage": -228190.875,
+              "return": -229827.546875,
+              "reward": -10961.782640000805,
+              "transition_index": 51.0
+            },
+            {
+              "normalized_advantage": -1.1155149936676025,
+              "old_value": -1592.517333984375,
+              "raw_advantage": -226908.078125,
+              "return": -228500.59375,
+              "reward": -5516.5461500003,
+              "transition_index": 46.0
+            }
+          ],
+          "value_return_correlation": -0.8334476351737976
+        },
+        "best_hpwl_so_far": 2952600.8165420126,
+        "completed_episode": 0.0,
+        "entropy": 0.6448296308517456,
+        "episode_return": -9858.287526014261,
+        "final_hpwl": 2952600.8165420126,
+        "invalid_action_count": 0.0,
+        "is_legal": 1.0,
+        "kl_anchor_beta": 5.0,
+        "kl_anchor_loss": 0.13974756002426147,
+        "policy_epochs": 1.0,
+        "policy_loss": 0.10407751053571701,
+        "pre_update_diagnostic": null,
+        "steps": 102.0,
+        "substep_history": [
+          {
+            "approx_kl": 0.5800111293792725,
+            "entropy": 0.6448296308517456,
+            "global_grad_norm": 220.4790971449739,
+            "policy_head_grad_norm": 56.452740103863654,
+            "policy_loss": 0.10407751053571701,
+            "substep_index": 0.0,
+            "update_batch_kl_to_reference": 0.13974756002426147,
+            "value_head_grad_norm": 0.0,
+            "value_loss": 22960117760.0
+          }
+        ],
+        "value_loss": 22960117760.0
+      },
+      {
+        "approx_kl": 0.7166697978973389,
+        "batch_diagnostic": {
+          "normalized_advantage_summary": {
+            "count": 98.0,
+            "max": 2.0863101482391357,
+            "mean": 9.731370376186987e-09,
+            "min": -1.1497565507888794
+          },
+          "old_value_summary": {
+            "count": 98.0,
+            "max": -1546.598388671875,
+            "mean": -1623.3095703125,
+            "min": -1760.2783203125
+          },
+          "raw_advantage_summary": {
+            "count": 98.0,
+            "max": 294792.0,
+            "mean": -29719.591796875,
+            "min": -208556.53125
+          },
+          "return_summary": {
+            "count": 98.0,
+            "max": 293087.09375,
+            "mean": -31342.900390625,
+            "min": -210184.40625
+          },
+          "top_abs_advantages": [
+            {
+              "normalized_advantage": 2.0863101482391357,
+              "old_value": -1704.8934326171875,
+              "raw_advantage": 294792.0,
+              "return": 293087.09375,
+              "reward": 21066.465199999977,
+              "transition_index": 5.0
+            },
+            {
+              "normalized_advantage": 1.9973419904708862,
+              "old_value": -1697.9283447265625,
+              "raw_advantage": 280953.59375,
+              "return": 279255.65625,
+              "reward": 36029.500879999716,
+              "transition_index": 7.0
+            },
+            {
+              "normalized_advantage": 1.9685025215148926,
+              "old_value": -1699.50439453125,
+              "raw_advantage": 276467.8125,
+              "return": 274768.3125,
+              "reward": -1694.7916999985464,
+              "transition_index": 6.0
+            },
+            {
+              "normalized_advantage": 1.938296914100647,
+              "old_value": -1735.727783203125,
+              "raw_advantage": 271769.53125,
+              "return": 270033.8125,
+              "reward": 7329.895859999582,
+              "transition_index": 3.0
+            },
+            {
+              "normalized_advantage": 1.9081130027770996,
+              "old_value": -1717.1357421875,
+              "raw_advantage": 267074.625,
+              "return": 265357.5,
+              "reward": -24798.732799999416,
+              "transition_index": 4.0
+            }
+          ],
+          "value_return_correlation": -0.7562397122383118
+        },
+        "best_hpwl_so_far": 2763600.931778008,
+        "completed_episode": 0.0,
+        "entropy": 0.5127155780792236,
+        "episode_return": 179141.59723799024,
+        "final_hpwl": 2763600.931778008,
+        "invalid_action_count": 0.0,
+        "is_legal": 1.0,
+        "kl_anchor_beta": 5.0,
+        "kl_anchor_loss": Infinity,
+        "policy_epochs": 1.0,
+        "policy_loss": 0.07465498149394989,
+        "pre_update_diagnostic": null,
+        "steps": 98.0,
+        "substep_history": [
+          {
+            "approx_kl": 0.7166697978973389,
+            "entropy": 0.5127155780792236,
+            "global_grad_norm": 203.26659725815577,
+            "policy_head_grad_norm": 45.24372339712989,
+            "policy_loss": 0.07465498149394989,
+            "substep_index": 0.0,
+            "update_batch_kl_to_reference": Infinity,
+            "value_head_grad_norm": 0.0,
+            "value_loss": 25077286912.0
+          }
+        ],
+        "value_loss": 25077286912.0
+      },
+      {
+        "approx_kl": 0.30767711997032166,
+        "batch_diagnostic": {
+          "normalized_advantage_summary": {
+            "count": 110.0,
+            "max": 2.395042896270752,
+            "mean": 3.467906495302486e-08,
+            "min": -1.1003429889678955
+          },
+          "old_value_summary": {
+            "count": 110.0,
+            "max": -1548.939208984375,
+            "mean": -1639.60400390625,
+            "min": -1753.8974609375
+          },
+          "raw_advantage_summary": {
+            "count": 110.0,
+            "max": 247382.8125,
+            "mean": -77000.8203125,
+            "min": -226030.8125
+          },
+          "return_summary": {
+            "count": 110.0,
+            "max": 245684.09375,
+            "mean": -78640.421875,
+            "min": -227671.921875
+          },
+          "top_abs_advantages": [
+            {
+              "normalized_advantage": 2.395042896270752,
+              "old_value": -1698.716796875,
+              "raw_advantage": 247382.8125,
+              "return": 245684.09375,
+              "reward": 24875.52000000002,
+              "transition_index": 5.0
+            },
+            {
+              "normalized_advantage": -1.1003429889678955,
+              "old_value": -1641.1156005859375,
+              "raw_advantage": -226030.8125,
+              "return": -227671.921875,
+              "reward": -7523.616770000197,
+              "transition_index": 89.0
+            },
+            {
+              "normalized_advantage": 2.2320237159729004,
+              "old_value": -1729.431640625,
+              "raw_advantage": 225303.5625,
+              "return": 223574.125,
+              "reward": 7329.895859999582,
+              "transition_index": 3.0
+            },
+            {
+              "normalized_advantage": 2.227848529815674,
+              "old_value": -1699.124267578125,
+              "raw_advantage": 224738.09375,
+              "return": 223038.96875,
+              "reward": 16317.390000001062,
+              "transition_index": 6.0
+            },
+            {
+              "normalized_advantage": -1.0612353086471558,
+              "old_value": -1637.91455078125,
+              "raw_advantage": -220734.09375,
+              "return": -222372.015625,
+              "reward": -26349.480199999176,
+              "transition_index": 90.0
+            }
+          ],
+          "value_return_correlation": -0.6843639016151428
+        },
+        "best_hpwl_so_far": 2763600.931778008,
+        "completed_episode": 0.0,
+        "entropy": 0.6263976097106934,
+        "episode_return": 78724.18643800402,
+        "final_hpwl": 2864018.3425779943,
+        "invalid_action_count": 0.0,
+        "is_legal": 1.0,
+        "kl_anchor_beta": 5.0,
+        "kl_anchor_loss": 0.13084924221038818,
+        "policy_epochs": 1.0,
+        "policy_loss": 0.1310858428478241,
+        "pre_update_diagnostic": null,
+        "steps": 110.0,
+        "substep_history": [
+          {
+            "approx_kl": 0.30767711997032166,
+            "entropy": 0.6263976097106934,
+            "global_grad_norm": 156.74515945266222,
+            "policy_head_grad_norm": 45.53416417836172,
+            "policy_loss": 0.1310858428478241,
+            "substep_index": 0.0,
+            "update_batch_kl_to_reference": 0.13084924221038818,
+            "value_head_grad_norm": 0.0,
+            "value_loss": 24273268736.0
+          }
+        ],
+        "value_loss": 24273268736.0
+      },
+      {
+        "approx_kl": 1.000612735748291,
+        "batch_diagnostic": {
+          "normalized_advantage_summary": {
+            "count": 102.0,
+            "max": 2.2310659885406494,
+            "mean": 6.720131562332199e-09,
+            "min": -1.3869513273239136
+          },
+          "old_value_summary": {
+            "count": 102.0,
+            "max": -1536.1583251953125,
+            "mean": -1607.515625,
+            "min": -1752.8104248046875
+          },
+          "raw_advantage_summary": {
+            "count": 102.0,
+            "max": 294178.78125,
+            "mean": 4023.57177734375,
+            "min": -176352.609375
+          },
+          "return_summary": {
+            "count": 102.0,
+            "max": 292485.78125,
+            "mean": 2416.056640625,
+            "min": -177914.875
+          },
+          "top_abs_advantages": [
+            {
+              "normalized_advantage": 2.2310659885406494,
+              "old_value": -1693.0029296875,
+              "raw_advantage": 294178.78125,
+              "return": 292485.78125,
+              "reward": 20953.671539999545,
+              "transition_index": 7.0
+            },
+            {
+              "normalized_advantage": 2.2199132442474365,
+              "old_value": -1699.3612060546875,
+              "raw_advantage": 292728.34375,
+              "return": 291028.96875,
+              "reward": 23563.080000001006,
+              "transition_index": 5.0
+            },
+            {
+              "normalized_advantage": 2.107513427734375,
+              "old_value": -1675.51904296875,
+              "raw_advantage": 278110.5,
+              "return": 276434.96875,
+              "reward": 11803.666926001664,
+              "transition_index": 9.0
+            },
+            {
+              "normalized_advantage": 2.090921640396118,
+              "old_value": -1677.8426513671875,
+              "raw_advantage": 275952.6875,
+              "return": 274274.84375,
+              "reward": 604.2405699999072,
+              "transition_index": 8.0
+            },
+            {
+              "normalized_advantage": 2.0628156661987305,
+              "old_value": -1729.44580078125,
+              "raw_advantage": 272297.4375,
+              "return": 270568.0,
+              "reward": 8550.695860000327,
+              "transition_index": 3.0
+            }
+          ],
+          "value_return_correlation": -0.8880822658538818
+        },
+        "best_hpwl_so_far": 2726013.2537480025,
+        "completed_episode": 0.0,
+        "entropy": 0.679326593875885,
+        "episode_return": 216729.2752679959,
+        "final_hpwl": 2726013.2537480025,
+        "invalid_action_count": 0.0,
+        "is_legal": 1.0,
+        "kl_anchor_beta": 5.0,
+        "kl_anchor_loss": Infinity,
+        "policy_epochs": 1.0,
+        "policy_loss": 0.06441361457109451,
+        "pre_update_diagnostic": null,
+        "steps": 102.0,
+        "substep_history": [
+          {
+            "approx_kl": 1.000612735748291,
+            "entropy": 0.679326593875885,
+            "global_grad_norm": 210.59005300054804,
+            "policy_head_grad_norm": 58.26690297606302,
+            "policy_loss": 0.06441361457109451,
+            "substep_index": 0.0,
+            "update_batch_kl_to_reference": Infinity,
+            "value_head_grad_norm": 0.0,
+            "value_loss": 16929683456.0
+          }
+        ],
+        "value_loss": 16929683456.0
+      },
+      {
+        "approx_kl": 0.46740251779556274,
+        "batch_diagnostic": {
+          "normalized_advantage_summary": {
+            "count": 104.0,
+            "max": 2.5586318969726562,
+            "mean": -4.58497284583359e-09,
+            "min": -1.2483214139938354
+          },
+          "old_value_summary": {
+            "count": 104.0,
+            "max": -1549.13818359375,
+            "mean": -1627.88037109375,
+            "min": -1747.669921875
+          },
+          "raw_advantage_summary": {
+            "count": 104.0,
+            "max": 196635.453125,
+            "mean": -17527.083984375,
+            "min": -122014.046875
+          },
+          "return_summary": {
+            "count": 104.0,
+            "max": 194942.765625,
+            "mean": -19154.96484375,
+            "min": -123569.8359375
+          },
+          "top_abs_advantages": [
+            {
+              "normalized_advantage": 2.5586318969726562,
+              "old_value": -1692.694580078125,
+              "raw_advantage": 196635.453125,
+              "return": 194942.765625,
+              "reward": 24875.52000000002,
+              "transition_index": 5.0
+            },
+            {
+              "normalized_advantage": 2.306910514831543,
+              "old_value": -1723.31494140625,
+              "raw_advantage": 175565.875,
+              "return": 173842.5625,
+              "reward": 7329.895859999582,
+              "transition_index": 3.0
+            },
+            {
+              "normalized_advantage": 2.281968355178833,
+              "old_value": -1693.0828857421875,
+              "raw_advantage": 173478.171875,
+              "return": 171785.09375,
+              "reward": 16317.390000001062,
+              "transition_index": 6.0
+            },
+            {
+              "normalized_advantage": 2.2392125129699707,
+              "old_value": -1704.807373046875,
+              "raw_advantage": 169899.421875,
+              "return": 168194.609375,
+              "reward": -24798.732799999416,
+              "transition_index": 4.0
+            },
+            {
+              "normalized_advantage": 2.1426963806152344,
+              "old_value": -1737.10986328125,
+              "raw_advantage": 161820.828125,
+              "return": 160083.71875,
+              "reward": 14307.23480000114,
+              "transition_index": 1.0
+            }
+          ],
+          "value_return_correlation": -0.871881902217865
+        },
+        "best_hpwl_so_far": 2726013.2537480025,
+        "completed_episode": 0.0,
+        "entropy": 0.6599525213241577,
+        "episode_return": 97535.5373760038,
+        "final_hpwl": 2845206.9916399946,
+        "invalid_action_count": 0.0,
+        "is_legal": 1.0,
+        "kl_anchor_beta": 5.0,
+        "kl_anchor_loss": 0.09735773503780365,
+        "policy_epochs": 1.0,
+        "policy_loss": 0.15788760781288147,
+        "pre_update_diagnostic": null,
+        "steps": 104.0,
+        "substep_history": [
+          {
+            "approx_kl": 0.46740251779556274,
+            "entropy": 0.6599525213241577,
+            "global_grad_norm": 239.69314755895786,
+            "policy_head_grad_norm": 66.02662075585529,
+            "policy_loss": 0.15788760781288147,
+            "substep_index": 0.0,
+            "update_batch_kl_to_reference": 0.09735773503780365,
+            "value_head_grad_norm": 0.0,
+            "value_loss": 7313308672.0
+          }
+        ],
+        "value_loss": 7313308672.0
+      },
+      {
+        "approx_kl": 0.4336482584476471,
+        "batch_diagnostic": {
+          "normalized_advantage_summary": {
+            "count": 103.0,
+            "max": 2.5480642318725586,
+            "mean": -6.365544535924528e-09,
+            "min": -1.3473087549209595
+          },
+          "old_value_summary": {
+            "count": 103.0,
+            "max": -1554.806640625,
+            "mean": -1620.8858642578125,
+            "min": -1745.7974853515625
+          },
+          "raw_advantage_summary": {
+            "count": 103.0,
+            "max": 130493.9375,
+            "mean": -57678.10546875,
+            "min": -157175.546875
+          },
+          "return_summary": {
+            "count": 103.0,
+            "max": 128812.3359375,
+            "mean": -59298.9921875,
+            "min": -158750.78125
+          },
+          "top_abs_advantages": [
+            {
+              "normalized_advantage": -1.3473087549209595,
+              "old_value": -1575.236572265625,
+              "raw_advantage": -157175.546875,
+              "return": -158750.78125,
+              "reward": -14855.79909999948,
+              "transition_index": 45.0
+            },
+            {
+              "normalized_advantage": -1.2996008396148682,
+              "old_value": -1580.545166015625,
+              "raw_advantage": -153652.359375,
+              "return": -155232.90625,
+              "reward": 1930.3585199979134,
+              "transition_index": 44.0
+            },
+            {
+              "normalized_advantage": -1.2268190383911133,
+              "old_value": -1604.57080078125,
+              "raw_advantage": -148277.5,
+              "return": -149882.078125,
+              "reward": 3798.502199999988,
+              "transition_index": 43.0
+            },
+            {
+              "normalized_advantage": -1.1946252584457397,
+              "old_value": -1595.6387939453125,
+              "raw_advantage": -145900.015625,
+              "return": -147495.65625,
+              "reward": -17501.36164999986,
+              "transition_index": 52.0
+            },
+            {
+              "normalized_advantage": -1.1743983030319214,
+              "old_value": -1596.374267578125,
+              "raw_advantage": -144406.28125,
+              "return": -146002.65625,
+              "reward": 2380.6034999997355,
+              "transition_index": 42.0
+            }
+          ],
+          "value_return_correlation": -0.6586184501647949
+        },
+        "best_hpwl_so_far": 2726013.2537480025,
+        "completed_episode": 0.0,
+        "entropy": 0.6632258296012878,
+        "episode_return": -65172.74867400713,
+        "final_hpwl": 3007915.2776900055,
+        "invalid_action_count": 0.0,
+        "is_legal": 1.0,
+        "kl_anchor_beta": 5.0,
+        "kl_anchor_loss": Infinity,
+        "policy_epochs": 1.0,
+        "policy_loss": 0.016059590503573418,
+        "pre_update_diagnostic": null,
+        "steps": 103.0,
+        "substep_history": [
+          {
+            "approx_kl": 0.4336482584476471,
+            "entropy": 0.6632258296012878,
+            "global_grad_norm": 172.45901892618042,
+            "policy_head_grad_norm": 47.19218209387284,
+            "policy_loss": 0.016059590503573418,
+            "substep_index": 0.0,
+            "update_batch_kl_to_reference": Infinity,
+            "value_head_grad_norm": 0.0,
+            "value_loss": 8780957696.0
+          }
+        ],
+        "value_loss": 8780957696.0
+      },
+      {
+        "approx_kl": 0.5232446193695068,
+        "batch_diagnostic": {
+          "normalized_advantage_summary": {
+            "count": 100.0,
+            "max": 2.202361822128296,
+            "mean": 1.0132789718397817e-08,
+            "min": -1.1721731424331665
+          },
+          "old_value_summary": {
+            "count": 100.0,
+            "max": -1539.92919921875,
+            "mean": -1615.23974609375,
+            "min": -1740.04541015625
+          },
+          "raw_advantage_summary": {
+            "count": 100.0,
+            "max": 208866.9375,
+            "mean": -32512.005859375,
+            "min": -160982.234375
+          },
+          "return_summary": {
+            "count": 100.0,
+            "max": 207183.25,
+            "mean": -34127.24609375,
+            "min": -162567.34375
+          },
+          "top_abs_advantages": [
+            {
+              "normalized_advantage": 2.202361822128296,
+              "old_value": -1683.687744140625,
+              "raw_advantage": 208866.9375,
+              "return": 207183.25,
+              "reward": 25440.758600000758,
+              "transition_index": 5.0
+            },
+            {
+              "normalized_advantage": 1.986987829208374,
+              "old_value": -1683.661865234375,
+              "raw_advantage": 185261.9375,
+              "return": 183578.28125,
+              "reward": 17037.680000000633,
+              "transition_index": 6.0
+            },
+            {
+              "normalized_advantage": 1.982695460319519,
+              "old_value": -1714.8065185546875,
+              "raw_advantage": 184791.5,
+              "return": 183076.6875,
+              "reward": 5897.695860000327,
+              "transition_index": 3.0
+            },
+            {
+              "normalized_advantage": 1.9450427293777466,
+              "old_value": -1696.077392578125,
+              "raw_advantage": 180664.765625,
+              "return": 178968.6875,
+              "reward": -26142.73279999988,
+              "transition_index": 4.0
+            },
+            {
+              "normalized_advantage": 1.8911666870117188,
+              "old_value": -1675.1639404296875,
+              "raw_advantage": 174759.9375,
+              "return": 173084.78125,
+              "reward": 23824.834699999075,
+              "transition_index": 12.0
+            }
+          ],
+          "value_return_correlation": -0.854955792427063
+        },
+        "best_hpwl_so_far": 2726013.2537480025,
+        "completed_episode": 0.0,
+        "entropy": 0.7282270193099976,
+        "episode_return": 88409.98230199888,
+        "final_hpwl": 2854332.5467139995,
+        "invalid_action_count": 0.0,
+        "is_legal": 1.0,
+        "kl_anchor_beta": 5.0,
+        "kl_anchor_loss": 0.14223182201385498,
+        "policy_epochs": 1.0,
+        "policy_loss": 0.16406650841236115,
+        "pre_update_diagnostic": null,
+        "steps": 100.0,
+        "substep_history": [
+          {
+            "approx_kl": 0.5232446193695068,
+            "entropy": 0.7282270193099976,
+            "global_grad_norm": 242.48643014558888,
+            "policy_head_grad_norm": 60.383109170089604,
+            "policy_loss": 0.16406650841236115,
+            "substep_index": 0.0,
+            "update_batch_kl_to_reference": 0.14223182201385498,
+            "value_head_grad_norm": 0.0,
+            "value_loss": 13069278208.0
+          }
+        ],
+        "value_loss": 13069278208.0
+      },
+      {
+        "approx_kl": 0.2692117989063263,
+        "batch_diagnostic": {
+          "normalized_advantage_summary": {
+            "count": 107.0,
+            "max": 2.290572166442871,
+            "mean": 7.7987385438405e-09,
+            "min": -1.3960185050964355
+          },
+          "old_value_summary": {
+            "count": 107.0,
+            "max": -1545.29296875,
+            "mean": -1610.8697509765625,
+            "min": -1739.8948974609375
+          },
+          "raw_advantage_summary": {
+            "count": 107.0,
+            "max": 92772.15625,
+            "mean": -99739.859375,
+            "min": -217068.765625
+          },
+          "return_summary": {
+            "count": 107.0,
+            "max": 91087.0078125,
+            "mean": -101350.7421875,
+            "min": -218664.796875
+          },
+          "top_abs_advantages": [
+            {
+              "normalized_advantage": -1.3960185050964355,
+              "old_value": -1596.03759765625,
+              "raw_advantage": -217068.765625,
+              "return": -218664.796875,
+              "reward": -10257.807809998281,
+              "transition_index": 84.0
+            },
+            {
+              "normalized_advantage": -1.3078066110610962,
+              "old_value": -1618.2608642578125,
+              "raw_advantage": -209654.96875,
+              "return": -211273.234375,
+              "reward": -12818.07594000129,
+              "transition_index": 86.0
+            },
+            {
+              "normalized_advantage": -1.2989345788955688,
+              "old_value": -1602.7978515625,
+              "raw_advantage": -208909.3125,
+              "return": -210512.109375,
+              "reward": -1351.611309995409,
+              "transition_index": 85.0
+            },
+            {
+              "normalized_advantage": -1.2764334678649902,
+              "old_value": -1604.339599609375,
+              "raw_advantage": -207018.203125,
+              "return": -208622.546875,
+              "reward": 7855.59508000128,
+              "transition_index": 83.0
+            },
+            {
+              "normalized_advantage": -1.196617603302002,
+              "old_value": -1610.7161865234375,
+              "raw_advantage": -200310.046875,
+              "return": -201920.765625,
+              "reward": -10414.406770000234,
+              "transition_index": 89.0
+            }
+          ],
+          "value_return_correlation": -0.7293767333030701
+        },
+        "best_hpwl_so_far": 2726013.2537480025,
+        "completed_episode": 0.0,
+        "entropy": 0.7174447774887085,
+        "episode_return": -88766.71633400349,
+        "final_hpwl": 3031509.245350002,
+        "invalid_action_count": 0.0,
+        "is_legal": 1.0,
+        "kl_anchor_beta": 5.0,
+        "kl_anchor_loss": 0.2793916165828705,
+        "policy_epochs": 1.0,
+        "policy_loss": 0.15851035714149475,
+        "pre_update_diagnostic": null,
+        "steps": 107.0,
+        "substep_history": [
+          {
+            "approx_kl": 0.2692117989063263,
+            "entropy": 0.7174447774887085,
+            "global_grad_norm": 115.17361137062903,
+            "policy_head_grad_norm": 22.755044566486475,
+            "policy_loss": 0.15851035714149475,
+            "substep_index": 0.0,
+            "update_batch_kl_to_reference": 0.2793916165828705,
+            "value_head_grad_norm": 0.0,
+            "value_loss": 17012149248.0
+          }
+        ],
+        "value_loss": 17012149248.0
+      },
+      {
+        "approx_kl": 0.5207191109657288,
+        "batch_diagnostic": {
+          "normalized_advantage_summary": {
+            "count": 104.0,
+            "max": 2.097310781478882,
+            "mean": 1.3754918093411561e-08,
+            "min": -1.083922266960144
+          },
+          "old_value_summary": {
+            "count": 104.0,
+            "max": -1518.3544921875,
+            "mean": -1599.96630859375,
+            "min": -1736.8297119140625
+          },
+          "raw_advantage_summary": {
+            "count": 104.0,
+            "max": 242385.78125,
+            "mean": -24492.896484375,
+            "min": -162419.875
+          },
+          "return_summary": {
+            "count": 104.0,
+            "max": 240734.828125,
+            "mean": -26092.86328125,
+            "min": -163982.0
+          },
+          "top_abs_advantages": [
+            {
+              "normalized_advantage": 2.097310781478882,
+              "old_value": -1650.94921875,
+              "raw_advantage": 242385.78125,
+              "return": 240734.828125,
+              "reward": 18395.394699998666,
+              "transition_index": 12.0
+            },
+            {
+              "normalized_advantage": 1.9703997373580933,
+              "old_value": -1651.33251953125,
+              "raw_advantage": 226236.609375,
+              "return": 224585.28125,
+              "reward": 17294.840000000317,
+              "transition_index": 13.0
+            },
+            {
+              "normalized_advantage": 1.9215075969696045,
+              "old_value": -1682.222412109375,
+              "raw_advantage": 220015.1875,
+              "return": 218332.96875,
+              "reward": 22803.635200000368,
+              "transition_index": 5.0
+            },
+            {
+              "normalized_advantage": 1.8509517908096313,
+              "old_value": -1652.7984619140625,
+              "raw_advantage": 211037.09375,
+              "return": 209384.296875,
+              "reward": 3577.3162099998444,
+              "transition_index": 14.0
+            },
+            {
+              "normalized_advantage": 1.839160442352295,
+              "old_value": -1650.845703125,
+              "raw_advantage": 209536.671875,
+              "return": 207885.828125,
+              "reward": 5372.800000000745,
+              "transition_index": 15.0
+            }
+          ],
+          "value_return_correlation": -0.6558776497840881
+        },
+        "best_hpwl_so_far": 2726013.2537480025,
+        "completed_episode": 0.0,
+        "entropy": 0.5874519944190979,
+        "episode_return": 112341.54063200206,
+        "final_hpwl": 2830400.9883839963,
+        "invalid_action_count": 0.0,
+        "is_legal": 1.0,
+        "kl_anchor_beta": 5.0,
+        "kl_anchor_loss": 0.0507638081908226,
+        "policy_epochs": 1.0,
+        "policy_loss": 0.13309131562709808,
+        "pre_update_diagnostic": null,
+        "steps": 104.0,
+        "substep_history": [
+          {
+            "approx_kl": 0.5207191109657288,
+            "entropy": 0.5874519944190979,
+            "global_grad_norm": 187.92908023668122,
+            "policy_head_grad_norm": 41.88014339914341,
+            "policy_loss": 0.13309131562709808,
+            "substep_index": 0.0,
+            "update_batch_kl_to_reference": 0.0507638081908226,
+            "value_head_grad_norm": 0.0,
+            "value_loss": 16792147968.0
+          }
+        ],
+        "value_loss": 16792147968.0
+      },
+      {
+        "approx_kl": 0.6293794512748718,
+        "batch_diagnostic": {
+          "normalized_advantage_summary": {
+            "count": 97.0,
+            "max": 2.145101308822632,
+            "mean": 1.1060655502603822e-08,
+            "min": -1.3587039709091187
+          },
+          "old_value_summary": {
+            "count": 97.0,
+            "max": -1524.865966796875,
+            "mean": -1608.041748046875,
+            "min": -1734.1341552734375
+          },
+          "raw_advantage_summary": {
+            "count": 97.0,
+            "max": 155041.484375,
+            "mean": -108954.4609375,
+            "min": -276169.09375
+          },
+          "return_summary": {
+            "count": 97.0,
+            "max": 153360.6875,
+            "mean": -110562.5078125,
+            "min": -277787.09375
+          },
+          "top_abs_advantages": [
+            {
+              "normalized_advantage": -1.3587039709091187,
+              "old_value": -1617.998779296875,
+              "raw_advantage": -276169.09375,
+              "return": -277787.09375,
+              "reward": -23365.273900000844,
+              "transition_index": 63.0
+            },
+            {
+              "normalized_advantage": -1.2707847356796265,
+              "old_value": -1640.7449951171875,
+              "raw_advantage": -265348.9375,
+              "return": -266989.6875,
+              "reward": -24362.061859999783,
+              "transition_index": 67.0
+            },
+            {
+              "normalized_advantage": -1.234110951423645,
+              "old_value": -1615.05126953125,
+              "raw_advantage": -260835.515625,
+              "return": -262450.5625,
+              "reward": 12558.655399999116,
+              "transition_index": 62.0
+            },
+            {
+              "normalized_advantage": -1.2205314636230469,
+              "old_value": -1626.6412353515625,
+              "raw_advantage": -259164.3125,
+              "return": -260790.953125,
+              "reward": -7649.52000000095,
+              "transition_index": 65.0
+            },
+            {
+              "normalized_advantage": -1.1897211074829102,
+              "old_value": -1619.2509765625,
+              "raw_advantage": -255372.5,
+              "return": -256991.75,
+              "reward": 1191.2972999983467,
+              "transition_index": 64.0
+            }
+          ],
+          "value_return_correlation": -0.6753427386283875
+        },
+        "best_hpwl_so_far": 2726013.2537480025,
+        "completed_episode": 0.0,
+        "entropy": 0.8436061143875122,
+        "episode_return": -92703.04759200476,
+        "final_hpwl": 3035445.576608003,
+        "invalid_action_count": 0.0,
+        "is_legal": 1.0,
+        "kl_anchor_beta": 5.0,
+        "kl_anchor_loss": 0.44371381402015686,
+        "policy_epochs": 1.0,
+        "policy_loss": 0.07806390523910522,
+        "pre_update_diagnostic": null,
+        "steps": 97.0,
+        "substep_history": [
+          {
+            "approx_kl": 0.6293794512748718,
+            "entropy": 0.8436061143875122,
+            "global_grad_norm": 171.7725548819617,
+            "policy_head_grad_norm": 37.43021501532886,
+            "policy_loss": 0.07806390523910522,
+            "substep_index": 0.0,
+            "update_batch_kl_to_reference": 0.44371381402015686,
+            "value_head_grad_norm": 0.0,
+            "value_loss": 27017416704.0
+          }
+        ],
+        "value_loss": 27017416704.0
+      }
+    ]
+  },
+  "gate_status": {
+    "necessary": {
+      "finite_kl": false,
+      "heldout_log_prob_delta_within_band": false,
+      "pass": false
+    },
+    "sufficient": {
+      "followup_hpwl_within_3pct_of_baseline": true,
+      "pass": true
+    }
+  },
+  "metadata": {
+    "benchmark": "ariane133_ng45",
+    "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_critic_prefit_diagnostic_v1\\ariane133_ng45.combined.lef",
+    "grid_shape": [
+      32,
+      32
+    ],
+    "hidden_dim": 64,
+    "ordered_macro_count": 133,
+    "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "reward_metadata": {
+      "benchmark": "ariane133_ng45",
+      "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_critic_prefit_diagnostic_v1\\ariane133_ng45.combined.lef",
+      "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+      "reward_weights": {
+        "completion_bonus": 0.0,
+        "legality_penalty": 10.0,
+        "w_hpwl": 1.0,
+        "w_proxy": 0.0
+      },
+      "seed_macro_count": 133
+    },
+    "seed_macro_count": 133,
+    "training_config": {
+      "entropy_coef": 5.0,
+      "init_seed": 0,
+      "kl_anchor_beta": 5.0,
+      "learning_rate": 0.0001,
+      "value_coef": 0.0
+    },
+    "warm_start_checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+    "warm_value_prefit_config": {
+      "entropy_coef": 1.0,
+      "init_seed": 0,
+      "learning_rate": 0.0001,
+      "prefit_epochs": 50,
+      "prefit_learning_rate": 0.001,
+      "value_coef": 0.0
+    }
+  },
+  "prefit_metrics": {
+    "epochs": 20.0,
+    "final_loss": 17928286208.0,
+    "initial_loss": 18064994304.0,
+    "rollout_count": 4.0,
+    "transition_count": 412.0
+  },
+  "update_metrics": {
+    "approx_kl": 0.21735025942325592,
+    "batch_diagnostic": {
+      "normalized_advantage_summary": {
+        "count": 105.0,
+        "max": 2.2277724742889404,
+        "mean": 3.973643192267673e-09,
+        "min": -1.049028754234314
+      },
+      "old_value_summary": {
+        "count": 105.0,
+        "max": -1562.1290283203125,
+        "mean": -1641.705078125,
+        "min": -1771.954833984375
+      },
+      "raw_advantage_summary": {
+        "count": 105.0,
+        "max": 268729.15625,
+        "mean": -25821.3046875,
+        "min": -164521.25
+      },
+      "return_summary": {
+        "count": 105.0,
+        "max": 267030.78125,
+        "mean": -27463.009765625,
+        "min": -166157.3125
+      },
+      "top_abs_advantages": [
+        {
+          "normalized_advantage": 2.2277724742889404,
+          "old_value": -1698.384765625,
+          "raw_advantage": 268729.15625,
+          "return": 267030.78125,
+          "reward": 27220.514699999243,
+          "transition_index": 12.0
+        },
+        {
+          "normalized_advantage": 2.1019747257232666,
+          "old_value": -1712.7236328125,
+          "raw_advantage": 252096.515625,
+          "return": 250383.796875,
+          "reward": -13976.67437999975,
+          "transition_index": 11.0
+        },
+        {
+          "normalized_advantage": 2.0578057765960693,
+          "old_value": -1707.99365234375,
+          "raw_advantage": 246256.59375,
+          "return": 244548.59375,
+          "reward": -3331.373507999815,
+          "transition_index": 10.0
+        },
+        {
+          "normalized_advantage": 2.0401854515075684,
+          "old_value": -1694.29296875,
+          "raw_advantage": 243926.890625,
+          "return": 242232.59375,
+          "reward": 11025.143639999442,
+          "transition_index": 13.0
+        },
+        {
+          "normalized_advantage": 1.9744384288787842,
+          "old_value": -1691.103271484375,
+          "raw_advantage": 235233.984375,
+          "return": 233542.875,
+          "reward": 23644.943799999077,
+          "transition_index": 14.0
+        }
+      ],
+      "value_return_correlation": -0.7180837392807007
+    },
+    "completed_episode": 0.0,
+    "entropy": 0.7689516544342041,
+    "episode_return": 84815.57751799747,
+    "final_hpwl": 2857926.951498001,
+    "invalid_action_count": 0.0,
+    "is_legal": 1.0,
+    "kl_anchor_beta": 5.0,
+    "kl_anchor_loss": Infinity,
+    "policy_epochs": 1.0,
+    "policy_loss": 0.03794309124350548,
+    "pre_update_diagnostic": {
+      "heldout_completion_rate": 0.0,
+      "heldout_log_prob_delta_mean": -1.0941246310558483e-05,
+      "heldout_mean_hpwl": 2844907.741634004,
+      "heldout_rollout_count": 5.0,
+      "update_batch_kl_to_reference": 0.0
+    },
+    "steps": 105.0,
+    "substep_history": [
+      {
+        "approx_kl": 0.21735025942325592,
+        "entropy": 0.7689516544342041,
+        "global_grad_norm": 82.05919261866643,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.2441864468844331,
+        "heldout_mean_hpwl": 2871586.3915480026,
+        "heldout_rollout_count": 5.0,
+        "policy_head_grad_norm": 21.199719351585035,
+        "policy_loss": 0.03794309124350548,
+        "substep_index": 0.0,
+        "update_batch_kl_to_reference": Infinity,
+        "value_head_grad_norm": 0.0,
+        "value_loss": 18148468736.0
+      }
+    ],
+    "value_loss": 18148468736.0
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "benchmark": "ariane133_ng45",
+  "diagnostic_config": {
+    "diagnostic_eval_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "policy_epochs": 5
+  },
+  "metadata": {
+    "benchmark": "ariane133_ng45",
+    "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_warm_start_substep_diagnostic_5x5\\ariane133_ng45.combined.lef",
+    "grid_shape": [
+      32,
+      32
+    ],
+    "hidden_dim": 64,
+    "ordered_macro_count": 133,
+    "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "reward_metadata": {
+      "benchmark": "ariane133_ng45",
+      "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_warm_start_substep_diagnostic_5x5\\ariane133_ng45.combined.lef",
+      "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+      "reward_weights": {
+        "completion_bonus": 0.0,
+        "legality_penalty": 10.0,
+        "w_hpwl": 1.0,
+        "w_proxy": 0.0
+      },
+      "seed_macro_count": 133
+    },
+    "seed_macro_count": 133,
+    "training_config": {
+      "entropy_coef": 5.0,
+      "init_seed": 0,
+      "kl_anchor_beta": 5.0,
+      "learning_rate": 0.0001,
+      "value_coef": 0.0
+    },
+    "warm_start_checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
+  },
+  "update_metrics": {
+    "approx_kl": 0.0891927108168602,
+    "completed_episode": 0.0,
+    "entropy": 0.8436802625656128,
+    "episode_return": 84815.57751799747,
+    "final_hpwl": 2857926.951498001,
+    "invalid_action_count": 0.0,
+    "is_legal": 1.0,
+    "kl_anchor_beta": 5.0,
+    "kl_anchor_loss": 0.0839756578207016,
+    "policy_epochs": 5.0,
+    "policy_loss": 0.018561547622084618,
+    "pre_update_diagnostic": {
+      "heldout_completion_rate": 0.0,
+      "heldout_log_prob_delta_mean": -1.0941246310558483e-05,
+      "heldout_mean_hpwl": 2844907.741634004,
+      "heldout_rollout_count": 5.0,
+      "update_batch_kl_to_reference": 0.0
+    },
+    "steps": 105.0,
+    "substep_history": [
+      {
+        "approx_kl": 0.21728980541229248,
+        "entropy": 0.768976092338562,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.24412042877987988,
+        "heldout_mean_hpwl": 2871586.3915480026,
+        "heldout_rollout_count": 5.0,
+        "policy_loss": 0.03795987367630005,
+        "substep_index": 0.0,
+        "update_batch_kl_to_reference": Infinity,
+        "value_loss": 18230317056.0
+      },
+      {
+        "approx_kl": 0.09305477887392044,
+        "entropy": 0.796574592590332,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.08807705424145826,
+        "heldout_mean_hpwl": 2862660.3676312016,
+        "heldout_rollout_count": 5.0,
+        "policy_loss": 0.005839438643306494,
+        "substep_index": 1.0,
+        "update_batch_kl_to_reference": 0.12429530173540115,
+        "value_loss": 18230312960.0
+      },
+      {
+        "approx_kl": 0.13475865125656128,
+        "entropy": 0.7713073492050171,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.13554107926205763,
+        "heldout_mean_hpwl": 2964336.3812528006,
+        "heldout_rollout_count": 5.0,
+        "policy_loss": 0.027857279404997826,
+        "substep_index": 2.0,
+        "update_batch_kl_to_reference": 0.11543874442577362,
+        "value_loss": 18230308864.0
+      },
+      {
+        "approx_kl": 0.13569800555706024,
+        "entropy": 0.7847970128059387,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.15217712900952468,
+        "heldout_mean_hpwl": 2867113.6692571985,
+        "heldout_rollout_count": 5.0,
+        "policy_loss": 0.04560390114784241,
+        "substep_index": 3.0,
+        "update_batch_kl_to_reference": 0.11076997965574265,
+        "value_loss": 18230300672.0
+      },
+      {
+        "approx_kl": 0.0891927108168602,
+        "entropy": 0.8436802625656128,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.13720818541363844,
+        "heldout_mean_hpwl": 2813353.6372623965,
+        "heldout_rollout_count": 5.0,
+        "policy_loss": 0.018561547622084618,
+        "substep_index": 4.0,
+        "update_batch_kl_to_reference": 0.0839756578207016,
+        "value_loss": 18230288384.0
+      }
+    ],
+    "value_loss": 18230288384.0
+  }
+}

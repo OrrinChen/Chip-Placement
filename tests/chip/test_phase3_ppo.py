@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 
 import torch
@@ -8,12 +9,15 @@ from chip.experiments.phase3_imitation import train_behavior_cloning_policy
 from chip.experiments.phase3_ppo import collect_policy_rollout
 from chip.experiments.phase3_ppo import collect_rollout_for_action_trace
 from chip.experiments.phase3_ppo import compute_discounted_returns
+from chip.experiments.phase3_ppo import FixedRolloutBatch
 from chip.experiments.phase3_ppo import initialize_policy_for_problem
 from chip.experiments.phase3_ppo import load_policy_warm_start
 from chip.experiments.phase3_ppo import normalize_advantages
 from chip.experiments.phase3_ppo import prefit_value_head_from_rollout
+from chip.experiments.phase3_ppo import prefit_value_head_from_rollouts
 from chip.experiments.phase3_ppo import overfit_fixed_rollout
 from chip.experiments.phase3_ppo import run_single_ppo_update
+from chip.experiments.phase3_ppo import summarize_rollout_return_signal
 from chip.experiments.phase3_ppo import train_ppo_policy
 from chip.experiments.phase3_search import build_demonstrations_from_trace
 from chip.experiments.phase3_search import run_beam_search_baseline
@@ -161,8 +165,71 @@ def test_run_single_ppo_update_returns_finite_metrics():
     assert torch.isfinite(torch.tensor(result["policy_loss"]))
     assert torch.isfinite(torch.tensor(result["value_loss"]))
     assert torch.isfinite(torch.tensor(result["approx_kl"]))
+    assert result["kl_anchor_loss"] == 0.0
+    assert result["kl_anchor_beta"] == 0.0
     assert result["steps"] == 1
     assert result["completed_episode"] == 1.0
+
+
+def test_run_single_ppo_update_reports_positive_kl_anchor_loss_with_reference_policy():
+    problem = build_two_movable_problem()
+    reference_policy = initialize_policy_for_problem(problem=problem, grid_shape=(4, 4), hidden_dim=16)
+    policy = copy.deepcopy(reference_policy)
+    with torch.no_grad():
+        policy.policy_head.bias[0] += 0.5
+
+    result = run_single_ppo_update(
+        problem=problem,
+        policy=policy,
+        reference_policy=reference_policy,
+        kl_anchor_beta=5.0,
+        grid_shape=(4, 4),
+        reward_source="analytic_hpwl",
+        max_steps=2,
+        learning_rate=1e-3,
+        seed=0,
+    )
+
+    assert result["kl_anchor_beta"] == 5.0
+    assert result["kl_anchor_loss"] > 0.0
+    assert torch.isfinite(torch.tensor(result["kl_anchor_loss"]))
+
+
+def test_run_single_ppo_update_records_pre_update_and_substep_diagnostics():
+    problem = build_two_movable_problem()
+    reference_policy = initialize_policy_for_problem(problem=problem, grid_shape=(4, 4), hidden_dim=16)
+    policy = copy.deepcopy(reference_policy)
+
+    result = run_single_ppo_update(
+        problem=problem,
+        policy=policy,
+        reference_policy=reference_policy,
+        kl_anchor_beta=5.0,
+        grid_shape=(4, 4),
+        reward_source="analytic_hpwl",
+        max_steps=2,
+        learning_rate=1e-3,
+        seed=0,
+        policy_epochs=3,
+        diagnostic_eval_seeds=(10, 11),
+    )
+
+    assert result["pre_update_diagnostic"]["heldout_rollout_count"] == 2
+    assert torch.isfinite(torch.tensor(result["pre_update_diagnostic"]["heldout_mean_hpwl"]))
+    assert result["batch_diagnostic"]["return_summary"]["count"] == 2
+    assert result["batch_diagnostic"]["raw_advantage_summary"]["count"] == 2
+    assert result["batch_diagnostic"]["normalized_advantage_summary"]["count"] == 2
+    assert result["batch_diagnostic"]["top_abs_advantages"][0]["transition_index"] in {0, 1}
+    assert "value_return_correlation" in result["batch_diagnostic"]
+    assert len(result["substep_history"]) == 3
+    assert [row["substep_index"] for row in result["substep_history"]] == [0, 1, 2]
+    assert all("update_batch_kl_to_reference" in row for row in result["substep_history"])
+    assert all("heldout_completion_rate" in row for row in result["substep_history"])
+    assert all("heldout_log_prob_delta_mean" in row for row in result["substep_history"])
+    assert all("global_grad_norm" in row for row in result["substep_history"])
+    assert all("policy_head_grad_norm" in row for row in result["substep_history"])
+    assert all("value_head_grad_norm" in row for row in result["substep_history"])
+    assert all(torch.isfinite(torch.tensor(row["update_batch_kl_to_reference"])) for row in result["substep_history"])
 
 
 def test_behavior_cloning_checkpoint_can_warm_start_ppo_policy(tmp_path: Path):
@@ -325,3 +392,88 @@ def test_prefit_value_head_only_updates_value_parameters():
         else:
             assert torch.equal(tensor, before[name])
     assert changed_value_head is True
+
+
+def test_prefit_value_head_from_rollouts_supports_zscore_targets_and_warmup():
+    problem = build_two_movable_problem()
+    policy = initialize_policy_for_problem(problem=problem, grid_shape=(4, 4), hidden_dim=16)
+    rollouts = [
+        collect_policy_rollout(
+            problem=problem,
+            policy=policy,
+            grid_shape=(4, 4),
+            reward_source="analytic_hpwl",
+            max_steps=2,
+            seed=seed,
+        )
+        for seed in (0, 1)
+    ]
+    fixed_rollouts = [
+        FixedRolloutBatch(
+            transitions=rollout["transitions"],
+            schema=rollout["schema"],
+            final_hpwl=float(rollout["final_hpwl"]),
+            episode_return=float(rollout["episode_return"]),
+            termination_reason=str(rollout["termination_reason"]),
+            completed_episode=bool(rollout["completed_episode"]),
+        )
+        for rollout in rollouts
+    ]
+
+    metrics = prefit_value_head_from_rollouts(
+        policy=policy,
+        fixed_rollouts=fixed_rollouts,
+        learning_rate=1e-3,
+        epochs=5,
+        lr_warmup_epochs=2,
+        target_transform="zscore",
+    )
+
+    assert metrics["target_transform"] == "zscore"
+    assert metrics["lr_warmup_epochs"] == 2.0
+    assert metrics["rollout_count"] == 2.0
+    assert metrics["transition_count"] == 4.0
+    assert metrics["raw_return_summary"]["count"] == 4.0
+    assert metrics["target_summary"]["count"] == 4.0
+    assert torch.isfinite(torch.tensor(metrics["initial_value_return_correlation"]))
+    assert torch.isfinite(torch.tensor(metrics["final_value_return_correlation"]))
+
+
+def test_summarize_rollout_return_signal_reports_simple_state_correlations():
+    problem = build_two_movable_problem()
+    policy = initialize_policy_for_problem(problem=problem, grid_shape=(4, 4), hidden_dim=16)
+    rollouts = [
+        collect_policy_rollout(
+            problem=problem,
+            policy=policy,
+            grid_shape=(4, 4),
+            reward_source="analytic_hpwl",
+            max_steps=2,
+            seed=seed,
+        )
+        for seed in (0, 1)
+    ]
+    fixed_rollouts = [
+        FixedRolloutBatch(
+            transitions=rollout["transitions"],
+            schema=rollout["schema"],
+            final_hpwl=float(rollout["final_hpwl"]),
+            episode_return=float(rollout["episode_return"]),
+            termination_reason=str(rollout["termination_reason"]),
+            completed_episode=bool(rollout["completed_episode"]),
+        )
+        for rollout in rollouts
+    ]
+
+    summary = summarize_rollout_return_signal(
+        fixed_rollouts=fixed_rollouts,
+        total_macro_count=2,
+    )
+
+    assert summary["rollout_count"] == 2.0
+    assert summary["transition_count"] == 4.0
+    assert "return_to_go_vs_step_index" in summary
+    assert "return_to_go_vs_remaining_macros" in summary
+    assert "return_to_go_vs_current_hpwl" in summary
+    assert "episode_return_vs_final_hpwl" in summary
+    assert torch.isfinite(torch.tensor(summary["return_to_go_vs_step_index"]))

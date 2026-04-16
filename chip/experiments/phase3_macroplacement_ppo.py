@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import random
 from collections import Counter
@@ -22,6 +23,9 @@ from chip.experiments.phase3_ppo import initialize_policy_for_problem
 from chip.experiments.phase3_ppo import load_policy_warm_start
 from chip.experiments.phase3_ppo import overfit_fixed_rollout
 from chip.experiments.phase3_ppo import prefit_value_head_from_rollout
+from chip.experiments.phase3_ppo import prefit_value_head_from_rollouts
+from chip.experiments.phase3_ppo import run_single_ppo_update
+from chip.experiments.phase3_ppo import summarize_rollout_return_signal
 from chip.experiments.phase3_ppo import train_ppo_policy
 from chip.rl_adapter import ChipRLAdapter
 from engine.rl_env import PlacementEnv
@@ -64,10 +68,7 @@ def resolve_ariane_warm_start_checkpoint(artifact_dir: Path) -> Path:
 
 
 def build_ariane_checkpoint_training_config() -> dict[str, float]:
-    # Canonical Ariane checkpointing now follows the best-performing warm-start
-    # recipe found during B2 diagnosis: small PPO step size plus stronger
-    # entropy preservation on top of the BC teacher.
-    return build_ariane_warm_entropy_training_config()
+    return build_ariane_warm_kl_anchor_training_config()
 
 
 def build_ariane_scratch_training_config() -> dict[str, float]:
@@ -88,6 +89,12 @@ def build_ariane_warm_entropy_training_config() -> dict[str, float]:
     }
 
 
+def build_ariane_warm_kl_anchor_training_config() -> dict[str, float]:
+    config = build_ariane_warm_entropy_training_config()
+    config["kl_anchor_beta"] = 5.0
+    return config
+
+
 def build_ariane_warm_value_prefit_training_config() -> dict[str, float]:
     return {
         "init_seed": 0,
@@ -106,6 +113,23 @@ def _resolve_ariane_grid_shape(grid_shape: tuple[int, int] | None) -> tuple[int,
 def _normalize_trace_target(target: tuple[float, float] | list[float]) -> list[float]:
     x, y = target
     return [float(x), float(y)]
+
+
+def _clone_reference_policy(policy):
+    reference_policy = copy.deepcopy(policy)
+    if hasattr(reference_policy, "eval"):
+        reference_policy.eval()
+    return reference_policy
+
+
+def _training_kl_anchor_beta(training_config: dict[str, float]) -> float:
+    return float(training_config.get("kl_anchor_beta", 0.0))
+
+
+def _reference_policy_for_training(policy, training_config: dict[str, float]):
+    if _training_kl_anchor_beta(training_config) <= 0.0:
+        return None
+    return _clone_reference_policy(policy)
 
 
 def summarize_termination_audit(
@@ -407,6 +431,43 @@ def _iter_rollout_action_indices(rollout: dict[str, object], *, limit: int | Non
     return action_indices
 
 
+def _summarize_export_rollout_trace(
+    *,
+    adapter: ChipRLAdapter,
+    rollout: dict[str, object],
+    grid_shape: tuple[int, int],
+) -> dict[str, object]:
+    action_indices = _iter_rollout_action_indices(rollout)
+    reward_trace: list[float] = []
+    value_trace: list[float] = []
+    hpwl_trace: list[float] = []
+    transitions = rollout.get("transitions") or []
+    for transition in transitions:
+        reward_trace.append(float(getattr(transition, "reward", 0.0)))
+        value_trace.append(float(getattr(transition, "value", 0.0)))
+    try:
+        state = adapter.initial_state()
+        for action_index in action_indices:
+            step_index = len(state.placed_macros)
+            macro_name = adapter.current_macro_for_step(step_index)
+            if macro_name is None:
+                break
+            row_index = int(action_index) // grid_shape[1]
+            col_index = int(action_index) % grid_shape[1]
+            target = adapter.grid_index_to_coordinate((row_index, col_index), grid_shape)
+            state = adapter.apply_action(state, {"macro": macro_name, "target": target})
+            hpwl_trace.append(float(adapter.current_hpwl(state)))
+    except Exception:
+        hpwl_trace = []
+    return {
+        "action_indices": [int(action_index) for action_index in action_indices],
+        "reward_trace": reward_trace,
+        "value_trace": value_trace,
+        "hpwl_trace": hpwl_trace,
+        "transition_count": int(len(action_indices)),
+    }
+
+
 def _replay_prefix_state_from_rollout(
     *,
     problem,
@@ -575,6 +636,21 @@ def _geometry_ratio_from_summary(geometry: dict[str, object] | None) -> float | 
     return float(ratio)
 
 
+def _normalize_hpwl_threshold(threshold: float | None) -> float | None:
+    if threshold is None:
+        return None
+    value = float(threshold)
+    if 0.0 < abs(value) < 10_000.0:
+        return float(value * 1_000_000.0)
+    return value
+
+
+def _normalize_hpwl_threshold_sweep(hpwl_threshold_sweep: tuple[float, ...] | None) -> tuple[float, ...]:
+    if hpwl_threshold_sweep is None:
+        return ()
+    return tuple(float(_normalize_hpwl_threshold(value)) for value in hpwl_threshold_sweep)
+
+
 def _evaluate_prefix_acceptance(
     *,
     rollout: dict[str, object],
@@ -589,7 +665,7 @@ def _evaluate_prefix_acceptance(
         else None
     )
     geometry_ratio = _geometry_ratio_from_summary(geometry_summary)
-    hpwl_ok = float(rollout["final_hpwl"]) <= float(hpwl_threshold)
+    hpwl_ok = float(rollout["final_hpwl"]) <= float(_normalize_hpwl_threshold(hpwl_threshold))
     remaining_ok = (
         remaining_macro_count is not None
         and int(remaining_macro_range[0]) <= remaining_macro_count <= int(remaining_macro_range[1])
@@ -615,12 +691,22 @@ def _summarize_prefix_acceptance(
     *,
     rollouts: list[dict[str, object]],
     min_accepted_prefixes: int,
+    hpwl_threshold_sweep: tuple[float, ...] | None = None,
+    remaining_macro_ranges_sweep: tuple[tuple[int, int], ...] | None = None,
+    geometry_packing_factor: float = 1.0,
 ) -> dict[str, object]:
     total_rollouts = len(rollouts)
     accepted_prefixes = sum(1 for row in rollouts if bool(row.get("accepted_for_reverse_curriculum")))
     hpwl_eligible = sum(1 for row in rollouts if bool(row.get("hpwl_ok")))
     remaining_eligible = sum(1 for row in rollouts if bool(row.get("remaining_macro_ok")))
     geometry_eligible = sum(1 for row in rollouts if bool(row.get("geometry_feasible")))
+    unique_source_rollouts = len(
+        {
+            str(row.get("source_rollout_id"))
+            for row in rollouts
+            if bool(row.get("accepted_for_reverse_curriculum")) and row.get("source_rollout_id") is not None
+        }
+    )
     meets_min_prefix_count = accepted_prefixes >= int(min_accepted_prefixes)
     if meets_min_prefix_count:
         status = "pass"
@@ -634,8 +720,263 @@ def _summarize_prefix_acceptance(
         "hpwl_eligible": int(hpwl_eligible),
         "remaining_eligible": int(remaining_eligible),
         "geometry_eligible": int(geometry_eligible),
+        "unique_source_rollouts": int(unique_source_rollouts),
         "meets_min_prefix_count": bool(meets_min_prefix_count),
         "status": status,
+        "threshold_sweep": _build_prefix_acceptance_threshold_sweep(
+            rollouts=rollouts,
+            hpwl_threshold_sweep=hpwl_threshold_sweep,
+            remaining_macro_ranges_sweep=remaining_macro_ranges_sweep,
+            geometry_packing_factor=geometry_packing_factor,
+        ),
+    }
+
+
+def _build_prefix_acceptance_threshold_sweep(
+    *,
+    rollouts: list[dict[str, object]],
+    hpwl_threshold_sweep: tuple[float, ...] | None,
+    remaining_macro_ranges_sweep: tuple[tuple[int, int], ...] | None,
+    geometry_packing_factor: float,
+) -> list[dict[str, object]]:
+    thresholds = tuple(float(value) for value in (hpwl_threshold_sweep or ()))
+    raw_thresholds = _normalize_hpwl_threshold_sweep(hpwl_threshold_sweep)
+    remaining_ranges = tuple((int(bounds[0]), int(bounds[1])) for bounds in (remaining_macro_ranges_sweep or ()))
+    if not thresholds or not remaining_ranges:
+        return []
+    cells: list[dict[str, object]] = []
+    for hpwl_threshold, hpwl_threshold_raw in zip(thresholds, raw_thresholds):
+        for remaining_range in remaining_ranges:
+            accepted = [
+                row
+                for row in rollouts
+                if (
+                    not bool(row.get("completed_episode"))
+                    and float(row.get("final_hpwl", float("inf"))) <= hpwl_threshold_raw
+                    and row.get("remaining_macro_count") is not None
+                    and remaining_range[0] <= int(row["remaining_macro_count"]) <= remaining_range[1]
+                    and row.get("geometry_packing_ratio") is not None
+                    and float(row["geometry_packing_ratio"]) >= float(geometry_packing_factor)
+                )
+            ]
+            cells.append(
+                {
+                    "hpwl_threshold": float(hpwl_threshold),
+                    "remaining_macro_range": [int(remaining_range[0]), int(remaining_range[1])],
+                    "accepted_prefixes": int(len(accepted)),
+                    "unique_source_rollouts": int(
+                        len({str(row.get("source_rollout_id")) for row in accepted if row.get("source_rollout_id") is not None})
+                    ),
+                }
+            )
+    return cells
+
+
+def _interpolated_quantile(values: list[float], q: float) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(float(value) for value in values)
+    if len(ordered) == 1:
+        return float(ordered[0])
+    position = max(0.0, min(1.0, float(q))) * (len(ordered) - 1)
+    lower = int(position)
+    upper = min(lower + 1, len(ordered) - 1)
+    if lower == upper:
+        return float(ordered[lower])
+    weight = position - lower
+    return float(ordered[lower] * (1.0 - weight) + ordered[upper] * weight)
+
+
+def _summarize_scalar_distribution(values: list[float]) -> dict[str, float | int | None]:
+    if not values:
+        return {
+            "count": 0,
+            "min": None,
+            "p10": None,
+            "median": None,
+            "p90": None,
+            "max": None,
+            "mean": None,
+        }
+    cast = [float(value) for value in values]
+    return {
+        "count": int(len(cast)),
+        "min": float(min(cast)),
+        "p10": _interpolated_quantile(cast, 0.10),
+        "median": _interpolated_quantile(cast, 0.50),
+        "p90": _interpolated_quantile(cast, 0.90),
+        "max": float(max(cast)),
+        "mean": float(mean(cast)),
+    }
+
+
+def _build_hpwl_threshold_hit_rates(
+    *,
+    rollouts: list[dict[str, object]],
+    hpwl_threshold_sweep: tuple[float, ...] | None,
+) -> list[dict[str, object]]:
+    if hpwl_threshold_sweep is None:
+        return []
+    total = max(1, len(rollouts))
+    rows: list[dict[str, object]] = []
+    raw_thresholds = _normalize_hpwl_threshold_sweep(hpwl_threshold_sweep)
+    for threshold, raw_threshold in zip(hpwl_threshold_sweep, raw_thresholds):
+        hit_count = sum(1 for row in rollouts if float(row.get("final_hpwl", float("inf"))) <= raw_threshold)
+        rows.append(
+            {
+                "hpwl_threshold": float(threshold),
+                "count": int(hit_count),
+                "hit_rate": float(hit_count / total),
+            }
+        )
+    return rows
+
+
+def _build_export_rollout_row(
+    *,
+    adapter: ChipRLAdapter,
+    rollout: dict[str, object],
+    grid_shape: tuple[int, int],
+    source_rollout_id: str,
+    hpwl_threshold: float,
+    remaining_macro_range: tuple[int, int],
+    geometry_packing_factor: float,
+    extra_fields: dict[str, object] | None = None,
+) -> dict[str, object]:
+    try:
+        geometry_summary = _summarize_rollout_geometry_from_rollout(
+            adapter=adapter,
+            rollout=rollout,
+            grid_shape=grid_shape,
+        )
+    except Exception:
+        geometry_summary = None
+    acceptance = _evaluate_prefix_acceptance(
+        rollout=rollout,
+        geometry_summary=geometry_summary,
+        hpwl_threshold=hpwl_threshold,
+        remaining_macro_range=remaining_macro_range,
+        geometry_packing_factor=geometry_packing_factor,
+    )
+    return {
+        "source_rollout_id": source_rollout_id,
+        "steps": int(rollout["steps"]),
+        "final_hpwl": float(rollout["final_hpwl"]),
+        "completed_episode": bool(rollout["completed_episode"]),
+        "termination_reason": str(rollout["termination_reason"]),
+        "action_indices": _iter_rollout_action_indices(rollout),
+        "rollout_trace": _summarize_export_rollout_trace(
+            adapter=adapter,
+            rollout=rollout,
+            grid_shape=grid_shape,
+        ),
+        **acceptance,
+        "geometry_summary": geometry_summary,
+        **({} if extra_fields is None else extra_fields),
+    }
+
+
+def _summarize_rollout_probe_distribution(
+    *,
+    rollouts: list[dict[str, object]],
+    hpwl_threshold_sweep: tuple[float, ...] | None,
+) -> dict[str, object]:
+    return {
+        "final_hpwl": _summarize_scalar_distribution([float(row["final_hpwl"]) for row in rollouts]),
+        "steps": _summarize_scalar_distribution([float(row["steps"]) for row in rollouts]),
+        "threshold_hit_rates": _build_hpwl_threshold_hit_rates(
+            rollouts=rollouts,
+            hpwl_threshold_sweep=hpwl_threshold_sweep,
+        ),
+    }
+
+
+def _summarize_rollout_probe_cohort(
+    *,
+    rollouts: list[dict[str, object]],
+    hpwl_threshold_sweep: tuple[float, ...] | None,
+    remaining_macro_ranges_sweep: tuple[tuple[int, int], ...] | None,
+    geometry_packing_factor: float,
+    min_accepted_prefixes: int,
+) -> dict[str, object]:
+    completed_count = sum(1 for row in rollouts if bool(row.get("completed_episode")))
+    return {
+        "rollout_count": int(len(rollouts)),
+        "completed_count": int(completed_count),
+        "completion_rate": float(completed_count / max(1, len(rollouts))),
+        "distribution": _summarize_rollout_probe_distribution(
+            rollouts=rollouts,
+            hpwl_threshold_sweep=hpwl_threshold_sweep,
+        ),
+        "acceptance_summary": _summarize_prefix_acceptance(
+            rollouts=rollouts,
+            min_accepted_prefixes=min_accepted_prefixes,
+            hpwl_threshold_sweep=hpwl_threshold_sweep,
+            remaining_macro_ranges_sweep=remaining_macro_ranges_sweep,
+            geometry_packing_factor=geometry_packing_factor,
+        ),
+    }
+
+
+def _calibrate_rollout_rows_for_salvage(
+    *,
+    problem,
+    reward_model,
+    metadata: dict[str, object],
+    grid_shape: tuple[int, int],
+    rollouts: list[dict[str, object]],
+    hpwl_threshold: float,
+    tail_steps: int,
+) -> dict[str, object]:
+    hpwl_threshold_raw = float(_normalize_hpwl_threshold(hpwl_threshold))
+    prefixes: list[dict[str, object]] = []
+    greedy_completable = 0
+    random_completable = 0
+    for row in rollouts:
+        if bool(row["completed_episode"]) or int(row["steps"]) <= int(tail_steps):
+            continue
+        if float(row["final_hpwl"]) > hpwl_threshold_raw:
+            continue
+        prefix_steps = int(row["steps"]) - int(tail_steps)
+        prefix_state = _replay_prefix_state_from_rollout(
+            problem=problem,
+            reward_model=reward_model,
+            grid_shape=grid_shape,
+            rollout=row,
+            prefix_steps=prefix_steps,
+        )
+        salvage = _evaluate_prefix_candidate_salvage(
+            problem=problem,
+            reward_model=reward_model,
+            grid_shape=grid_shape,
+            prefix_state=prefix_state,
+            reward_source="phase3_proxy_hpwl",
+        )
+        if bool(salvage["greedy"]["completed_episode"]):
+            greedy_completable += 1
+        if bool(salvage["random"]["completed_episode"]):
+            random_completable += 1
+        prefixes.append(
+            {
+                "name": row.get("name", row["source_rollout_id"]),
+                "source_rollout_id": row["source_rollout_id"],
+                "steps": int(row["steps"]),
+                "final_hpwl": float(row["final_hpwl"]),
+                "prefix_steps": int(prefix_steps),
+                "remaining_steps": int(metadata["ordered_macro_count"]) - int(prefix_steps),
+                "salvage": salvage,
+            }
+        )
+    recommended_mode = "greedy_or_random" if (greedy_completable > 0 or random_completable > 0) else "none"
+    return {
+        "tail_steps": int(tail_steps),
+        "prefixes": prefixes,
+        "summary": {
+            "total_candidates": int(len(prefixes)),
+            "greedy_completable": int(greedy_completable),
+            "random_completable": int(random_completable),
+            "recommended_salvage_mode": recommended_mode,
+        },
     }
 
 
@@ -646,13 +987,15 @@ def _load_external_prefix_candidates(
 ) -> tuple[list[dict[str, object]], dict[str, object]]:
     payload = json.loads(prefix_source_path.read_text(encoding="utf-8-sig"))
     rollouts = [dict(row) for row in payload.get("rollouts", [])]
+    hpwl_threshold_raw = _normalize_hpwl_threshold(hpwl_threshold)
     if hpwl_threshold is not None:
-        rollouts = [row for row in rollouts if float(row.get("final_hpwl", float("inf"))) <= float(hpwl_threshold)]
+        rollouts = [row for row in rollouts if float(row.get("final_hpwl", float("inf"))) <= float(hpwl_threshold_raw)]
     rollouts.sort(key=lambda row: float(row.get("final_hpwl", float("inf"))))
     metadata = {
         "mode": "external_artifact",
         "path": str(prefix_source_path),
         "hpwl_threshold": None if hpwl_threshold is None else float(hpwl_threshold),
+        "hpwl_threshold_raw": hpwl_threshold_raw,
         "loaded_rollout_count": int(len(payload.get("rollouts", []))),
         "eligible_rollout_count": int(len(rollouts)),
     }
@@ -714,9 +1057,12 @@ def run_ariane_reverse_curriculum_probe(
                 benchmark=metadata["benchmark"],
                 warm_start_checkpoint=str(checkpoint),
             )
+            base_reference_policy = _reference_policy_for_training(policy, training_config)
             base_training = train_ppo_policy(
                 problem=problem,
                 policy=policy,
+                reference_policy=base_reference_policy,
+                kl_anchor_beta=_training_kl_anchor_beta(training_config),
                 grid_shape=resolved_grid_shape,
                 reward_source="phase3_proxy_hpwl",
                 max_steps=max_steps,
@@ -852,9 +1198,12 @@ def run_ariane_reverse_curriculum_probe(
             checkpoint=checkpoint,
             fallback_policy=policy,
         )
+        scratch_control_reference_policy = _reference_policy_for_training(scratch_control_policy, training_config)
         scratch_control = train_ppo_policy(
             problem=problem,
             policy=scratch_control_policy,
+            reference_policy=scratch_control_reference_policy,
+            kl_anchor_beta=_training_kl_anchor_beta(training_config),
             grid_shape=resolved_grid_shape,
             reward_source="phase3_proxy_hpwl",
             max_steps=max_steps,
@@ -883,9 +1232,12 @@ def run_ariane_reverse_curriculum_probe(
             checkpoint=checkpoint,
             fallback_policy=policy,
         )
+        curriculum_reference_policy = _reference_policy_for_training(curriculum_policy, training_config)
         curriculum_training = train_ppo_policy(
             problem=problem,
             policy=curriculum_policy,
+            reference_policy=curriculum_reference_policy,
+            kl_anchor_beta=_training_kl_anchor_beta(training_config),
             grid_shape=resolved_grid_shape,
             reward_source="phase3_proxy_hpwl",
             max_steps=max_steps,
@@ -952,6 +1304,8 @@ def export_ariane_prefix_pool(
     policy_seeds: tuple[int, ...] = (0,),
     hpwl_threshold: float = 2.85,
     remaining_macro_range: tuple[int, int] = (8, 13),
+    hpwl_threshold_sweep: tuple[float, ...] | None = None,
+    remaining_macro_ranges_sweep: tuple[tuple[int, int], ...] | None = None,
     geometry_packing_factor: float = 1.0,
     min_accepted_prefixes: int = 20,
     grid_shape: tuple[int, int] | None = None,
@@ -982,9 +1336,12 @@ def export_ariane_prefix_pool(
             checkpoint=checkpoint,
             fallback_policy=policy,
         )
+        reference_policy = _reference_policy_for_training(policy, training_config)
         training = train_ppo_policy(
             problem=problem,
             policy=policy,
+            reference_policy=reference_policy,
+            kl_anchor_beta=_training_kl_anchor_beta(training_config),
             grid_shape=resolved_grid_shape,
             reward_source="phase3_proxy_hpwl",
             max_steps=max_steps,
@@ -1031,6 +1388,7 @@ def export_ariane_prefix_pool(
             )
             rollouts.append(
                 {
+                    "source_rollout_id": f"{int(policy_seed)}:{int(rollout_seed)}",
                     "policy_seed": int(policy_seed),
                     "seed": int(rollout_seed),
                     "steps": int(rollout["steps"]),
@@ -1038,6 +1396,11 @@ def export_ariane_prefix_pool(
                     "completed_episode": bool(rollout["completed_episode"]),
                     "termination_reason": str(rollout["termination_reason"]),
                     "action_indices": _iter_rollout_action_indices(rollout),
+                    "rollout_trace": _summarize_export_rollout_trace(
+                        adapter=adapter,
+                        rollout=rollout,
+                        grid_shape=resolved_grid_shape,
+                    ),
                     **acceptance,
                     "geometry_summary": geometry_summary,
                 }
@@ -1046,6 +1409,9 @@ def export_ariane_prefix_pool(
     acceptance_summary = _summarize_prefix_acceptance(
         rollouts=rollouts,
         min_accepted_prefixes=min_accepted_prefixes,
+        hpwl_threshold_sweep=hpwl_threshold_sweep,
+        remaining_macro_ranges_sweep=remaining_macro_ranges_sweep,
+        geometry_packing_factor=geometry_packing_factor,
     )
 
     artifact = {
@@ -1064,7 +1430,15 @@ def export_ariane_prefix_pool(
         },
         "acceptance_criteria": {
             "hpwl_threshold": float(hpwl_threshold),
+            "hpwl_threshold_raw": float(_normalize_hpwl_threshold(hpwl_threshold)),
             "remaining_macro_range": [int(remaining_macro_range[0]), int(remaining_macro_range[1])],
+            "hpwl_threshold_sweep": [] if hpwl_threshold_sweep is None else [float(value) for value in hpwl_threshold_sweep],
+            "hpwl_threshold_sweep_raw": [] if hpwl_threshold_sweep is None else [float(value) for value in _normalize_hpwl_threshold_sweep(hpwl_threshold_sweep)],
+            "remaining_macro_ranges_sweep": (
+                []
+                if remaining_macro_ranges_sweep is None
+                else [[int(bounds[0]), int(bounds[1])] for bounds in remaining_macro_ranges_sweep]
+            ),
             "geometry_packing_factor": float(geometry_packing_factor),
             "min_accepted_prefixes": int(min_accepted_prefixes),
         },
@@ -1072,6 +1446,299 @@ def export_ariane_prefix_pool(
         "base_final_rollout": base_training_runs[0]["final_rollout"] if base_training_runs else None,
         "base_training_runs": base_training_runs,
         "rollouts": rollouts,
+    }
+    output_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
+    return artifact
+
+
+def export_ariane_random_prefix_pool(
+    *,
+    output_path: Path,
+    num_rollouts: int = 20,
+    seeds: tuple[int, ...] | None = None,
+    hpwl_threshold: float = 2.85,
+    remaining_macro_range: tuple[int, int] = (8, 13),
+    hpwl_threshold_sweep: tuple[float, ...] | None = None,
+    remaining_macro_ranges_sweep: tuple[tuple[int, int], ...] | None = None,
+    geometry_packing_factor: float = 1.0,
+    min_accepted_prefixes: int = 20,
+    grid_shape: tuple[int, int] | None = None,
+    hidden_dim: int = 64,
+) -> dict[str, object]:
+    artifact_dir = output_path.parent
+    resolved_grid_shape = _resolve_ariane_grid_shape(grid_shape)
+    problem, policy, reward_model, adapter, metadata = _build_ariane_components(
+        artifact_dir=artifact_dir,
+        grid_shape=resolved_grid_shape,
+        hidden_dim=hidden_dim,
+    )
+    max_steps = len(adapter.ordered_macros())
+    adapter_kwargs = {
+        "reward_model": reward_model,
+        "hpwl_evaluator": reward_model.hpwl_evaluator,
+    }
+    rollout_seeds = tuple(int(seed) for seed in (seeds if seeds is not None else tuple(range(num_rollouts))))
+    rollouts: list[dict[str, object]] = []
+    for rollout_seed in rollout_seeds:
+        rollout = collect_policy_rollout(
+            problem=problem,
+            policy=policy,
+            grid_shape=resolved_grid_shape,
+            reward_source="phase3_proxy_hpwl",
+            max_steps=max_steps,
+            seed=int(rollout_seed),
+            deterministic=False,
+            uniform_legal_policy=True,
+            adapter_kwargs=adapter_kwargs,
+        )
+        try:
+            geometry_summary = _summarize_rollout_geometry_from_rollout(
+                adapter=adapter,
+                rollout=rollout,
+                grid_shape=resolved_grid_shape,
+            )
+        except Exception:
+            geometry_summary = None
+        acceptance = _evaluate_prefix_acceptance(
+            rollout=rollout,
+            geometry_summary=geometry_summary,
+            hpwl_threshold=hpwl_threshold,
+            remaining_macro_range=remaining_macro_range,
+            geometry_packing_factor=geometry_packing_factor,
+        )
+        rollouts.append(
+            {
+                "source_rollout_id": f"random:{int(rollout_seed)}",
+                "seed": int(rollout_seed),
+                "steps": int(rollout["steps"]),
+                "final_hpwl": float(rollout["final_hpwl"]),
+                "completed_episode": bool(rollout["completed_episode"]),
+                "termination_reason": str(rollout["termination_reason"]),
+                "action_indices": _iter_rollout_action_indices(rollout),
+                "rollout_trace": _summarize_export_rollout_trace(
+                    adapter=adapter,
+                    rollout=rollout,
+                    grid_shape=resolved_grid_shape,
+                ),
+                **acceptance,
+                "geometry_summary": geometry_summary,
+            }
+        )
+
+    acceptance_summary = _summarize_prefix_acceptance(
+        rollouts=rollouts,
+        min_accepted_prefixes=min_accepted_prefixes,
+        hpwl_threshold_sweep=hpwl_threshold_sweep,
+        remaining_macro_ranges_sweep=remaining_macro_ranges_sweep,
+        geometry_packing_factor=geometry_packing_factor,
+    )
+    artifact = {
+        "benchmark": metadata["benchmark"],
+        "metadata": metadata,
+        "prefix_source": {
+            "mode": "random_uniform_legal_rollouts",
+            "num_rollouts": int(len(rollout_seeds)),
+            "rollout_seeds": [int(seed) for seed in rollout_seeds],
+        },
+        "acceptance_criteria": {
+            "hpwl_threshold": float(hpwl_threshold),
+            "hpwl_threshold_raw": float(_normalize_hpwl_threshold(hpwl_threshold)),
+            "remaining_macro_range": [int(remaining_macro_range[0]), int(remaining_macro_range[1])],
+            "hpwl_threshold_sweep": [] if hpwl_threshold_sweep is None else [float(value) for value in hpwl_threshold_sweep],
+            "hpwl_threshold_sweep_raw": [] if hpwl_threshold_sweep is None else [float(value) for value in _normalize_hpwl_threshold_sweep(hpwl_threshold_sweep)],
+            "remaining_macro_ranges_sweep": (
+                []
+                if remaining_macro_ranges_sweep is None
+                else [[int(bounds[0]), int(bounds[1])] for bounds in remaining_macro_ranges_sweep]
+            ),
+            "geometry_packing_factor": float(geometry_packing_factor),
+            "min_accepted_prefixes": int(min_accepted_prefixes),
+        },
+        "acceptance_summary": acceptance_summary,
+        "distribution": {
+            "final_hpwl": _summarize_scalar_distribution([float(row["final_hpwl"]) for row in rollouts]),
+            "steps": _summarize_scalar_distribution([float(row["steps"]) for row in rollouts]),
+            "threshold_hit_rates": _build_hpwl_threshold_hit_rates(
+                rollouts=rollouts,
+                hpwl_threshold_sweep=hpwl_threshold_sweep,
+            ),
+        },
+        "rollouts": rollouts,
+    }
+    output_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
+    return artifact
+
+
+def export_ariane_warm_start_probe(
+    *,
+    output_path: Path,
+    update0_rollouts: int = 25,
+    update1_rollouts: int = 25,
+    hpwl_threshold: float = 2.85,
+    remaining_macro_range: tuple[int, int] = (8, 13),
+    hpwl_threshold_sweep: tuple[float, ...] | None = None,
+    remaining_macro_ranges_sweep: tuple[tuple[int, int], ...] | None = None,
+    geometry_packing_factor: float = 1.0,
+    min_accepted_prefixes: int = 20,
+    tail_steps: int = 10,
+    grid_shape: tuple[int, int] | None = None,
+    hidden_dim: int = 64,
+) -> dict[str, object]:
+    artifact_dir = output_path.parent
+    resolved_grid_shape = _resolve_ariane_grid_shape(grid_shape)
+    training_config = build_ariane_checkpoint_training_config()
+    torch.manual_seed(int(training_config["init_seed"]))
+    problem, policy, reward_model, adapter, metadata = _build_ariane_components(
+        artifact_dir=artifact_dir,
+        grid_shape=resolved_grid_shape,
+        hidden_dim=hidden_dim,
+    )
+    checkpoint = resolve_ariane_warm_start_checkpoint(artifact_dir)
+    max_steps = len(adapter.ordered_macros())
+    adapter_kwargs = {
+        "reward_model": reward_model,
+        "hpwl_evaluator": reward_model.hpwl_evaluator,
+    }
+
+    update0_policy = _instantiate_ariane_warm_policy(
+        problem=problem,
+        grid_shape=resolved_grid_shape,
+        hidden_dim=hidden_dim,
+        checkpoint=checkpoint,
+        fallback_policy=policy,
+    )
+    update0_rows: list[dict[str, object]] = []
+    for rollout_seed in range(update0_rollouts):
+        rollout = collect_policy_rollout(
+            problem=problem,
+            policy=update0_policy,
+            grid_shape=resolved_grid_shape,
+            reward_source="phase3_proxy_hpwl",
+            max_steps=max_steps,
+            seed=int(rollout_seed),
+            deterministic=False,
+            uniform_legal_policy=False,
+            adapter_kwargs=adapter_kwargs,
+        )
+        update0_rows.append(
+            _build_export_rollout_row(
+                adapter=adapter,
+                rollout=rollout,
+                grid_shape=resolved_grid_shape,
+                source_rollout_id=f"update0:{int(rollout_seed)}",
+                hpwl_threshold=hpwl_threshold,
+                remaining_macro_range=remaining_macro_range,
+                geometry_packing_factor=geometry_packing_factor,
+                extra_fields={"seed": int(rollout_seed), "phase": "update0"},
+            )
+        )
+
+    update1_policy = initialize_policy_for_problem(problem=problem, grid_shape=resolved_grid_shape, hidden_dim=hidden_dim)
+    load_policy_warm_start(update1_policy, checkpoint)
+    update1_reference_policy = _reference_policy_for_training(update1_policy, training_config)
+    update1_training = train_ppo_policy(
+        problem=problem,
+        policy=update1_policy,
+        reference_policy=update1_reference_policy,
+        kl_anchor_beta=_training_kl_anchor_beta(training_config),
+        grid_shape=resolved_grid_shape,
+        reward_source="phase3_proxy_hpwl",
+        max_steps=max_steps,
+        num_updates=1,
+        learning_rate=float(training_config["learning_rate"]),
+        seed=int(training_config["init_seed"]),
+        adapter_kwargs=adapter_kwargs,
+        value_coef=float(training_config["value_coef"]),
+        entropy_coef=float(training_config["entropy_coef"]),
+        progress_every=1,
+    )
+    update1_rows: list[dict[str, object]] = []
+    for rollout_seed in range(update1_rollouts):
+        seed = 100 + int(rollout_seed)
+        rollout = collect_policy_rollout(
+            problem=problem,
+            policy=update1_policy,
+            grid_shape=resolved_grid_shape,
+            reward_source="phase3_proxy_hpwl",
+            max_steps=max_steps,
+            seed=seed,
+            deterministic=False,
+            uniform_legal_policy=False,
+            adapter_kwargs=adapter_kwargs,
+        )
+        update1_rows.append(
+            _build_export_rollout_row(
+                adapter=adapter,
+                rollout=rollout,
+                grid_shape=resolved_grid_shape,
+                source_rollout_id=f"update1:{int(rollout_seed)}",
+                hpwl_threshold=hpwl_threshold,
+                remaining_macro_range=remaining_macro_range,
+                geometry_packing_factor=geometry_packing_factor,
+                extra_fields={"seed": seed, "phase": "update1"},
+            )
+        )
+
+    all_rows = [*update0_rows, *update1_rows]
+    artifact = {
+        "benchmark": metadata["benchmark"],
+        "metadata": {
+            **metadata,
+            "warm_start_checkpoint": str(checkpoint),
+            "training_config": dict(training_config),
+        },
+        "probe_config": {
+            "update0_rollouts": int(update0_rollouts),
+            "update1_rollouts": int(update1_rollouts),
+            "tail_steps": int(tail_steps),
+        },
+        "acceptance_criteria": {
+            "hpwl_threshold": float(hpwl_threshold),
+            "hpwl_threshold_raw": float(_normalize_hpwl_threshold(hpwl_threshold)),
+            "remaining_macro_range": [int(remaining_macro_range[0]), int(remaining_macro_range[1])],
+            "hpwl_threshold_sweep": [] if hpwl_threshold_sweep is None else [float(value) for value in hpwl_threshold_sweep],
+            "hpwl_threshold_sweep_raw": [] if hpwl_threshold_sweep is None else [float(value) for value in _normalize_hpwl_threshold_sweep(hpwl_threshold_sweep)],
+            "remaining_macro_ranges_sweep": (
+                []
+                if remaining_macro_ranges_sweep is None
+                else [[int(bounds[0]), int(bounds[1])] for bounds in remaining_macro_ranges_sweep]
+            ),
+            "geometry_packing_factor": float(geometry_packing_factor),
+            "min_accepted_prefixes": int(min_accepted_prefixes),
+        },
+        "cohorts": {
+            "update0": {
+                **_summarize_rollout_probe_cohort(
+                    rollouts=update0_rows,
+                    hpwl_threshold_sweep=hpwl_threshold_sweep,
+                    remaining_macro_ranges_sweep=remaining_macro_ranges_sweep,
+                    geometry_packing_factor=geometry_packing_factor,
+                    min_accepted_prefixes=min_accepted_prefixes,
+                ),
+                "rollouts": update0_rows,
+            },
+            "update1": {
+                **_summarize_rollout_probe_cohort(
+                    rollouts=update1_rows,
+                    hpwl_threshold_sweep=hpwl_threshold_sweep,
+                    remaining_macro_ranges_sweep=remaining_macro_ranges_sweep,
+                    geometry_packing_factor=geometry_packing_factor,
+                    min_accepted_prefixes=min_accepted_prefixes,
+                ),
+                "training_history": update1_training["history"],
+                "final_rollout": _rollout_json_summary(update1_training["final_rollout"]),
+                "rollouts": update1_rows,
+            },
+        },
+        "salvage_calibration": _calibrate_rollout_rows_for_salvage(
+            problem=problem,
+            reward_model=reward_model,
+            metadata=metadata,
+            grid_shape=resolved_grid_shape,
+            rollouts=all_rows,
+            hpwl_threshold=hpwl_threshold,
+            tail_steps=tail_steps,
+        ),
     }
     output_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
     return artifact
@@ -1475,9 +2142,12 @@ def run_ariane_ppo_checkpoint(
         "training_config": dict(training_config),
         "warm_start_checkpoint": str(checkpoint),
     }
+    reference_policy = _reference_policy_for_training(policy, training_config)
     training = train_ppo_policy(
         problem=problem,
         policy=policy,
+        reference_policy=reference_policy,
+        kl_anchor_beta=_training_kl_anchor_beta(training_config),
         grid_shape=resolved_grid_shape,
         reward_source="phase3_proxy_hpwl",
         max_steps=len(adapter.ordered_macros()),
@@ -1595,6 +2265,359 @@ def run_ariane_ppo_checkpoint(
             "legality_rate_ge_95pct": legality_rate >= 0.95,
             "entropy_not_collapsed": entropy_min > 0.1,
             "reference_levels_available": random_mean_hpwl is not None and greedy_final_hpwl is not None,
+        },
+    }
+    output_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
+    return artifact
+
+
+def run_ariane_warm_start_substep_diagnostic(
+    *,
+    output_path: Path,
+    policy_epochs: int = 5,
+    diagnostic_eval_seeds: tuple[int, ...] = (0, 1, 2, 3, 4),
+    grid_shape: tuple[int, int] | None = None,
+    hidden_dim: int = 64,
+    reward_weights: RewardWeights | None = None,
+) -> dict[str, object]:
+    artifact_dir = output_path.parent
+    resolved_grid_shape = _resolve_ariane_grid_shape(grid_shape)
+    training_config = build_ariane_checkpoint_training_config()
+    torch.manual_seed(int(training_config["init_seed"]))
+    problem, policy, reward_model, adapter, metadata = _build_ariane_components(
+        artifact_dir=artifact_dir,
+        grid_shape=resolved_grid_shape,
+        hidden_dim=hidden_dim,
+        reward_weights=reward_weights,
+    )
+    checkpoint = resolve_ariane_warm_start_checkpoint(artifact_dir)
+    load_policy_warm_start(policy, checkpoint)
+    reference_policy = _reference_policy_for_training(policy, training_config)
+    update_metrics = run_single_ppo_update(
+        problem=problem,
+        policy=policy,
+        reference_policy=reference_policy,
+        kl_anchor_beta=_training_kl_anchor_beta(training_config),
+        grid_shape=resolved_grid_shape,
+        reward_source="phase3_proxy_hpwl",
+        max_steps=len(adapter.ordered_macros()),
+        learning_rate=float(training_config["learning_rate"]),
+        seed=int(training_config["init_seed"]),
+        adapter_kwargs={
+            "reward_model": reward_model,
+            "hpwl_evaluator": reward_model.hpwl_evaluator,
+        },
+        value_coef=float(training_config["value_coef"]),
+        entropy_coef=float(training_config["entropy_coef"]),
+        policy_epochs=int(policy_epochs),
+        diagnostic_eval_seeds=tuple(int(seed) for seed in diagnostic_eval_seeds),
+    )
+    artifact = {
+        "benchmark": metadata["benchmark"],
+        "metadata": {
+            **metadata,
+            "training_config": dict(training_config),
+            "warm_start_checkpoint": str(checkpoint),
+        },
+        "diagnostic_config": {
+            "policy_epochs": int(policy_epochs),
+            "diagnostic_eval_seeds": [int(seed) for seed in diagnostic_eval_seeds],
+        },
+        "update_metrics": update_metrics,
+    }
+    output_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
+    return artifact
+
+
+def _rollout_to_fixed_rollout_batch(rollout: dict[str, object]) -> FixedRolloutBatch:
+    return FixedRolloutBatch(
+        transitions=rollout["transitions"],
+        schema=rollout["schema"],
+        final_hpwl=float(rollout["final_hpwl"]),
+        episode_return=float(rollout["episode_return"]),
+        termination_reason=str(rollout["termination_reason"]),
+        completed_episode=bool(rollout["completed_episode"]),
+    )
+
+
+def _build_ariane_critic_prefit_comparison_conditions() -> dict[str, dict[str, float | str]]:
+    return {
+        "raw_baseline": {
+            "prefit_learning_rate": 1e-3,
+            "prefit_epochs": 20,
+            "prefit_lr_warmup_epochs": 0,
+            "target_transform": "raw",
+        },
+        "raw_fair_shot": {
+            "prefit_learning_rate": 1e-3,
+            "prefit_epochs": 200,
+            "prefit_lr_warmup_epochs": 20,
+            "target_transform": "raw",
+        },
+        "zscore_fair_shot": {
+            "prefit_learning_rate": 1e-3,
+            "prefit_epochs": 200,
+            "prefit_lr_warmup_epochs": 20,
+            "target_transform": "zscore",
+        },
+    }
+
+
+def run_ariane_critic_prefit_comparison(
+    *,
+    output_path: Path,
+    prefit_rollout_seeds: tuple[int, ...] = (0, 1, 2, 3),
+    grid_shape: tuple[int, int] | None = None,
+    hidden_dim: int = 64,
+    reward_weights: RewardWeights | None = None,
+) -> dict[str, object]:
+    artifact_dir = output_path.parent
+    resolved_grid_shape = _resolve_ariane_grid_shape(grid_shape)
+    torch.manual_seed(0)
+    problem, policy, reward_model, adapter, metadata = _build_ariane_components(
+        artifact_dir=artifact_dir,
+        grid_shape=resolved_grid_shape,
+        hidden_dim=hidden_dim,
+        reward_weights=reward_weights,
+    )
+    checkpoint = resolve_ariane_warm_start_checkpoint(artifact_dir)
+    load_policy_warm_start(policy, checkpoint)
+    adapter_kwargs = {
+        "reward_model": reward_model,
+        "hpwl_evaluator": reward_model.hpwl_evaluator,
+    }
+
+    prefit_rollouts = [
+        collect_policy_rollout(
+            problem=problem,
+            policy=policy,
+            grid_shape=resolved_grid_shape,
+            reward_source="phase3_proxy_hpwl",
+            max_steps=len(adapter.ordered_macros()),
+            seed=int(seed),
+            deterministic=False,
+            adapter_kwargs=adapter_kwargs,
+        )
+        for seed in prefit_rollout_seeds
+    ]
+    fixed_rollouts = [_rollout_to_fixed_rollout_batch(rollout) for rollout in prefit_rollouts]
+    simple_signal_diagnostic = summarize_rollout_return_signal(
+        fixed_rollouts=fixed_rollouts,
+        total_macro_count=len(adapter.ordered_macros()),
+    )
+    warm_start_rollout_summary = {
+        "rollout_count": int(len(prefit_rollouts)),
+        "completion_rate": float(
+            sum(1 for rollout in prefit_rollouts if bool(rollout.get("completed_episode", False)))
+            / max(1, len(prefit_rollouts))
+        ),
+        "final_hpwl_distribution": _summarize_scalar_distribution(
+            [float(rollout["final_hpwl"]) for rollout in prefit_rollouts]
+        ),
+        "episode_return_distribution": _summarize_scalar_distribution(
+            [float(rollout["episode_return"]) for rollout in prefit_rollouts]
+        ),
+    }
+
+    conditions: dict[str, dict[str, object]] = {}
+    prefit_gate: dict[str, dict[str, object]] = {}
+    for condition_name, condition_config in _build_ariane_critic_prefit_comparison_conditions().items():
+        condition_policy = copy.deepcopy(policy)
+        metrics = prefit_value_head_from_rollouts(
+            policy=condition_policy,
+            fixed_rollouts=fixed_rollouts,
+            learning_rate=float(condition_config["prefit_learning_rate"]),
+            epochs=int(condition_config["prefit_epochs"]),
+            lr_warmup_epochs=int(condition_config["prefit_lr_warmup_epochs"]),
+            target_transform=str(condition_config["target_transform"]),
+        )
+        conditions[condition_name] = {
+            **{key: value for key, value in condition_config.items()},
+            **metrics,
+        }
+        correlation_gate = float(metrics.get("final_value_return_correlation", 0.0)) > 0.5
+        prefit_gate[condition_name] = {
+            "value_return_correlation_gt_0_5": bool(correlation_gate),
+            "pass": bool(correlation_gate),
+        }
+
+    artifact = {
+        "benchmark": metadata["benchmark"],
+        "metadata": {
+            **metadata,
+            "warm_start_checkpoint": str(checkpoint),
+        },
+        "diagnostic_config": {
+            "prefit_rollout_seeds": [int(seed) for seed in prefit_rollout_seeds],
+            "conditions": _build_ariane_critic_prefit_comparison_conditions(),
+        },
+        "warm_start_rollout_summary": warm_start_rollout_summary,
+        "simple_signal_diagnostic": simple_signal_diagnostic,
+        "conditions": conditions,
+        "prefit_gate": prefit_gate,
+    }
+    output_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
+    return artifact
+
+
+def run_ariane_critic_prefit_diagnostic(
+    *,
+    output_path: Path,
+    prefit_rollout_seeds: tuple[int, ...] = (0, 1, 2, 3),
+    diagnostic_eval_seeds: tuple[int, ...] = (0, 1, 2, 3, 4),
+    prefit_epochs: int = 20,
+    policy_epochs: int = 1,
+    followup_updates: int = 10,
+    warm_start_baseline_hpwl: float = 2_881_800.0,
+    grid_shape: tuple[int, int] | None = None,
+    hidden_dim: int = 64,
+    reward_weights: RewardWeights | None = None,
+) -> dict[str, object]:
+    artifact_dir = output_path.parent
+    resolved_grid_shape = _resolve_ariane_grid_shape(grid_shape)
+    training_config = build_ariane_checkpoint_training_config()
+    warm_value_prefit_config = build_ariane_warm_value_prefit_training_config()
+    torch.manual_seed(int(training_config["init_seed"]))
+    problem, policy, reward_model, adapter, metadata = _build_ariane_components(
+        artifact_dir=artifact_dir,
+        grid_shape=resolved_grid_shape,
+        hidden_dim=hidden_dim,
+        reward_weights=reward_weights,
+    )
+    checkpoint = resolve_ariane_warm_start_checkpoint(artifact_dir)
+    load_policy_warm_start(policy, checkpoint)
+    adapter_kwargs = {
+        "reward_model": reward_model,
+        "hpwl_evaluator": reward_model.hpwl_evaluator,
+    }
+
+    prefit_rollouts = [
+        collect_policy_rollout(
+            problem=problem,
+            policy=policy,
+            grid_shape=resolved_grid_shape,
+            reward_source="phase3_proxy_hpwl",
+            max_steps=len(adapter.ordered_macros()),
+            seed=int(seed),
+            deterministic=False,
+            adapter_kwargs=adapter_kwargs,
+        )
+        for seed in prefit_rollout_seeds
+    ]
+    prefit_metrics = prefit_value_head_from_rollouts(
+        policy=policy,
+        fixed_rollouts=[_rollout_to_fixed_rollout_batch(rollout) for rollout in prefit_rollouts],
+        learning_rate=float(warm_value_prefit_config["prefit_learning_rate"]),
+        epochs=int(prefit_epochs),
+    )
+
+    reference_policy = _reference_policy_for_training(policy, training_config)
+    update_metrics = run_single_ppo_update(
+        problem=problem,
+        policy=policy,
+        reference_policy=reference_policy,
+        kl_anchor_beta=_training_kl_anchor_beta(training_config),
+        grid_shape=resolved_grid_shape,
+        reward_source="phase3_proxy_hpwl",
+        max_steps=len(adapter.ordered_macros()),
+        learning_rate=float(training_config["learning_rate"]),
+        seed=int(training_config["init_seed"]),
+        adapter_kwargs=adapter_kwargs,
+        value_coef=float(training_config["value_coef"]),
+        entropy_coef=float(training_config["entropy_coef"]),
+        policy_epochs=int(policy_epochs),
+        diagnostic_eval_seeds=tuple(int(seed) for seed in diagnostic_eval_seeds),
+    )
+
+    substep_zero = update_metrics["substep_history"][0] if update_metrics.get("substep_history") else {}
+    finite_kl = bool(
+        "update_batch_kl_to_reference" in substep_zero
+        and torch.isfinite(torch.tensor(float(substep_zero["update_batch_kl_to_reference"]))).item()
+        and float(substep_zero["update_batch_kl_to_reference"]) < 1.0
+    )
+    heldout_log_prob_delta_within_band = bool(
+        "heldout_log_prob_delta_mean" in substep_zero
+        and abs(float(substep_zero["heldout_log_prob_delta_mean"])) < 0.05
+    )
+    necessary = {
+        "finite_kl": finite_kl,
+        "heldout_log_prob_delta_within_band": heldout_log_prob_delta_within_band,
+        "pass": bool(finite_kl and heldout_log_prob_delta_within_band),
+    }
+
+    followup_training = None
+    followup_training_artifact = None
+    followup_eval = None
+    sufficient = {
+        "followup_hpwl_within_3pct_of_baseline": False,
+        "pass": False,
+    }
+    if necessary["pass"] and int(followup_updates) > 0:
+        followup_training = train_ppo_policy(
+            problem=problem,
+            policy=policy,
+            reference_policy=reference_policy,
+            kl_anchor_beta=_training_kl_anchor_beta(training_config),
+            grid_shape=resolved_grid_shape,
+            reward_source="phase3_proxy_hpwl",
+            max_steps=len(adapter.ordered_macros()),
+            num_updates=int(followup_updates),
+            learning_rate=float(training_config["learning_rate"]),
+            seed=int(training_config["init_seed"]),
+            adapter_kwargs=adapter_kwargs,
+            value_coef=float(training_config["value_coef"]),
+            entropy_coef=float(training_config["entropy_coef"]),
+        )
+        followup_training_artifact = {
+            "history": followup_training["history"],
+            "final_rollout": _rollout_json_summary(followup_training["final_rollout"]),
+        }
+        followup_rollouts = [
+            collect_policy_rollout(
+                problem=problem,
+                policy=policy,
+                grid_shape=resolved_grid_shape,
+                reward_source="phase3_proxy_hpwl",
+                max_steps=len(adapter.ordered_macros()),
+                seed=int(seed),
+                deterministic=False,
+                adapter_kwargs=adapter_kwargs,
+            )
+            for seed in diagnostic_eval_seeds
+        ]
+        hpwls = [float(rollout["final_hpwl"]) for rollout in followup_rollouts]
+        followup_eval = {
+            "rollout_count": int(len(followup_rollouts)),
+            "final_hpwl_distribution": _summarize_scalar_distribution(hpwls),
+        }
+        median_hpwl = float(followup_eval["final_hpwl_distribution"]["median"])
+        threshold = float(warm_start_baseline_hpwl) * 1.03
+        sufficient["followup_hpwl_within_3pct_of_baseline"] = bool(median_hpwl <= threshold)
+        sufficient["pass"] = bool(sufficient["followup_hpwl_within_3pct_of_baseline"])
+
+    artifact = {
+        "benchmark": metadata["benchmark"],
+        "metadata": {
+            **metadata,
+            "training_config": dict(training_config),
+            "warm_value_prefit_config": dict(warm_value_prefit_config),
+            "warm_start_checkpoint": str(checkpoint),
+        },
+        "diagnostic_config": {
+            "prefit_rollout_seeds": [int(seed) for seed in prefit_rollout_seeds],
+            "diagnostic_eval_seeds": [int(seed) for seed in diagnostic_eval_seeds],
+            "prefit_epochs": int(prefit_epochs),
+            "policy_epochs": int(policy_epochs),
+            "followup_updates": int(followup_updates),
+            "warm_start_baseline_hpwl": float(warm_start_baseline_hpwl),
+        },
+        "prefit_metrics": prefit_metrics,
+        "update_metrics": update_metrics,
+        "followup_training": followup_training_artifact,
+        "followup_eval": followup_eval,
+        "gate_status": {
+            "necessary": necessary,
+            "sufficient": sufficient,
         },
     }
     output_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
@@ -1793,10 +2816,13 @@ def run_ariane_termination_audit(
     )
     checkpoint = resolve_ariane_warm_start_checkpoint(artifact_dir)
     load_policy_warm_start(policy, checkpoint)
+    reference_policy = _reference_policy_for_training(policy, training_config)
     max_steps = len(adapter.ordered_macros())
     training = train_ppo_policy(
         problem=problem,
         policy=policy,
+        reference_policy=reference_policy,
+        kl_anchor_beta=_training_kl_anchor_beta(training_config),
         grid_shape=resolved_grid_shape,
         reward_source="phase3_proxy_hpwl",
         max_steps=max_steps,

@@ -1,0 +1,190 @@
+{
+  "benchmark": "ariane133_ng45",
+  "diagnostic_config": {
+    "diagnostic_eval_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "followup_updates": 10,
+    "policy_epochs": 1,
+    "prefit_epochs": 20,
+    "prefit_rollout_seeds": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "warm_start_baseline_hpwl": 2881799.084470007
+  },
+  "followup_eval": null,
+  "followup_training": null,
+  "gate_status": {
+    "necessary": {
+      "finite_kl": false,
+      "heldout_log_prob_delta_within_band": false,
+      "pass": false
+    },
+    "sufficient": {
+      "followup_hpwl_within_3pct_of_baseline": false,
+      "pass": false
+    }
+  },
+  "metadata": {
+    "benchmark": "ariane133_ng45",
+    "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_critic_prefit_diagnostic_v1_strict\\ariane133_ng45.combined.lef",
+    "grid_shape": [
+      32,
+      32
+    ],
+    "hidden_dim": 64,
+    "ordered_macro_count": 133,
+    "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "reward_metadata": {
+      "benchmark": "ariane133_ng45",
+      "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_critic_prefit_diagnostic_v1_strict\\ariane133_ng45.combined.lef",
+      "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+      "reward_weights": {
+        "completion_bonus": 0.0,
+        "legality_penalty": 10.0,
+        "w_hpwl": 1.0,
+        "w_proxy": 0.0
+      },
+      "seed_macro_count": 133
+    },
+    "seed_macro_count": 133,
+    "training_config": {
+      "entropy_coef": 5.0,
+      "init_seed": 0,
+      "kl_anchor_beta": 5.0,
+      "learning_rate": 0.0001,
+      "value_coef": 0.0
+    },
+    "warm_start_checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+    "warm_value_prefit_config": {
+      "entropy_coef": 1.0,
+      "init_seed": 0,
+      "learning_rate": 0.0001,
+      "prefit_epochs": 50,
+      "prefit_learning_rate": 0.001,
+      "value_coef": 0.0
+    }
+  },
+  "prefit_metrics": {
+    "epochs": 20.0,
+    "final_loss": 17928286208.0,
+    "initial_loss": 18064994304.0,
+    "rollout_count": 4.0,
+    "transition_count": 412.0
+  },
+  "update_metrics": {
+    "approx_kl": 0.21735025942325592,
+    "batch_diagnostic": {
+      "normalized_advantage_summary": {
+        "count": 105.0,
+        "max": 2.2277724742889404,
+        "mean": 3.973643192267673e-09,
+        "min": -1.049028754234314
+      },
+      "old_value_summary": {
+        "count": 105.0,
+        "max": -1562.1290283203125,
+        "mean": -1641.705078125,
+        "min": -1771.954833984375
+      },
+      "raw_advantage_summary": {
+        "count": 105.0,
+        "max": 268729.15625,
+        "mean": -25821.3046875,
+        "min": -164521.25
+      },
+      "return_summary": {
+        "count": 105.0,
+        "max": 267030.78125,
+        "mean": -27463.009765625,
+        "min": -166157.3125
+      },
+      "top_abs_advantages": [
+        {
+          "normalized_advantage": 2.2277724742889404,
+          "old_value": -1698.384765625,
+          "raw_advantage": 268729.15625,
+          "return": 267030.78125,
+          "reward": 27220.514699999243,
+          "transition_index": 12.0
+        },
+        {
+          "normalized_advantage": 2.1019747257232666,
+          "old_value": -1712.7236328125,
+          "raw_advantage": 252096.515625,
+          "return": 250383.796875,
+          "reward": -13976.67437999975,
+          "transition_index": 11.0
+        },
+        {
+          "normalized_advantage": 2.0578057765960693,
+          "old_value": -1707.99365234375,
+          "raw_advantage": 246256.59375,
+          "return": 244548.59375,
+          "reward": -3331.373507999815,
+          "transition_index": 10.0
+        },
+        {
+          "normalized_advantage": 2.0401854515075684,
+          "old_value": -1694.29296875,
+          "raw_advantage": 243926.890625,
+          "return": 242232.59375,
+          "reward": 11025.143639999442,
+          "transition_index": 13.0
+        },
+        {
+          "normalized_advantage": 1.9744384288787842,
+          "old_value": -1691.103271484375,
+          "raw_advantage": 235233.984375,
+          "return": 233542.875,
+          "reward": 23644.943799999077,
+          "transition_index": 14.0
+        }
+      ],
+      "value_return_correlation": -0.7180837392807007
+    },
+    "completed_episode": 0.0,
+    "entropy": 0.7689516544342041,
+    "episode_return": 84815.57751799747,
+    "final_hpwl": 2857926.951498001,
+    "invalid_action_count": 0.0,
+    "is_legal": 1.0,
+    "kl_anchor_beta": 5.0,
+    "kl_anchor_loss": Infinity,
+    "policy_epochs": 1.0,
+    "policy_loss": 0.03794309124350548,
+    "pre_update_diagnostic": {
+      "heldout_completion_rate": 0.0,
+      "heldout_log_prob_delta_mean": -1.0941246310558483e-05,
+      "heldout_mean_hpwl": 2844907.741634004,
+      "heldout_rollout_count": 5.0,
+      "update_batch_kl_to_reference": 0.0
+    },
+    "steps": 105.0,
+    "substep_history": [
+      {
+        "approx_kl": 0.21735025942325592,
+        "entropy": 0.7689516544342041,
+        "global_grad_norm": 82.05919261866643,
+        "heldout_completion_rate": 0.0,
+        "heldout_log_prob_delta_mean": -0.2441864468844331,
+        "heldout_mean_hpwl": 2871586.3915480026,
+        "heldout_rollout_count": 5.0,
+        "policy_head_grad_norm": 21.199719351585035,
+        "policy_loss": 0.03794309124350548,
+        "substep_index": 0.0,
+        "update_batch_kl_to_reference": Infinity,
+        "value_head_grad_norm": 0.0,
+        "value_loss": 18148468736.0
+      }
+    ],
+    "value_loss": 18148468736.0
+  }
+}

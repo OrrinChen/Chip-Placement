@@ -1,5 +1,88 @@
 # Task Memory
 
+## 2026-04-16 Phase 3 Warm-Start Probe Recompute
+
+### Unit-Semantics Correction
+
+- The earlier Ariane warm-start probe conclusion "`accepted_prefixes = 0`" was invalidated by a unit bug.
+- Root cause:
+  - acceptance / threshold-sweep / salvage filtering treated `hpwl_threshold = 2.85` as raw HPWL
+  - actual rollout HPWL is stored in raw units around `2_800_000+`
+- Fix is now in:
+  - [phase3_macroplacement_ppo.py](C:/Users/14574/Chip/chip/experiments/phase3_macroplacement_ppo.py)
+- New invariant:
+  - small thresholds like `2.85` are interpreted as `2.85M`
+  - raw thresholds like `2_850_000` remain valid
+  - artifacts now also record `hpwl_threshold_raw` / `hpwl_threshold_sweep_raw`
+- Fresh verification:
+  - `python -m pytest tests/engine tests/chip -q`
+  - `222 passed in 26.79s`
+
+### Corrected Warm-Start Probe Artifacts
+
+- original probe:
+  - [phase3_ariane_warm_start_probe.json](C:/Users/14574/Chip/experiments/chip/phase3_warm_start_probe_50/phase3_ariane_warm_start_probe.json)
+- corrected acceptance-only recompute:
+  - [phase3_ariane_warm_start_probe_recomputed_acceptance.json](C:/Users/14574/Chip/experiments/chip/phase3_warm_start_probe_50/phase3_ariane_warm_start_probe_recomputed_acceptance.json)
+- corrected full recompute with salvage:
+  - [phase3_ariane_warm_start_probe_recomputed_full.json](C:/Users/14574/Chip/experiments/chip/phase3_warm_start_probe_50/phase3_ariane_warm_start_probe_recomputed_full.json)
+
+### Corrected Headline Numbers
+
+- `update0` warm-start cohort:
+  - `completion_rate = 0.36`
+  - `median final_hpwl = 2.9494M`
+  - `mean final_hpwl = 2.9350M`
+  - `hpwl_eligible @ 2.85M = 5 / 25`
+  - `accepted_prefixes @ 2.85M + remaining [8,13] = 1`
+  - threshold sweep:
+    - `2.88M + [8,13] -> 2`
+    - `2.90M + [8,13] -> 2`
+    - `2.92M + [8,13] -> 2`
+
+- `update1` cohort after a single PPO update:
+  - `completion_rate = 0.08`
+  - `median final_hpwl = 3.0401M`
+  - `mean final_hpwl = 3.0159M`
+  - `hpwl_eligible @ 2.85M = 2 / 25`
+  - `accepted_prefixes @ 2.85M + remaining [8,13] = 0`
+  - threshold sweep:
+    - `2.88M + [8,13] -> 1`
+    - `2.90M + [8,13] -> 1`
+    - `2.92M + [8,13] -> 1`
+
+- corrected salvage calibration over all non-completed rows with `hpwl <= 2.85M`:
+  - `total_candidates = 5`
+  - `greedy_completable = 1`
+  - `random_completable = 0`
+  - `recommended_salvage_mode = greedy_or_random`
+
+### Current Interpretation
+
+- Replay already confirmed the `2.8127M` warm-start rollout is real, not a logging artifact.
+- The corrected warm-start probe changes the framing:
+  - the main problem is no longer "can we generate any good prefixes?"
+  - the main problem is "PPO updates are actively degrading an already capable warm-start policy"
+- The strongest current evidence is the completion-rate collapse:
+  - `update0 = 0.36`
+  - `update1 = 0.08`
+  - later canonical PPO had already dropped to `~0.02`
+- This now supports a methodology pivot:
+  - reverse curriculum is no longer the only or primary next hypothesis
+  - KL-anchored / behavior-preserving PPO should be considered first-class next work
+
+### Process Invariants Added
+
+- Any experiment that reports HPWL thresholds must preserve both:
+  - user-facing shorthand (e.g. `2.85`)
+  - normalized raw threshold (`2_850_000`)
+- Any long-running experiment should preserve:
+  - per-update rollout trace
+  - per-rollout replayable `action_indices`
+- This was reinforced by two concrete failures:
+  - earlier missing per-rollout canonical data blocked reuse
+  - threshold-unit mismatch silently invalidated acceptance counts
+
 ## 2026-04-08 Phase 3 Ariane Bring-Up
 
 ### Milestone A Status
@@ -2203,3 +2286,313 @@ Interpretation:
   - `v1`: negative result, but informative
   - `v2 plumbing`: implemented and tested
   - `v2 experiment`: blocked only on producing the first strong external prefix source
+
+### April 16, 2026: warm-start probe reframed the B2 blocker
+
+- corrected warm-start probe acceptance after HPWL unit normalization bug:
+  - source artifact:
+    - `experiments/chip/phase3_warm_start_probe_50/phase3_ariane_warm_start_probe.json`
+  - recomputed artifacts:
+    - `experiments/chip/phase3_warm_start_probe_50/phase3_ariane_warm_start_probe_recomputed_acceptance.json`
+    - `experiments/chip/phase3_warm_start_probe_50/phase3_ariane_warm_start_probe_recomputed_full.json`
+- key finding:
+  - warm-start `update0` completion rate is `0.36`
+  - after one PPO update it drops to `0.08`
+  - after long canonical PPO it had already fallen to `~0.02`
+- interpretation:
+  - the main Phase 3 B2 blocker is no longer "how to fabricate better prefixes"
+  - it is "how to stop PPO from destroying a BC warm-start policy that already works materially better than later PPO checkpoints"
+- methodological consequence:
+  - reverse curriculum is now demoted from primary path to optional fallback
+  - the new primary experiment path is `warm-start + KL-anchored PPO`
+
+### April 16, 2026: KL-anchored PPO wiring landed
+
+- `chip/experiments/phase3_ppo.py`
+  - `run_single_ppo_update()` now supports:
+    - `reference_policy`
+    - `kl_anchor_beta`
+  - per-update metrics now record:
+    - `kl_anchor_loss`
+    - `kl_anchor_beta`
+- `chip/experiments/phase3_macroplacement_ppo.py`
+  - canonical Ariane checkpoint config now routes to:
+    - `build_ariane_warm_kl_anchor_training_config()`
+    - default `kl_anchor_beta = 5.0`
+  - warm-start training entry points now clone a frozen reference policy and pass it into PPO when `kl_anchor_beta > 0`:
+    - `run_ariane_ppo_checkpoint`
+    - `run_ariane_termination_audit`
+    - `export_ariane_warm_start_probe`
+    - `export_ariane_prefix_pool`
+    - reverse-curriculum probe warm-start branches
+
+### Verification status
+
+- focused KL-anchor tests:
+  - `python -m pytest tests/chip/test_phase3_ppo.py tests/chip/test_phase3_macroplacement_ppo.py -q -k "kl_anchor or run_ariane_ppo_checkpoint_records_gap_progress or export_ariane_warm_start_probe_records_update0_update1_and_salvage or run_single_ppo_update_returns_finite_metrics"`
+  - `4 passed`
+- widened Phase 3 PPO suite:
+  - `python -m pytest tests/chip/test_phase3_ppo.py tests/chip/test_phase3_macroplacement_ppo.py -q`
+  - `37 passed`
+- full engine + chip suite:
+  - `python -m pytest tests/engine tests/chip -q`
+  - `223 passed`
+
+### Immediate next step
+
+- run a real Ariane checkpoint/probe with:
+  - BC warm-start
+  - `kl_anchor_beta = 5.0`
+  - existing `1e-4` / high-entropy warm config
+- success criterion for next diagnosis slice:
+  - update-1 completion should no longer collapse from `0.36` toward `0.08`
+  - if KL anchor preserves warm-start completion materially, reverse curriculum stays optional
+  - if KL anchor still collapses, then the next formulation diagnosis should move to reward / objective structure rather than prefix sourcing
+
+### April 16, 2026: first real KL-anchor probe ran, but anchor is inert on update 1
+
+- smoke artifact:
+  - `experiments/chip/phase3_warm_start_probe_kl_anchor_smoke/phase3_ariane_warm_start_probe.json`
+  - `update0_completion_rate = 0.0`
+  - `update1_completion_rate = 0.0`
+  - `update0_median_hpwl = 2.8895M`
+  - `update1_median_hpwl = 3.0041M`
+- wider probe artifact:
+  - `experiments/chip/phase3_warm_start_probe_kl_anchor_10x10/phase3_ariane_warm_start_probe.json`
+  - `update0_completion_rate = 0.0`
+  - `update1_completion_rate = 0.0`
+  - `update0_median_hpwl = 2.8670M`
+  - `update1_median_hpwl = 2.9932M`
+  - `update0_p10_hpwl = 2.7865M`
+  - `update1_p10_hpwl = 2.8549M`
+  - `update0_accepted = 0`
+  - `update1_accepted = 0`
+- critical diagnostic:
+  - `update1` training history recorded:
+    - `kl_anchor_beta = 5.0`
+    - `kl_anchor_loss = 0.0`
+- interpretation:
+  - the current KL-anchor implementation does reach the real Ariane loop
+  - but it is **inactive on the first PPO step**, because the reference policy and trainable policy are identical before update 1
+  - therefore the anchor does not prevent the very first destructive move away from BC warm-start
+- methodological consequence:
+  - the current "single-step KL penalty to frozen reference" is not sufficient to solve the observed warm-start collapse
+  - next diagnosis should focus on objective / optimizer structure that can constrain the first update itself:
+    - multi-epoch PPO updates where KL becomes active after the first substep
+    - explicit distillation / behavior-cloning retention loss on teacher states during PPO
+    - smaller or trust-region-like first update schedule
+
+### April 16, 2026: substep-level diagnosis completed
+
+- new diagnostic support landed in:
+  - `chip/experiments/phase3_ppo.py`
+    - `run_single_ppo_update(..., policy_epochs, diagnostic_eval_seeds)` now records:
+      - `pre_update_diagnostic`
+      - `substep_history`
+  - `chip/experiments/phase3_macroplacement_ppo.py`
+    - `run_ariane_warm_start_substep_diagnostic(...)`
+- real diagnostic artifact on generic held-out seeds:
+  - `experiments/chip/phase3_warm_start_substep_diagnostic_5x5/phase3_ariane_warm_start_substep_diagnostic.json`
+  - pre-update:
+    - `heldout_mean_hpwl = 2.8449M`
+    - `heldout_log_prob_delta_mean ~= 0`
+    - `update_batch_kl_to_reference = 0`
+  - after first optimizer substep (`substep_index = 0`):
+    - `heldout_mean_hpwl = 2.8716M`
+    - `heldout_log_prob_delta_mean = -0.244`
+    - `update_batch_kl_to_reference = inf`
+  - interpretation:
+    - destructive drift begins on the **first optimizer substep**
+    - this supports the hypothesis that "multi-epoch alone" is not enough if substep 0 is already damaging
+- follow-up diagnostic on seeds that had appeared as completion-positive in the older warm-start probe:
+  - `experiments/chip/phase3_warm_start_substep_diagnostic_completed_seeds/phase3_ariane_warm_start_substep_diagnostic.json`
+  - direct replay check:
+    - the old completion-positive seeds (`2, 3, 4, 5, 7`) no longer reproduce as completed episodes under the current rerun
+  - implication:
+    - completion on stochastic warm-start rollouts is not currently stable enough to be the primary diagnostic target
+    - the most trustworthy diagnosis signal in this slice is:
+      - teacher-state `log_prob_delta`
+      - held-out HPWL drift
+      - update-batch KL drift
+
+### Updated B2 diagnosis
+
+- answer to the "Option 1 vs Option 2" question:
+  - the new evidence supports:
+    - **substep-0 damage is real**
+    - therefore "just let KL turn on in later substeps" is probably insufficient as the only fix
+- preferred next stabilization slice:
+  - keep the new substep diagnostic harness
+  - test a **substep-0-active constraint**, e.g.:
+    - behavior-cloning retention loss on teacher states during PPO
+    - or first-update LR warmup as the cheapest mechanical control
+  - do **not** prioritize reverse curriculum before this is resolved
+
+### April 16, 2026: current-code warm-start-only baseline no longer supports the old 0.36 anchor
+
+- reproducibility check artifact:
+  - `experiments/chip/phase3_warm_start_only_probe_20/phase3_ariane_warm_start_only_probe.json`
+- current rerun result:
+  - `N = 20`
+  - `completed_count = 0`
+  - `completion_rate = 0.0`
+  - `min_hpwl = 2.7825M`
+  - `median_hpwl = 2.8818M`
+  - `mean_hpwl = 2.9073M`
+- implication:
+  - the old historical `warm-start completion_rate = 0.36` should no longer be used as the operative anchor for current-code success criteria
+  - for the present code state, the most reproducible warm-start capability signal is:
+    - low stochastic HPWL distribution
+    - not completion rate
+- consequence for next diagnosis slice:
+  - success/failure should be framed around preserving warm-start HPWL / teacher-state log-prob geometry first
+  - any completion-based gate needs to be re-established from new artifacts, not inherited from older probes
+
+### April 16, 2026: epoch-1 batch diagnostic clarifies the substep-0 failure shape
+
+- artifact:
+  - `experiments/chip/phase3_warm_start_substep_diagnostic_epoch1/phase3_ariane_warm_start_substep_diagnostic.json`
+- pre-step batch diagnostic:
+  - `return_summary`:
+    - `count = 105`
+    - `min = -166157`
+    - `mean = -27463`
+    - `max = 267031`
+  - `old_value_summary`:
+    - `min = 49.5`
+    - `mean = 52.5`
+    - `max = 58.6`
+  - `raw_advantage_summary` is effectively identical to returns at this scale
+  - `normalized_advantage_summary` is *not* extremely heavy-tailed after normalization:
+    - `min = -1.05`
+    - `max = 2.23`
+  - `value_return_correlation = 0.85`
+- substep-0 diagnostic:
+  - `update_batch_kl_to_reference = inf`
+  - `global_grad_norm = 82.06`
+  - `policy_head_grad_norm = 21.20`
+  - `value_head_grad_norm = 0.0`
+  - held-out drift still appears immediately:
+    - `heldout_mean_hpwl: 2.8449M -> 2.8716M`
+    - `heldout_log_prob_delta_mean: ~0 -> -0.244`
+- interpretation:
+  - the critic path is currently not helping at all in this configuration:
+    - `value_coef = 0.0`
+    - `value_head_grad_norm = 0.0`
+    - old values stay on a tiny `~50` scale while returns are `O(1e5)`
+  - this supports the diagnosis that current PPO is effectively operating as a badly-baselined policy-gradient update
+  - however, the normalized advantages are not singularly extreme after normalization, so "one absurd normalized outlier" is **not** the full explanation by itself
+  - next single-variable intervention should target the absent critic signal before broader retention-style constraints
+
+### Reproducibility invariant
+
+- completion-rate observations must always be tagged with:
+  - code version / branch state
+  - seed management scheme
+  - artifact path
+- historical completion numbers without those tags are not valid operative anchors for current Phase 3 decisions
+
+### April 16, 2026: offline value pretraining was tested as a single-variable intervention and failed the necessary gate
+
+- strict artifact:
+  - `experiments/chip/phase3_critic_prefit_diagnostic_v1_strict/phase3_ariane_critic_prefit_diagnostic.json`
+- experiment design:
+  - prefit on warm-start rollouts from seeds `(0, 1, 2, 3)`
+  - `prefit_epochs = 20`
+  - then run exactly one PPO optimizer substep with the usual warm-start PPO config
+  - follow-up 10-update training is now skipped automatically when the necessary gate fails
+- prefit result:
+  - `initial_loss = 1.8065e10`
+  - `final_loss = 1.7928e10`
+  - only a very small loss reduction
+- post-prefit batch diagnostic:
+  - `old_value_summary` moved from `~ +50` to about `-1642`
+  - returns remain `O(1e5)`
+  - `value_return_correlation = -0.718`
+- substep-0 result after prefit:
+  - `update_batch_kl_to_reference = inf`
+  - `heldout_log_prob_delta_mean = -0.244`
+  - `heldout_mean_hpwl = 2.8716M`
+  - `value_head_grad_norm = 0.0`
+- gate outcome:
+  - necessary:
+    - `finite_kl = false`
+    - `heldout_log_prob_delta_within_band = false`
+    - `pass = false`
+  - sufficient:
+    - not evaluated in the strict workflow because necessary gate failed
+- conclusion:
+  - **offline value-head pretraining alone is not enough**
+  - the next most justified single-variable intervention is no longer "more offline prefit"
+  - it is to test an **online critic warmup** / nonzero critic training path before the first policy update
+
+### April 16, 2026: Step-1 critic diagnosis refined the failure mode further
+
+- architecture check:
+  - `engine/ppo_policy.py`
+  - `value_head = Linear(hidden_dim*3 -> hidden_dim) + ReLU + Linear(hidden_dim -> 1)`
+  - there is **no tanh or bounded output activation** on the final value head
+- implication:
+  - the strongest version of the "bounded/saturating value head output" hypothesis is not supported
+  - however, raw-target conditioning is still a live issue because outputs initialize near `O(1e1-1e3)` while returns are `O(1e5)`
+- return-shape check on current warm-start rollouts (seeds `0..3`):
+  - returns are broad, sign-changing, and not obviously simple/bimodal
+  - example seed-0 quantiles:
+    - `p10 = -148366`
+    - `p50 = -95392`
+    - `p90 = 178980`
+  - similar wide sign-crossing behavior appears on seeds `1..3`
+- simple feature correlations over those warm-start rollouts:
+  - `episode_return_vs_final_hpwl = -1.0` on the 4-sample probe
+  - `episode_return_vs_steps ~= -0.35`
+  - interpretation:
+    - there is at least some simple rollout-level signal in the task
+    - so the critic failure is not obviously "no signal exists at all"
+- updated interpretation:
+  - current evidence points more toward **target-scale / optimization conditioning failure** than "bounded value-head architecture failure"
+  - this weakens the case for jumping straight to online critic warmup as the next experiment
+  - the more targeted next single-variable test is now:
+    - offline critic prefit with **transformed/scaled targets** (e.g. z-score or signed-log returns)
+    - then re-run the same substep-0 necessary gate
+
+### April 16, 2026: training-fair-shot alone did not fix critic prefit, but z-score target scaling did
+
+- artifact:
+  - `experiments/chip/phase3_critic_prefit_comparison_v1/phase3_ariane_critic_prefit_comparison.json`
+- experiment design:
+  - same warm-start rollout pool for all three conditions
+  - conditions:
+    - `raw_baseline`: `epochs = 20`, `lr = 1e-3`, `lr_warmup_epochs = 0`
+    - `raw_fair_shot`: `epochs = 200`, `lr = 1e-3`, `lr_warmup_epochs = 20`
+    - `zscore_fair_shot`: `epochs = 200`, `lr = 1e-3`, `lr_warmup_epochs = 20`, target = z-scored return
+- simple signal diagnostic from the same rollout pool:
+  - `transition_count = 525`
+  - `return_to_go_vs_step_index = -0.655`
+  - `return_to_go_vs_remaining_macros = +0.655`
+  - `return_to_go_vs_current_hpwl = +0.710`
+  - `episode_return_vs_final_hpwl = -1.0`
+- condition outcomes:
+  - `raw_baseline`:
+    - `final_value_return_correlation = -0.555`
+    - `final_loss = 2.1165e10`
+  - `raw_fair_shot`:
+    - `final_value_return_correlation = -0.556`
+    - `final_loss = 1.9480e10`
+  - `zscore_fair_shot`:
+    - `final_value_return_correlation = +0.853`
+    - `final_loss = 0.274`
+- gate result:
+  - `raw_baseline`: fail
+  - `raw_fair_shot`: fail
+  - `zscore_fair_shot`: pass
+- interpretation:
+  - giving raw-target prefit a "fair shot" with more epochs and LR warmup **did not** rescue the critic
+  - the failure is therefore not just "prefit was undertrained"
+  - the decisive change was **target scaling**, not longer raw-target optimization
+  - current best explanation is:
+    - the state representation does carry usable value signal
+    - but raw return scale/conditioning makes the critic learn an unusable mapping
+- implication for next Phase 3 B2 slice:
+  - do **not** jump to online critic warmup on raw targets
+  - first rerun the substep-0 necessary gate with a **z-score-prefit critic**
+  - only if that still fails should the next layer of stabilization (LR warmup, grad clipping, BC retention, etc.) be considered

@@ -1,0 +1,178 @@
+{
+  "metadata": {
+    "benchmark": "ariane133_ng45",
+    "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\ariane133_ng45.combined.lef",
+    "grid_shape": [
+      32,
+      32
+    ],
+    "hidden_dim": 64,
+    "ordered_macro_count": 133,
+    "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "reward_metadata": {
+      "benchmark": "ariane133_ng45",
+      "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\ariane133_ng45.combined.lef",
+      "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+      "reward_weights": {
+        "completion_bonus": 0.0,
+        "legality_penalty": 10.0,
+        "w_hpwl": 1.0,
+        "w_proxy": 0.0
+      },
+      "seed_macro_count": 133
+    },
+    "seed_macro_count": 133
+  },
+  "rollouts": [
+    {
+      "completed_episode": false,
+      "final_hpwl": 2857926.951498001,
+      "seed": 0,
+      "steps": 105,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2921096.3131920057,
+      "seed": 1,
+      "steps": 105,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2786950.4980720053,
+      "seed": 2,
+      "steps": 102,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2876082.590285996,
+      "seed": 3,
+      "steps": 100,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2782482.355122012,
+      "seed": 4,
+      "steps": 100,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2824316.2677019974,
+      "seed": 5,
+      "steps": 102,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2876430.0281800036,
+      "seed": 6,
+      "steps": 99,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2881799.084470007,
+      "seed": 7,
+      "steps": 101,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2802140.178088003,
+      "seed": 8,
+      "steps": 103,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 3058381.8869739994,
+      "seed": 9,
+      "steps": 96,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2965641.869830002,
+      "seed": 10,
+      "steps": 100,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 3017891.780988006,
+      "seed": 11,
+      "steps": 105,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2880827.6411680006,
+      "seed": 12,
+      "steps": 103,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2859178.782736007,
+      "seed": 13,
+      "steps": 100,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 3031659.327662011,
+      "seed": 14,
+      "steps": 102,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2901418.8733699988,
+      "seed": 15,
+      "steps": 92,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 3004094.4265320026,
+      "seed": 16,
+      "steps": 107,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 3074478.1472059977,
+      "seed": 17,
+      "steps": 105,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2892949.6335139987,
+      "seed": 18,
+      "steps": 104,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "completed_episode": false,
+      "final_hpwl": 2850953.8500120007,
+      "seed": 19,
+      "steps": 103,
+      "termination_reason": "no_valid_actions"
+    }
+  ],
+  "summary": {
+    "completed_count": 0,
+    "completion_rate": 0.0,
+    "count": 20,
+    "max_hpwl": 3074478.1472059977,
+    "mean_hpwl": 2907335.024330103,
+    "median_hpwl": 2881799.084470007,
+    "min_hpwl": 2782482.355122012
+  },
+  "warm_start_checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
+}

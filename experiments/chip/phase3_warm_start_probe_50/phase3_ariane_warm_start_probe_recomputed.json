@@ -1,0 +1,591 @@
+{
+  "acceptance_criteria": {
+    "geometry_packing_factor": 1.0,
+    "hpwl_threshold": 2.85,
+    "hpwl_threshold_raw": 2850000.0,
+    "hpwl_threshold_sweep": [
+      2.85,
+      2.88,
+      2.9,
+      2.92
+    ],
+    "hpwl_threshold_sweep_raw": [
+      2850000.0,
+      2880000.0,
+      2900000.0,
+      2920000.0
+    ],
+    "min_accepted_prefixes": 20,
+    "remaining_macro_range": [
+      8,
+      13
+    ],
+    "remaining_macro_ranges_sweep": [
+      [
+        8,
+        13
+      ],
+      [
+        10,
+        15
+      ],
+      [
+        12,
+        17
+      ],
+      [
+        15,
+        20
+      ]
+    ]
+  },
+  "cohorts": {
+    "update0": {
+      "acceptance_summary": {
+        "accepted_prefixes": 0,
+        "geometry_eligible": 16,
+        "hpwl_eligible": 0,
+        "meets_min_prefix_count": false,
+        "remaining_eligible": 2,
+        "status": "fail",
+        "threshold_sweep": [
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 2,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 2
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 2,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 2
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 2,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 2
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          }
+        ],
+        "total_rollouts": 25,
+        "unique_source_rollouts": 0
+      },
+      "completed_count": 9,
+      "completion_rate": 0.36,
+      "distribution": {
+        "final_hpwl": {
+          "count": 25,
+          "max": 3164366.4969440056,
+          "mean": 2934966.7893410404,
+          "median": 2949438.405035993,
+          "min": 2687943.143475994,
+          "p10": 2788176.3237139983,
+          "p90": 3063752.757442006
+        },
+        "steps": {
+          "count": 25,
+          "max": 133.0,
+          "mean": 130.64,
+          "median": 132.0,
+          "min": 124.0,
+          "p10": 126.4,
+          "p90": 133.0
+        },
+        "threshold_hit_rates": [
+          {
+            "count": 5,
+            "hit_rate": 0.2,
+            "hpwl_threshold": 2.85
+          },
+          {
+            "count": 7,
+            "hit_rate": 0.28,
+            "hpwl_threshold": 2.88
+          },
+          {
+            "count": 8,
+            "hit_rate": 0.32,
+            "hpwl_threshold": 2.9
+          },
+          {
+            "count": 9,
+            "hit_rate": 0.36,
+            "hpwl_threshold": 2.92
+          }
+        ]
+      },
+      "rollout_count": 25
+    },
+    "update1": {
+      "acceptance_summary": {
+        "accepted_prefixes": 0,
+        "geometry_eligible": 23,
+        "hpwl_eligible": 0,
+        "meets_min_prefix_count": false,
+        "remaining_eligible": 3,
+        "status": "fail",
+        "threshold_sweep": [
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.85,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.88,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.9,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              8,
+              13
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              10,
+              15
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 1,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              12,
+              17
+            ],
+            "unique_source_rollouts": 1
+          },
+          {
+            "accepted_prefixes": 0,
+            "hpwl_threshold": 2.92,
+            "remaining_macro_range": [
+              15,
+              20
+            ],
+            "unique_source_rollouts": 0
+          }
+        ],
+        "total_rollouts": 25,
+        "unique_source_rollouts": 0
+      },
+      "completed_count": 2,
+      "completion_rate": 0.08,
+      "distribution": {
+        "final_hpwl": {
+          "count": 25,
+          "max": 3284997.760387995,
+          "mean": 3015928.698511443,
+          "median": 3040066.4726259955,
+          "min": 2675147.0067560077,
+          "p10": 2862777.3724512053,
+          "p90": 3148639.927290809
+        },
+        "steps": {
+          "count": 25,
+          "max": 133.0,
+          "mean": 128.6,
+          "median": 129.0,
+          "min": 121.0,
+          "p10": 125.4,
+          "p90": 132.0
+        },
+        "threshold_hit_rates": [
+          {
+            "count": 2,
+            "hit_rate": 0.08,
+            "hpwl_threshold": 2.85
+          },
+          {
+            "count": 3,
+            "hit_rate": 0.12,
+            "hpwl_threshold": 2.88
+          },
+          {
+            "count": 4,
+            "hit_rate": 0.16,
+            "hpwl_threshold": 2.9
+          },
+          {
+            "count": 5,
+            "hit_rate": 0.2,
+            "hpwl_threshold": 2.92
+          }
+        ]
+      },
+      "rollout_count": 25
+    }
+  },
+  "salvage_calibration": {
+    "prefixes": [
+      {
+        "final_hpwl": 2812659.9949939996,
+        "name": "update0:0",
+        "prefix_steps": 117,
+        "remaining_steps": 16,
+        "salvage": {
+          "greedy": {
+            "completed_episode": false,
+            "episode_return": 1686.1517200060189,
+            "final_hpwl": 2754352.5218239976,
+            "is_legal": true,
+            "steps": 128,
+            "termination_reason": "no_valid_actions"
+          },
+          "random": {
+            "completed_episode": false,
+            "episode_return": -43750.295850000344,
+            "final_hpwl": 2799788.969394004,
+            "is_legal": true,
+            "steps": 125,
+            "termination_reason": "no_valid_actions"
+          }
+        },
+        "source_rollout_id": "update0:0",
+        "steps": 127
+      },
+      {
+        "final_hpwl": 2692020.719144005,
+        "name": "update0:19",
+        "prefix_steps": 122,
+        "remaining_steps": 11,
+        "salvage": {
+          "greedy": {
+            "completed_episode": true,
+            "episode_return": -71422.47736999625,
+            "final_hpwl": 2662723.1817939966,
+            "is_legal": true,
+            "steps": 133,
+            "termination_reason": "completed"
+          },
+          "random": {
+            "completed_episode": false,
+            "episode_return": -101034.26560999919,
+            "final_hpwl": 2692334.9700339995,
+            "is_legal": true,
+            "steps": 132,
+            "termination_reason": "no_valid_actions"
+          }
+        },
+        "source_rollout_id": "update0:19",
+        "steps": 132
+      },
+      {
+        "final_hpwl": 2771853.8761939975,
+        "name": "update0:24",
+        "prefix_steps": 114,
+        "remaining_steps": 19,
+        "salvage": {
+          "greedy": {
+            "completed_episode": false,
+            "episode_return": -69150.37878999952,
+            "final_hpwl": 2754373.226113996,
+            "is_legal": true,
+            "steps": 126,
+            "termination_reason": "no_valid_actions"
+          },
+          "random": {
+            "completed_episode": false,
+            "episode_return": -119300.13595000794,
+            "final_hpwl": 2804522.9832740044,
+            "is_legal": true,
+            "steps": 123,
+            "termination_reason": "no_valid_actions"
+          }
+        },
+        "source_rollout_id": "update0:24",
+        "steps": 124
+      },
+      {
+        "final_hpwl": 2831557.5097260117,
+        "name": "update1:13",
+        "prefix_steps": 117,
+        "remaining_steps": 16,
+        "salvage": {
+          "greedy": {
+            "completed_episode": false,
+            "episode_return": -27507.631230003666,
+            "final_hpwl": 2823821.225786008,
+            "is_legal": true,
+            "steps": 127,
+            "termination_reason": "no_valid_actions"
+          },
+          "random": {
+            "completed_episode": false,
+            "episode_return": -66200.57912000548,
+            "final_hpwl": 2862514.1736760098,
+            "is_legal": true,
+            "steps": 125,
+            "termination_reason": "no_valid_actions"
+          }
+        },
+        "source_rollout_id": "update1:13",
+        "steps": 127
+      },
+      {
+        "final_hpwl": 2675147.0067560077,
+        "name": "update1:14",
+        "prefix_steps": 116,
+        "remaining_steps": 17,
+        "salvage": {
+          "greedy": {
+            "completed_episode": false,
+            "episode_return": -26960.81584000308,
+            "final_hpwl": 2618780.858886004,
+            "is_legal": true,
+            "steps": 126,
+            "termination_reason": "no_valid_actions"
+          },
+          "random": {
+            "completed_episode": false,
+            "episode_return": -137207.65242000716,
+            "final_hpwl": 2729027.695466008,
+            "is_legal": true,
+            "steps": 126,
+            "termination_reason": "no_valid_actions"
+          }
+        },
+        "source_rollout_id": "update1:14",
+        "steps": 126
+      }
+    ],
+    "summary": {
+      "greedy_completable": 1,
+      "random_completable": 0,
+      "recommended_salvage_mode": "greedy_or_random",
+      "total_candidates": 5
+    },
+    "tail_steps": 10
+  }
+}
