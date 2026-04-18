@@ -1,0 +1,12 @@
+{
+  "seed": 3,
+  "final_hpwl": 2687943.143475994,
+  "completed_episode": true,
+  "termination_reason": "completed",
+  "steps": 133,
+  "episode_return": 254799.38554000435,
+  "invalid_action_count": 0,
+  "is_legal": true,
+  "benchmark": "ariane133_ng45",
+  "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
+}

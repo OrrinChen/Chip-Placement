@@ -12,6 +12,8 @@ from chip.experiments.phase3_baselines import run_greedy_hpwl_baseline
 from chip.experiments.phase3_baselines import run_masked_random_baseline
 from chip.experiments.phase3_benchmarks import build_phase3_benchmark_ladder
 from chip.experiments.phase3_imitation import train_behavior_cloning_policy
+from chip.experiments.phase3_macroplacement_benchmarks import materialize_combined_lef
+from chip.experiments.phase3_macroplacement_benchmarks import resolve_macroplacement_benchmark
 from chip.experiments.phase3_ppo import collect_policy_rollout
 from chip.experiments.phase3_ppo import initialize_policy_for_problem
 from chip.experiments.phase3_ppo import load_policy_warm_start
@@ -21,6 +23,7 @@ from chip.experiments.phase3_search import run_beam_search_baseline
 from chip.openroad_bridge import OpenROADBridge
 from chip.openroad_eval import build_evaluation_request
 from chip.openroad_eval import evaluate_openroad_request
+from chip.netlist_parser import load_chip_problem
 from chip.rl_adapter import ChipRLAdapter
 from engine.analytical_solver import QuadraticPlacementSolver
 from engine.sa_solver import SimulatedAnnealingSolver
@@ -75,6 +78,35 @@ def build_phase3_roadmap_eval_report() -> dict[str, object]:
             "openroad_metrics_available_only_for_sample-backed_small_benchmark",
             "full_rl_vs_sa_vs_analytical_vs_openroad_table_not_yet_extended_to_three_real_chip_benchmarks",
         ),
+    }
+
+
+def build_phase3_real_macroplacement_sa_table(
+    *,
+    repo_root: Path | None = None,
+    benchmarks: tuple[str, ...] = ("ariane133", "bp_quad", "nvdla"),
+    platform: str = "NanGate45",
+    grid_shape: tuple[int, int] = (64, 64),
+) -> dict[str, object]:
+    specs = tuple(
+        resolve_macroplacement_benchmark(
+            repo_root=repo_root,
+            variant=variant,
+            platform=platform,
+        )
+        for variant in benchmarks
+    )
+    method_rows = {
+        "sa": {
+            spec.name: _run_real_macroplacement_sa_row(spec=spec, grid_shape=grid_shape)
+            for spec in specs
+        }
+    }
+    return {
+        "status": "skeleton",
+        "benchmarks": tuple(spec.name for spec in specs),
+        "method_rows": method_rows,
+        "remaining_rows": ("analytical", "openroad_default", "ppo"),
     }
 
 
@@ -211,6 +243,14 @@ def _run_classical_baselines(*, problem, grid_shape: tuple[int, int]) -> tuple[d
         "runtime_seconds": sa_runtime,
     }
     return analytical_row, sa_row
+
+
+def _run_real_macroplacement_sa_row(*, spec, grid_shape: tuple[int, int] = (64, 64)) -> dict[str, object]:
+    with tempfile.TemporaryDirectory() as tempdir:
+        combined_lef_path = materialize_combined_lef(spec, output_dir=Path(tempdir))
+        _, problem = load_chip_problem(combined_lef_path, spec.reference_def_path)
+    _, sa_row = _run_classical_baselines(problem=problem, grid_shape=grid_shape)
+    return sa_row
 
 
 def _run_openroad_default(artifact_paths: dict[str, Path]) -> dict[str, object]:

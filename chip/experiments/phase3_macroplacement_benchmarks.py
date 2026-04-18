@@ -16,7 +16,7 @@ class MacroPlacementBenchmarkSpec:
     reference_def_path: Path
     floorplan_def_path: Path
     manual_def_path: Path | None
-    grouped_netlist_pbtxt_path: Path
+    grouped_netlist_pbtxt_path: Path | None
     tech_lef_path: Path
     macro_lef_path: Path
     lef_paths: tuple[Path, ...]
@@ -34,10 +34,10 @@ def default_macroplacement_repo_root(start: Path | None = None) -> Path:
     raise FileNotFoundError("Could not locate tmp/MacroPlacement in current worktree")
 
 
-def resolve_ariane_benchmark(
+def resolve_macroplacement_benchmark(
     *,
     repo_root: Path | None = None,
-    variant: str = "ariane133",
+    variant: str,
     platform: str = "NanGate45",
 ) -> MacroPlacementBenchmarkSpec:
     resolved_repo_root = (repo_root or default_macroplacement_repo_root()).resolve()
@@ -47,29 +47,43 @@ def resolve_ariane_benchmark(
     testcase_dir = resolved_repo_root / "Testcases" / variant
     flow_dir = resolved_repo_root / "Flows" / platform / variant
     enablement_dir = resolved_repo_root / "Enablements" / platform
-    if not testcase_dir.exists():
-        raise FileNotFoundError(f"Missing testcase directory: {testcase_dir}")
     if not flow_dir.exists():
         raise FileNotFoundError(f"Missing flow directory: {flow_dir}")
     if not enablement_dir.exists():
         raise FileNotFoundError(f"Missing enablement directory: {enablement_dir}")
+    if not testcase_dir.exists():
+        raise FileNotFoundError(f"Missing testcase directory: {testcase_dir}")
 
     def_dir = flow_dir / "def"
-    reference_def_path = def_dir / f"{variant}_fp_placed_macros.def"
-    floorplan_def_path = def_dir / f"{variant}_fp.def"
+    reference_defs = sorted(def_dir.glob("*_fp_placed_macros.def"))
+    if len(reference_defs) != 1:
+        raise FileNotFoundError(f"Expected exactly one *_fp_placed_macros.def under {def_dir}, found {len(reference_defs)}")
+    reference_def_path = reference_defs[0]
+    floorplan_def_path = def_dir / reference_def_path.name.replace("_placed_macros", "")
+    if not floorplan_def_path.exists():
+        floorplan_defs = sorted(path for path in def_dir.glob("*_fp.def") if path != reference_def_path)
+        if len(floorplan_defs) != 1:
+            raise FileNotFoundError(f"Expected exactly one matching floorplan DEF under {def_dir}, found {len(floorplan_defs)}")
+        floorplan_def_path = floorplan_defs[0]
     manual_def_path = (def_dir / "manual_floorplan.def") if (def_dir / "manual_floorplan.def").exists() else None
-    grouped_netlist_pbtxt_path = flow_dir / "netlist" / "output_CT_Grouping" / "netlist.pb.txt"
+    if manual_def_path is None:
+        manual_candidates = sorted((def_dir / "manual_macro_placement").glob("*.def")) if (def_dir / "manual_macro_placement").exists() else []
+        manual_def_path = manual_candidates[0] if manual_candidates else None
+    grouped_netlist_candidate = flow_dir / "netlist" / "output_CT_Grouping" / "netlist.pb.txt"
+    grouped_netlist_pbtxt_path = grouped_netlist_candidate if grouped_netlist_candidate.exists() else None
     tech_lef_path = enablement_dir / "lef" / "NangateOpenCellLibrary.tech.lef"
     macro_lef_path = enablement_dir / "lef" / "NangateOpenCellLibrary.macro.mod.lef"
     all_lef_paths = _ordered_lef_paths(enablement_dir / "lef", tech_lef_path)
     standard_liberty_path = enablement_dir / "lib" / "NangateOpenCellLibrary_typical.lib"
     macro_liberty_paths = tuple(sorted(path for path in (enablement_dir / "lib").glob("fakeram45_*.lib")))
-    sdc_path = flow_dir / "constraints" / "ariane.sdc"
+    sdc_paths = sorted((flow_dir / "constraints").glob("*.sdc"))
+    if len(sdc_paths) != 1:
+        raise FileNotFoundError(f"Expected exactly one .sdc under {flow_dir / 'constraints'}, found {len(sdc_paths)}")
+    sdc_path = sdc_paths[0]
 
     required_paths = [
         reference_def_path,
         floorplan_def_path,
-        grouped_netlist_pbtxt_path,
         tech_lef_path,
         macro_lef_path,
         standard_liberty_path,
@@ -78,7 +92,7 @@ def resolve_ariane_benchmark(
     missing_paths = [path for path in required_paths if not path.exists()]
     if missing_paths:
         missing = ", ".join(str(path) for path in missing_paths)
-        raise FileNotFoundError(f"Ariane benchmark assets missing: {missing}")
+        raise FileNotFoundError(f"MacroPlacement benchmark assets missing: {missing}")
 
     name = f"{variant}_{platform.lower().replace('nangate45', 'ng45')}"
     return MacroPlacementBenchmarkSpec(
@@ -99,6 +113,19 @@ def resolve_ariane_benchmark(
         standard_liberty_path=standard_liberty_path,
         macro_liberty_paths=macro_liberty_paths,
         sdc_path=sdc_path,
+    )
+
+
+def resolve_ariane_benchmark(
+    *,
+    repo_root: Path | None = None,
+    variant: str = "ariane133",
+    platform: str = "NanGate45",
+) -> MacroPlacementBenchmarkSpec:
+    return resolve_macroplacement_benchmark(
+        repo_root=repo_root,
+        variant=variant,
+        platform=platform,
     )
 
 

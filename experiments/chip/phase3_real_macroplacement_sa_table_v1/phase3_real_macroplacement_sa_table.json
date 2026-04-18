@@ -1,0 +1,32 @@
+{
+  "status": "skeleton",
+  "benchmarks": [
+    "ariane133_ng45",
+    "bp_quad_ng45",
+    "nvdla_ng45"
+  ],
+  "method_rows": {
+    "sa": {
+      "ariane133_ng45": {
+        "final_hpwl": 0.0,
+        "is_valid": true,
+        "runtime_seconds": 0.027042999980039895
+      },
+      "bp_quad_ng45": {
+        "final_hpwl": 0.0,
+        "is_valid": true,
+        "runtime_seconds": 0.10784389998298138
+      },
+      "nvdla_ng45": {
+        "final_hpwl": 0.0,
+        "is_valid": true,
+        "runtime_seconds": 0.0628656999906525
+      }
+    }
+  },
+  "remaining_rows": [
+    "analytical",
+    "openroad_default",
+    "ppo"
+  ]
+}

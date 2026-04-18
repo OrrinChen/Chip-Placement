@@ -1,0 +1,49 @@
+#[INFO] Reading from C:/Users/14574/Chip/tmp/MacroPlacement/Flows/NanGate45/ariane133/netlist/output_CT_Grouping/netlist.pb.txt
+None
+#[ROUTES PER MICRON] Hor: 70.33, Ver: 74.51
+#[CONGESTION SMOOTH RANGE] Smooth Range: 2
+#[OVERLAP THRESHOLD] Threshold: 0.0040
+{
+  "output_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_fragile_decision_screening_v1\\phase3_ariane_fragile_decision_screening.json",
+  "elapsed_seconds": 7961.439363002777,
+  "baseline_top3": [
+    {
+      "step_index": 93,
+      "cohort": "overlap",
+      "mean_hpwl_delta": 71302.61514000082,
+      "abs_mean_hpwl_delta": 71302.61514000082
+    },
+    {
+      "step_index": 51,
+      "cohort": "unique",
+      "mean_hpwl_delta": 62356.11982000852,
+      "abs_mean_hpwl_delta": 62356.11982000852
+    },
+    {
+      "step_index": 21,
+      "cohort": "overlap",
+      "mean_hpwl_delta": 56871.28211999778,
+      "abs_mean_hpwl_delta": 56871.28211999778
+    }
+  ],
+  "alpha10_top3": [
+    {
+      "step_index": 48,
+      "cohort": "overlap",
+      "mean_hpwl_delta": 107447.05499999644,
+      "abs_mean_hpwl_delta": 107447.05499999644
+    },
+    {
+      "step_index": 93,
+      "cohort": "overlap",
+      "mean_hpwl_delta": 78390.99351000227,
+      "abs_mean_hpwl_delta": 78390.99351000227
+    },
+    {
+      "step_index": 21,
+      "cohort": "overlap",
+      "mean_hpwl_delta": 56871.28211999778,
+      "abs_mean_hpwl_delta": 56871.28211999778
+    }
+  ]
+}

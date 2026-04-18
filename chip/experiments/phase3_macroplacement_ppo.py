@@ -3,11 +3,13 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import math
 import random
 from collections import Counter
 from collections import deque
 from pathlib import Path
 from statistics import mean
+from statistics import median
 
 import torch
 
@@ -16,6 +18,7 @@ from chip.experiments.phase3_baselines import run_greedy_episode
 from chip.experiments.phase3_macroplacement_bringup import build_ariane_formulation_config
 from chip.experiments.phase3_macroplacement_bringup import build_ariane_problem
 from chip.experiments.phase3_macroplacement_bringup import build_ariane_reward_model
+from chip.experiments.phase3_ppo import build_policy_input_batch
 from chip.experiments.phase3_ppo import FixedRolloutBatch
 from chip.experiments.phase3_ppo import collect_policy_rollout
 from chip.experiments.phase3_ppo import collect_rollout_for_action_trace
@@ -25,6 +28,7 @@ from chip.experiments.phase3_ppo import overfit_fixed_rollout
 from chip.experiments.phase3_ppo import prefit_value_head_from_rollout
 from chip.experiments.phase3_ppo import prefit_value_head_from_rollouts
 from chip.experiments.phase3_ppo import run_single_ppo_update
+from chip.experiments.phase3_ppo import summarize_argmax_agreement_for_fixed_rollout
 from chip.experiments.phase3_ppo import summarize_rollout_return_signal
 from chip.experiments.phase3_ppo import train_ppo_policy
 from chip.rl_adapter import ChipRLAdapter
@@ -95,7 +99,11 @@ def build_ariane_warm_kl_anchor_training_config() -> dict[str, float]:
     return config
 
 
-def build_ariane_warm_value_prefit_training_config() -> dict[str, float]:
+def build_ariane_warm_value_prefit_training_config(
+    target_transform: str = "raw",
+    *,
+    prefit_lr_warmup_epochs: int = 0,
+) -> dict[str, float | str]:
     return {
         "init_seed": 0,
         "learning_rate": 1e-4,
@@ -103,6 +111,8 @@ def build_ariane_warm_value_prefit_training_config() -> dict[str, float]:
         "entropy_coef": 1.0,
         "prefit_learning_rate": 1e-3,
         "prefit_epochs": 50,
+        "prefit_lr_warmup_epochs": int(prefit_lr_warmup_epochs),
+        "target_transform": str(target_transform),
     }
 
 
@@ -130,6 +140,28 @@ def _reference_policy_for_training(policy, training_config: dict[str, float]):
     if _training_kl_anchor_beta(training_config) <= 0.0:
         return None
     return _clone_reference_policy(policy)
+
+
+def _approx_kl_band(approx_kl: float | None) -> str:
+    if approx_kl is None:
+        return "unknown"
+    value = float(approx_kl)
+    if value < 0.08:
+        return "clear"
+    if value < 0.15:
+        return "partial"
+    return "null"
+
+
+def _hpwl_drift_band(drift_fraction: float | None) -> str:
+    if drift_fraction is None:
+        return "unknown"
+    value = float(abs(drift_fraction))
+    if value < 0.005:
+        return "clear"
+    if value <= 0.01:
+        return "partial"
+    return "null"
 
 
 def summarize_termination_audit(
@@ -217,6 +249,104 @@ def find_first_trace_divergence(
             "macro": str(extra["macro"]),
             "target": _normalize_trace_target(extra["target"]),
         },
+    }
+
+
+def _select_fragile_decision_priority_subset(
+    *,
+    baseline_flipped_step_indices: list[int],
+    alpha10_flipped_step_indices: list[int],
+    pre_update_margin_by_step: dict[int, float],
+    unique_budget: int = 11,
+) -> dict[str, object]:
+    overlap_steps = sorted(set(int(step) for step in baseline_flipped_step_indices) & set(int(step) for step in alpha10_flipped_step_indices))
+    overlap_set = set(overlap_steps)
+    unique_candidates = [int(step) for step in baseline_flipped_step_indices if int(step) not in overlap_set]
+    unique_steps = sorted(
+        unique_candidates,
+        key=lambda step: (float(pre_update_margin_by_step.get(int(step), float("inf"))), int(step)),
+    )[: max(0, int(unique_budget))]
+    return {
+        "overlap_steps": overlap_steps,
+        "unique_steps": unique_steps,
+        "evaluated_steps": [*overlap_steps, *unique_steps],
+        "overlap_count": len(overlap_steps),
+        "unique_count": len(unique_steps),
+        "evaluated_count": len(overlap_steps) + len(unique_steps),
+    }
+
+
+def _summarize_fragile_decision_probe(
+    *,
+    per_step_results: list[dict[str, object]],
+    greedy_random_gap_hpwl: float,
+) -> dict[str, object]:
+    material_threshold = float(greedy_random_gap_hpwl) * 0.01
+    negligible_threshold = float(greedy_random_gap_hpwl) * 0.002
+    normalized_rows = []
+    for row in per_step_results:
+        delta = float(row["mean_hpwl_delta"])
+        abs_delta = abs(delta)
+        normalized_rows.append(
+            {
+                **row,
+                "step_index": int(row["step_index"]),
+                "cohort": str(row["cohort"]),
+                "mean_hpwl_delta": delta,
+                "abs_hpwl_delta": abs_delta,
+            }
+        )
+    abs_deltas = [float(row["abs_hpwl_delta"]) for row in normalized_rows]
+    total_abs_delta = float(sum(abs_deltas))
+    top_count = max(1, int(math.ceil(len(abs_deltas) * 0.2))) if abs_deltas else 0
+    top_abs_delta = float(sum(sorted(abs_deltas, reverse=True)[:top_count])) if abs_deltas else 0.0
+    top_fraction = (top_abs_delta / total_abs_delta) if total_abs_delta > 0 else 0.0
+    if top_fraction > 0.8:
+        concentration_band = "strong"
+    elif top_fraction >= 0.5:
+        concentration_band = "moderate"
+    else:
+        concentration_band = "diffuse"
+
+    cohort_abs_delta: dict[str, list[float]] = {"overlap": [], "unique": []}
+    for row in normalized_rows:
+        cohort_abs_delta.setdefault(str(row["cohort"]), []).append(float(row["abs_hpwl_delta"]))
+    median_abs_delta_by_cohort = {
+        cohort: (float(median(values)) if values else 0.0)
+        for cohort, values in cohort_abs_delta.items()
+    }
+    overlap_median = float(median_abs_delta_by_cohort.get("overlap", 0.0))
+    unique_median = float(median_abs_delta_by_cohort.get("unique", 0.0))
+    if unique_median == 0.0:
+        overlap_to_unique_ratio = math.inf if overlap_median > 0.0 else 1.0
+    else:
+        overlap_to_unique_ratio = overlap_median / unique_median
+    if 0.5 <= overlap_to_unique_ratio <= 2.0:
+        init_rooted_band = "same_order_of_magnitude"
+    elif overlap_to_unique_ratio > 2.0:
+        init_rooted_band = "overlap_dominant"
+    else:
+        init_rooted_band = "unique_dominant"
+
+    material_step_count = sum(1 for value in abs_deltas if value > material_threshold)
+    negligible_step_count = sum(1 for value in abs_deltas if value < negligible_threshold)
+    modest_step_count = max(0, len(abs_deltas) - material_step_count - negligible_step_count)
+    return {
+        "step_count": len(normalized_rows),
+        "per_step_results": normalized_rows,
+        "materiality_threshold_hpwl": material_threshold,
+        "negligible_threshold_hpwl": negligible_threshold,
+        "material_step_count": material_step_count,
+        "negligible_step_count": negligible_step_count,
+        "modest_step_count": modest_step_count,
+        "top_20pct_step_count": top_count,
+        "top_20pct_abs_delta_sum": top_abs_delta,
+        "total_abs_delta_sum": total_abs_delta,
+        "top_20pct_contribution_fraction": top_fraction,
+        "concentration_band": concentration_band,
+        "median_abs_delta_by_cohort": median_abs_delta_by_cohort,
+        "overlap_to_unique_median_ratio": overlap_to_unique_ratio,
+        "init_rooted_band": init_rooted_band,
     }
 
 
@@ -2276,13 +2406,19 @@ def run_ariane_warm_start_substep_diagnostic(
     output_path: Path,
     policy_epochs: int = 5,
     diagnostic_eval_seeds: tuple[int, ...] = (0, 1, 2, 3, 4),
+    grad_clip_norm: float | None = None,
+    first_substep_lr_scale: float | None = None,
     grid_shape: tuple[int, int] | None = None,
     hidden_dim: int = 64,
     reward_weights: RewardWeights | None = None,
 ) -> dict[str, object]:
     artifact_dir = output_path.parent
     resolved_grid_shape = _resolve_ariane_grid_shape(grid_shape)
-    training_config = build_ariane_checkpoint_training_config()
+    training_config = dict(build_ariane_checkpoint_training_config())
+    if grad_clip_norm is not None:
+        training_config["grad_clip_norm"] = float(grad_clip_norm)
+    if first_substep_lr_scale is not None:
+        training_config["first_substep_lr_scale"] = float(first_substep_lr_scale)
     torch.manual_seed(int(training_config["init_seed"]))
     problem, policy, reward_model, adapter, metadata = _build_ariane_components(
         artifact_dir=artifact_dir,
@@ -2311,6 +2447,8 @@ def run_ariane_warm_start_substep_diagnostic(
         entropy_coef=float(training_config["entropy_coef"]),
         policy_epochs=int(policy_epochs),
         diagnostic_eval_seeds=tuple(int(seed) for seed in diagnostic_eval_seeds),
+        grad_clip_norm=None if grad_clip_norm is None else float(grad_clip_norm),
+        first_substep_lr_scale=None if first_substep_lr_scale is None else float(first_substep_lr_scale),
     )
     artifact = {
         "benchmark": metadata["benchmark"],
@@ -2338,6 +2476,853 @@ def _rollout_to_fixed_rollout_batch(rollout: dict[str, object]) -> FixedRolloutB
         termination_reason=str(rollout["termination_reason"]),
         completed_episode=bool(rollout["completed_episode"]),
     )
+
+
+def _collect_ariane_fixed_reference_rollout(
+    *,
+    problem,
+    reference_policy,
+    adapter,
+    grid_shape: tuple[int, int],
+    adapter_kwargs: dict[str, object],
+    trace_seed: int,
+) -> dict[str, object]:
+    reference_rollout = collect_policy_rollout(
+        problem=problem,
+        policy=reference_policy,
+        grid_shape=grid_shape,
+        reward_source="phase3_proxy_hpwl",
+        max_steps=len(adapter.ordered_macros()),
+        seed=int(trace_seed),
+        deterministic=True,
+        adapter_kwargs=adapter_kwargs,
+    )
+    return {
+        "reference_rollout": reference_rollout,
+        "fixed_rollout": _rollout_to_fixed_rollout_batch(reference_rollout),
+        "reference_trace": _trace_from_policy_rollout(
+            adapter=adapter,
+            rollout=reference_rollout,
+            grid_shape=grid_shape,
+        ),
+    }
+
+
+def _reference_step_metrics_for_fixed_rollout(
+    *,
+    reference_policy,
+    fixed_rollout: FixedRolloutBatch,
+) -> dict[str, dict[int, float]]:
+    observations = [step.observation for step in fixed_rollout.transitions]
+    if not observations:
+        return {"margin_by_step": {}, "entropy_by_step": {}}
+    batch = build_policy_input_batch(observations, schema=fixed_rollout.schema)
+    with torch.no_grad():
+        reference_logits, _ = reference_policy(
+            graph_batch=batch.graph_batch,
+            canvas=batch.canvas,
+            current_macro_index=batch.current_macro_index,
+            action_mask=batch.action_mask,
+        )
+    probabilities = torch.softmax(reference_logits, dim=1)
+    topk_count = 2 if probabilities.shape[1] >= 2 else 1
+    top_probabilities = torch.topk(probabilities, k=topk_count, dim=1).values
+    if topk_count == 1:
+        margins = top_probabilities[:, 0]
+    else:
+        margins = top_probabilities[:, 0] - top_probabilities[:, 1]
+    entropies = torch.distributions.Categorical(logits=reference_logits).entropy().to(torch.float32)
+    return {
+        "margin_by_step": {index: float(value.item()) for index, value in enumerate(margins)},
+        "entropy_by_step": {index: float(value.item()) for index, value in enumerate(entropies)},
+    }
+
+
+def _action_from_trace_row(trace_row: dict[str, object]) -> dict[str, object]:
+    return {
+        "macro": str(trace_row["macro"]),
+        "target": tuple(trace_row["target"]),
+    }
+
+
+def _action_from_action_index(
+    *,
+    adapter: ChipRLAdapter,
+    observation: dict[str, object],
+    action_index: int,
+    grid_shape: tuple[int, int],
+) -> dict[str, object]:
+    row_index = int(action_index) // grid_shape[1]
+    col_index = int(action_index) % grid_shape[1]
+    return {
+        "macro": str(observation["current_macro"]),
+        "target": adapter.grid_index_to_coordinate((row_index, col_index), grid_shape),
+    }
+
+
+def _extract_candidate_replacement_actions(
+    *,
+    candidate_policy,
+    fixed_rollout: FixedRolloutBatch,
+    adapter: ChipRLAdapter,
+    grid_shape: tuple[int, int],
+) -> dict[int, dict[str, object]]:
+    observations = [step.observation for step in fixed_rollout.transitions]
+    if not observations:
+        return {}
+    batch = build_policy_input_batch(observations, schema=fixed_rollout.schema)
+    with torch.no_grad():
+        candidate_logits, _ = candidate_policy(
+            graph_batch=batch.graph_batch,
+            canvas=batch.canvas,
+            current_macro_index=batch.current_macro_index,
+            action_mask=batch.action_mask,
+        )
+    argmax_indices = candidate_logits.argmax(dim=1).tolist()
+    return {
+        step_index: _action_from_action_index(
+            adapter=adapter,
+            observation=observation,
+            action_index=int(action_index),
+            grid_shape=grid_shape,
+        )
+        for step_index, (observation, action_index) in enumerate(zip(observations, argmax_indices))
+    }
+
+
+def _replay_action_prefix(
+    *,
+    adapter: ChipRLAdapter,
+    reference_trace: list[dict[str, object]],
+    prefix_length: int,
+):
+    state = adapter.initial_state()
+    for trace_row in reference_trace[:prefix_length]:
+        state = adapter.apply_action(state, _action_from_trace_row(trace_row))
+    return state
+
+
+def _run_single_step_counterfactual_panel(
+    *,
+    panel_label: str,
+    problem,
+    reference_policy,
+    adapter: ChipRLAdapter,
+    reference_trace: list[dict[str, object]],
+    selected_steps: list[int],
+    replacement_action_by_step: dict[int, dict[str, object]],
+    cohort_by_step: dict[int, str],
+    suffix_seeds: tuple[int, ...],
+    grid_shape: tuple[int, int],
+    adapter_kwargs: dict[str, object],
+    deterministic_suffix: bool = False,
+) -> dict[str, object]:
+    per_step_results: list[dict[str, object]] = []
+    ordered_macro_count = len(adapter.ordered_macros())
+    for step_index in selected_steps:
+        if step_index >= len(reference_trace):
+            continue
+        prefix_state = _replay_action_prefix(
+            adapter=adapter,
+            reference_trace=reference_trace,
+            prefix_length=int(step_index),
+        )
+        original_action = _action_from_trace_row(reference_trace[step_index])
+        counterfactual_action = replacement_action_by_step[int(step_index)]
+        seed_rows = []
+        for suffix_seed in suffix_seeds:
+            original_state = adapter.apply_action(prefix_state, original_action)
+            counterfactual_state = adapter.apply_action(prefix_state, counterfactual_action)
+            original_rollout = collect_policy_rollout(
+                problem=problem,
+                policy=reference_policy,
+                grid_shape=grid_shape,
+                reward_source="phase3_proxy_hpwl",
+                max_steps=ordered_macro_count,
+                seed=int(suffix_seed),
+                deterministic=bool(deterministic_suffix),
+                adapter_kwargs=adapter_kwargs,
+                initial_state=original_state,
+            )
+            counterfactual_rollout = collect_policy_rollout(
+                problem=problem,
+                policy=reference_policy,
+                grid_shape=grid_shape,
+                reward_source="phase3_proxy_hpwl",
+                max_steps=ordered_macro_count,
+                seed=int(suffix_seed),
+                deterministic=bool(deterministic_suffix),
+                adapter_kwargs=adapter_kwargs,
+                initial_state=counterfactual_state,
+            )
+            seed_rows.append(
+                {
+                    "seed": int(suffix_seed),
+                    "original_final_hpwl": float(original_rollout["final_hpwl"]),
+                    "counterfactual_final_hpwl": float(counterfactual_rollout["final_hpwl"]),
+                    "hpwl_delta": float(counterfactual_rollout["final_hpwl"]) - float(original_rollout["final_hpwl"]),
+                }
+            )
+        hpwl_deltas = [float(row["hpwl_delta"]) for row in seed_rows]
+        per_step_results.append(
+            {
+                "step_index": int(step_index),
+                "cohort": str(cohort_by_step[int(step_index)]),
+                "seed_count": len(seed_rows),
+                "original_action": original_action,
+                "counterfactual_action": counterfactual_action,
+                "mean_hpwl_delta": float(mean(hpwl_deltas)) if hpwl_deltas else 0.0,
+                "max_abs_hpwl_delta": float(max((abs(value) for value in hpwl_deltas), default=0.0)),
+                "seed_rows": seed_rows,
+            }
+        )
+    return {
+        "panel_label": panel_label,
+        "step_count": len(per_step_results),
+        "selected_steps": [int(step) for step in selected_steps],
+        "suffix_seed_count": len(suffix_seeds),
+        "per_step_results": per_step_results,
+    }
+
+
+def _rank_fragile_decision_steps(
+    *,
+    per_step_results: list[dict[str, object]],
+    top_k: int | None = None,
+) -> list[dict[str, object]]:
+    ranked = sorted(
+        [
+            {
+                "step_index": int(row["step_index"]),
+                "cohort": str(row["cohort"]),
+                "mean_hpwl_delta": float(row["mean_hpwl_delta"]),
+                "abs_mean_hpwl_delta": float(abs(float(row["mean_hpwl_delta"]))),
+            }
+            for row in per_step_results
+        ],
+        key=lambda row: (-row["abs_mean_hpwl_delta"], row["step_index"]),
+    )
+    if top_k is None:
+        return ranked
+    return ranked[: max(0, int(top_k))]
+
+
+def run_ariane_fragile_decision_probe(
+    *,
+    output_path: Path,
+    prefit_rollout_seeds: tuple[int, ...] = (0, 1, 2, 3),
+    suffix_seed_count: int = 25,
+    trace_seed: int = 0,
+    unique_budget: int = 11,
+    baseline_flipped_step_indices: list[int] | None = None,
+    alpha10_flipped_step_indices: list[int] | None = None,
+    prefit_epochs: int = 200,
+    prefit_lr_warmup_epochs: int = 20,
+    grid_shape: tuple[int, int] | None = None,
+    hidden_dim: int = 64,
+    reward_weights: RewardWeights | None = None,
+) -> dict[str, object]:
+    artifact_dir = output_path.parent
+    resolved_grid_shape = _resolve_ariane_grid_shape(grid_shape)
+    training_config = dict(build_ariane_checkpoint_training_config())
+    alpha10_config = dict(training_config)
+    alpha10_config["first_substep_lr_scale"] = 0.1
+    warm_value_prefit_config = build_ariane_warm_value_prefit_training_config(
+        target_transform="zscore",
+        prefit_lr_warmup_epochs=prefit_lr_warmup_epochs,
+    )
+
+    torch.manual_seed(int(training_config["init_seed"]))
+    problem, policy, reward_model, adapter, metadata = _build_ariane_components(
+        artifact_dir=artifact_dir,
+        grid_shape=resolved_grid_shape,
+        hidden_dim=hidden_dim,
+        reward_weights=reward_weights,
+    )
+    checkpoint = resolve_ariane_warm_start_checkpoint(artifact_dir)
+    load_policy_warm_start(policy, checkpoint)
+
+    adapter_kwargs = {
+        "reward_model": reward_model,
+        "hpwl_evaluator": reward_model.hpwl_evaluator,
+    }
+    reference_policy = _clone_reference_policy(policy)
+    reference_bundle = _collect_ariane_fixed_reference_rollout(
+        problem=problem,
+        reference_policy=reference_policy,
+        adapter=adapter,
+        grid_shape=resolved_grid_shape,
+        adapter_kwargs=adapter_kwargs,
+        trace_seed=int(trace_seed),
+    )
+    fixed_reference_rollout = reference_bundle["fixed_rollout"]
+    reference_trace = reference_bundle["reference_trace"]
+
+    prefit_rollouts = [
+        collect_policy_rollout(
+            problem=problem,
+            policy=policy,
+            grid_shape=resolved_grid_shape,
+            reward_source="phase3_proxy_hpwl",
+            max_steps=len(adapter.ordered_macros()),
+            seed=int(seed),
+            deterministic=False,
+            adapter_kwargs=adapter_kwargs,
+        )
+        for seed in prefit_rollout_seeds
+    ]
+    prefit_metrics = prefit_value_head_from_rollouts(
+        policy=policy,
+        fixed_rollouts=[_rollout_to_fixed_rollout_batch(rollout) for rollout in prefit_rollouts],
+        learning_rate=float(warm_value_prefit_config["prefit_learning_rate"]),
+        epochs=int(prefit_epochs),
+        lr_warmup_epochs=int(warm_value_prefit_config["prefit_lr_warmup_epochs"]),
+        target_transform=str(warm_value_prefit_config["target_transform"]),
+    )
+
+    baseline_policy = _clone_reference_policy(policy)
+    alpha10_policy = _clone_reference_policy(policy)
+    baseline_update = run_single_ppo_update(
+        problem=problem,
+        policy=baseline_policy,
+        reference_policy=_reference_policy_for_training(baseline_policy, training_config),
+        kl_anchor_beta=_training_kl_anchor_beta(training_config),
+        grid_shape=resolved_grid_shape,
+        reward_source="phase3_proxy_hpwl",
+        max_steps=len(adapter.ordered_macros()),
+        learning_rate=float(training_config["learning_rate"]),
+        seed=int(training_config["init_seed"]),
+        adapter_kwargs=adapter_kwargs,
+        value_coef=float(training_config["value_coef"]),
+        entropy_coef=float(training_config["entropy_coef"]),
+        policy_epochs=1,
+    )
+    alpha10_update = run_single_ppo_update(
+        problem=problem,
+        policy=alpha10_policy,
+        reference_policy=_reference_policy_for_training(alpha10_policy, alpha10_config),
+        kl_anchor_beta=_training_kl_anchor_beta(alpha10_config),
+        grid_shape=resolved_grid_shape,
+        reward_source="phase3_proxy_hpwl",
+        max_steps=len(adapter.ordered_macros()),
+        learning_rate=float(alpha10_config["learning_rate"]),
+        seed=int(alpha10_config["init_seed"]),
+        adapter_kwargs=adapter_kwargs,
+        value_coef=float(alpha10_config["value_coef"]),
+        entropy_coef=float(alpha10_config["entropy_coef"]),
+        policy_epochs=1,
+        first_substep_lr_scale=float(alpha10_config["first_substep_lr_scale"]),
+    )
+
+    baseline_agreement = (
+        summarize_argmax_agreement_for_fixed_rollout(
+            fixed_rollout=fixed_reference_rollout,
+            reference_policy=reference_policy,
+            candidate_policy=baseline_policy,
+        )
+        if baseline_flipped_step_indices is None
+        else {}
+    )
+    alpha10_agreement = (
+        summarize_argmax_agreement_for_fixed_rollout(
+            fixed_rollout=fixed_reference_rollout,
+            reference_policy=reference_policy,
+            candidate_policy=alpha10_policy,
+        )
+        if alpha10_flipped_step_indices is None
+        else {}
+    )
+    baseline_flips = list(baseline_flipped_step_indices) if baseline_flipped_step_indices is not None else list(baseline_agreement["flipped_step_indices"])
+    alpha10_flips = list(alpha10_flipped_step_indices) if alpha10_flipped_step_indices is not None else list(alpha10_agreement["flipped_step_indices"])
+    reference_step_metrics = _reference_step_metrics_for_fixed_rollout(
+        reference_policy=reference_policy,
+        fixed_rollout=fixed_reference_rollout,
+    )
+    priority_subset = _select_fragile_decision_priority_subset(
+        baseline_flipped_step_indices=baseline_flips,
+        alpha10_flipped_step_indices=alpha10_flips,
+        pre_update_margin_by_step=reference_step_metrics["margin_by_step"],
+        unique_budget=int(unique_budget),
+    )
+    cohort_by_step = {
+        int(step): "overlap"
+        for step in priority_subset["overlap_steps"]
+    } | {
+        int(step): "unique"
+        for step in priority_subset["unique_steps"]
+    }
+
+    baseline_actions = _extract_candidate_replacement_actions(
+        candidate_policy=baseline_policy,
+        fixed_rollout=fixed_reference_rollout,
+        adapter=adapter,
+        grid_shape=resolved_grid_shape,
+    )
+    alpha10_actions = _extract_candidate_replacement_actions(
+        candidate_policy=alpha10_policy,
+        fixed_rollout=fixed_reference_rollout,
+        adapter=adapter,
+        grid_shape=resolved_grid_shape,
+    )
+    suffix_seeds = tuple(range(int(suffix_seed_count)))
+    baseline_panel = _run_single_step_counterfactual_panel(
+        panel_label="baseline",
+        problem=problem,
+        reference_policy=reference_policy,
+        adapter=adapter,
+        reference_trace=reference_trace,
+        selected_steps=[int(step) for step in priority_subset["evaluated_steps"]],
+        replacement_action_by_step=baseline_actions,
+        cohort_by_step=cohort_by_step,
+        suffix_seeds=suffix_seeds,
+        grid_shape=resolved_grid_shape,
+        adapter_kwargs=adapter_kwargs,
+    )
+    alpha10_panel = _run_single_step_counterfactual_panel(
+        panel_label="alpha10_overlap",
+        problem=problem,
+        reference_policy=reference_policy,
+        adapter=adapter,
+        reference_trace=reference_trace,
+        selected_steps=[int(step) for step in priority_subset["overlap_steps"]],
+        replacement_action_by_step=alpha10_actions,
+        cohort_by_step=cohort_by_step,
+        suffix_seeds=suffix_seeds,
+        grid_shape=resolved_grid_shape,
+        adapter_kwargs=adapter_kwargs,
+    )
+    greedy_random_gap_hpwl = 3_221_800.0 - 1_682_600.0
+    panel_summaries = {
+        "baseline": _summarize_fragile_decision_probe(
+            per_step_results=baseline_panel["per_step_results"],
+            greedy_random_gap_hpwl=greedy_random_gap_hpwl,
+        ),
+        "alpha10_overlap": _summarize_fragile_decision_probe(
+            per_step_results=alpha10_panel["per_step_results"],
+            greedy_random_gap_hpwl=greedy_random_gap_hpwl,
+        ),
+    }
+    artifact = {
+        "benchmark": metadata["benchmark"],
+        "metadata": {
+            **metadata,
+            "warm_start_checkpoint": str(checkpoint),
+            "training_config": dict(training_config),
+            "alpha10_config": dict(alpha10_config),
+            "warm_value_prefit_config": dict(warm_value_prefit_config),
+        },
+        "probe_config": {
+            "trace_seed": int(trace_seed),
+            "prefit_rollout_seeds": [int(seed) for seed in prefit_rollout_seeds],
+            "suffix_seed_count": int(suffix_seed_count),
+            "unique_budget": int(unique_budget),
+            "selection_rule": "all_overlap_plus_lowest_margin_baseline_unique",
+        },
+        "reference_trace": {
+            "seed": int(trace_seed),
+            "steps": int(reference_bundle["reference_rollout"]["steps"]),
+            "episode_return": float(reference_bundle["reference_rollout"]["episode_return"]),
+            "final_hpwl": float(reference_bundle["reference_rollout"]["final_hpwl"]),
+            "termination_reason": str(reference_bundle["reference_rollout"]["termination_reason"]),
+            "completed_episode": bool(reference_bundle["reference_rollout"]["completed_episode"]),
+        },
+        "prefit_metrics": prefit_metrics,
+        "baseline_update": baseline_update["substep_history"][0] if baseline_update.get("substep_history") else {},
+        "alpha10_update": alpha10_update["substep_history"][0] if alpha10_update.get("substep_history") else {},
+        "baseline_agreement": baseline_agreement,
+        "alpha10_agreement": alpha10_agreement,
+        "reference_step_metrics": reference_step_metrics,
+        "priority_subset": priority_subset,
+        "panels": {
+            "baseline": baseline_panel,
+            "alpha10_overlap": alpha10_panel,
+        },
+        "panel_summaries": panel_summaries,
+    }
+    output_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
+    return artifact
+
+
+def run_ariane_fragile_decision_screening(
+    *,
+    output_path: Path,
+    prefit_rollout_seeds: tuple[int, ...] = (0, 1, 2, 3),
+    trace_seed: int = 0,
+    unique_budget: int = 11,
+    baseline_flipped_step_indices: list[int] | None = None,
+    alpha10_flipped_step_indices: list[int] | None = None,
+    prefit_epochs: int = 200,
+    prefit_lr_warmup_epochs: int = 20,
+    grid_shape: tuple[int, int] | None = None,
+    hidden_dim: int = 64,
+    reward_weights: RewardWeights | None = None,
+    ranking_top_k: int | None = None,
+) -> dict[str, object]:
+    artifact_dir = output_path.parent
+    resolved_grid_shape = _resolve_ariane_grid_shape(grid_shape)
+    training_config = dict(build_ariane_checkpoint_training_config())
+    alpha10_config = dict(training_config)
+    alpha10_config["first_substep_lr_scale"] = 0.1
+    warm_value_prefit_config = build_ariane_warm_value_prefit_training_config(
+        target_transform="zscore",
+        prefit_lr_warmup_epochs=prefit_lr_warmup_epochs,
+    )
+
+    torch.manual_seed(int(training_config["init_seed"]))
+    problem, policy, reward_model, adapter, metadata = _build_ariane_components(
+        artifact_dir=artifact_dir,
+        grid_shape=resolved_grid_shape,
+        hidden_dim=hidden_dim,
+        reward_weights=reward_weights,
+    )
+    checkpoint = resolve_ariane_warm_start_checkpoint(artifact_dir)
+    load_policy_warm_start(policy, checkpoint)
+
+    adapter_kwargs = {
+        "reward_model": reward_model,
+        "hpwl_evaluator": reward_model.hpwl_evaluator,
+    }
+    reference_policy = _clone_reference_policy(policy)
+    reference_bundle = _collect_ariane_fixed_reference_rollout(
+        problem=problem,
+        reference_policy=reference_policy,
+        adapter=adapter,
+        grid_shape=resolved_grid_shape,
+        adapter_kwargs=adapter_kwargs,
+        trace_seed=int(trace_seed),
+    )
+    fixed_reference_rollout = reference_bundle["fixed_rollout"]
+    reference_trace = reference_bundle["reference_trace"]
+
+    prefit_rollouts = [
+        collect_policy_rollout(
+            problem=problem,
+            policy=policy,
+            grid_shape=resolved_grid_shape,
+            reward_source="phase3_proxy_hpwl",
+            max_steps=len(adapter.ordered_macros()),
+            seed=int(seed),
+            deterministic=False,
+            adapter_kwargs=adapter_kwargs,
+        )
+        for seed in prefit_rollout_seeds
+    ]
+    prefit_metrics = prefit_value_head_from_rollouts(
+        policy=policy,
+        fixed_rollouts=[_rollout_to_fixed_rollout_batch(rollout) for rollout in prefit_rollouts],
+        learning_rate=float(warm_value_prefit_config["prefit_learning_rate"]),
+        epochs=int(prefit_epochs),
+        lr_warmup_epochs=int(warm_value_prefit_config["prefit_lr_warmup_epochs"]),
+        target_transform=str(warm_value_prefit_config["target_transform"]),
+    )
+
+    baseline_policy = _clone_reference_policy(policy)
+    alpha10_policy = _clone_reference_policy(policy)
+    baseline_update = run_single_ppo_update(
+        problem=problem,
+        policy=baseline_policy,
+        reference_policy=_reference_policy_for_training(baseline_policy, training_config),
+        kl_anchor_beta=_training_kl_anchor_beta(training_config),
+        grid_shape=resolved_grid_shape,
+        reward_source="phase3_proxy_hpwl",
+        max_steps=len(adapter.ordered_macros()),
+        learning_rate=float(training_config["learning_rate"]),
+        seed=int(training_config["init_seed"]),
+        adapter_kwargs=adapter_kwargs,
+        value_coef=float(training_config["value_coef"]),
+        entropy_coef=float(training_config["entropy_coef"]),
+        policy_epochs=1,
+    )
+    alpha10_update = run_single_ppo_update(
+        problem=problem,
+        policy=alpha10_policy,
+        reference_policy=_reference_policy_for_training(alpha10_policy, alpha10_config),
+        kl_anchor_beta=_training_kl_anchor_beta(alpha10_config),
+        grid_shape=resolved_grid_shape,
+        reward_source="phase3_proxy_hpwl",
+        max_steps=len(adapter.ordered_macros()),
+        learning_rate=float(alpha10_config["learning_rate"]),
+        seed=int(alpha10_config["init_seed"]),
+        adapter_kwargs=adapter_kwargs,
+        value_coef=float(alpha10_config["value_coef"]),
+        entropy_coef=float(alpha10_config["entropy_coef"]),
+        policy_epochs=1,
+        first_substep_lr_scale=float(alpha10_config["first_substep_lr_scale"]),
+    )
+
+    baseline_agreement = (
+        summarize_argmax_agreement_for_fixed_rollout(
+            fixed_rollout=fixed_reference_rollout,
+            reference_policy=reference_policy,
+            candidate_policy=baseline_policy,
+        )
+        if baseline_flipped_step_indices is None
+        else {}
+    )
+    alpha10_agreement = (
+        summarize_argmax_agreement_for_fixed_rollout(
+            fixed_rollout=fixed_reference_rollout,
+            reference_policy=reference_policy,
+            candidate_policy=alpha10_policy,
+        )
+        if alpha10_flipped_step_indices is None
+        else {}
+    )
+    baseline_flips = list(baseline_flipped_step_indices) if baseline_flipped_step_indices is not None else list(baseline_agreement["flipped_step_indices"])
+    alpha10_flips = list(alpha10_flipped_step_indices) if alpha10_flipped_step_indices is not None else list(alpha10_agreement["flipped_step_indices"])
+    reference_step_metrics = _reference_step_metrics_for_fixed_rollout(
+        reference_policy=reference_policy,
+        fixed_rollout=fixed_reference_rollout,
+    )
+    priority_subset = _select_fragile_decision_priority_subset(
+        baseline_flipped_step_indices=baseline_flips,
+        alpha10_flipped_step_indices=alpha10_flips,
+        pre_update_margin_by_step=reference_step_metrics["margin_by_step"],
+        unique_budget=int(unique_budget),
+    )
+    cohort_by_step = {
+        int(step): "overlap"
+        for step in priority_subset["overlap_steps"]
+    } | {
+        int(step): "unique"
+        for step in priority_subset["unique_steps"]
+    }
+
+    baseline_actions = _extract_candidate_replacement_actions(
+        candidate_policy=baseline_policy,
+        fixed_rollout=fixed_reference_rollout,
+        adapter=adapter,
+        grid_shape=resolved_grid_shape,
+    )
+    alpha10_actions = _extract_candidate_replacement_actions(
+        candidate_policy=alpha10_policy,
+        fixed_rollout=fixed_reference_rollout,
+        adapter=adapter,
+        grid_shape=resolved_grid_shape,
+    )
+    deterministic_seed = (int(trace_seed),)
+    baseline_panel = _run_single_step_counterfactual_panel(
+        panel_label="baseline",
+        problem=problem,
+        reference_policy=reference_policy,
+        adapter=adapter,
+        reference_trace=reference_trace,
+        selected_steps=[int(step) for step in priority_subset["evaluated_steps"]],
+        replacement_action_by_step=baseline_actions,
+        cohort_by_step=cohort_by_step,
+        suffix_seeds=deterministic_seed,
+        grid_shape=resolved_grid_shape,
+        adapter_kwargs=adapter_kwargs,
+        deterministic_suffix=True,
+    )
+    alpha10_panel = _run_single_step_counterfactual_panel(
+        panel_label="alpha10_overlap",
+        problem=problem,
+        reference_policy=reference_policy,
+        adapter=adapter,
+        reference_trace=reference_trace,
+        selected_steps=[int(step) for step in priority_subset["overlap_steps"]],
+        replacement_action_by_step=alpha10_actions,
+        cohort_by_step=cohort_by_step,
+        suffix_seeds=deterministic_seed,
+        grid_shape=resolved_grid_shape,
+        adapter_kwargs=adapter_kwargs,
+        deterministic_suffix=True,
+    )
+    greedy_random_gap_hpwl = 3_221_800.0 - 1_682_600.0
+    panel_summaries = {
+        "baseline": _summarize_fragile_decision_probe(
+            per_step_results=baseline_panel["per_step_results"],
+            greedy_random_gap_hpwl=greedy_random_gap_hpwl,
+        ),
+        "alpha10_overlap": _summarize_fragile_decision_probe(
+            per_step_results=alpha10_panel["per_step_results"],
+            greedy_random_gap_hpwl=greedy_random_gap_hpwl,
+        ),
+    }
+    rankings = {
+        "baseline_by_abs_delta": _rank_fragile_decision_steps(
+            per_step_results=baseline_panel["per_step_results"],
+            top_k=ranking_top_k,
+        ),
+        "alpha10_overlap_by_abs_delta": _rank_fragile_decision_steps(
+            per_step_results=alpha10_panel["per_step_results"],
+            top_k=ranking_top_k,
+        ),
+    }
+    artifact = {
+        "benchmark": metadata["benchmark"],
+        "metadata": {
+            **metadata,
+            "warm_start_checkpoint": str(checkpoint),
+            "training_config": dict(training_config),
+            "alpha10_config": dict(alpha10_config),
+            "warm_value_prefit_config": dict(warm_value_prefit_config),
+        },
+        "screening_config": {
+            "trace_seed": int(trace_seed),
+            "prefit_rollout_seeds": [int(seed) for seed in prefit_rollout_seeds],
+            "deterministic_suffix": True,
+            "suffix_seeds": [int(trace_seed)],
+            "unique_budget": int(unique_budget),
+            "ranking_top_k": None if ranking_top_k is None else int(ranking_top_k),
+            "selection_rule": "all_overlap_plus_lowest_margin_baseline_unique",
+        },
+        "reference_trace": {
+            "seed": int(trace_seed),
+            "steps": int(reference_bundle["reference_rollout"]["steps"]),
+            "episode_return": float(reference_bundle["reference_rollout"]["episode_return"]),
+            "final_hpwl": float(reference_bundle["reference_rollout"]["final_hpwl"]),
+            "termination_reason": str(reference_bundle["reference_rollout"]["termination_reason"]),
+            "completed_episode": bool(reference_bundle["reference_rollout"]["completed_episode"]),
+        },
+        "prefit_metrics": prefit_metrics,
+        "baseline_update": baseline_update["substep_history"][0] if baseline_update.get("substep_history") else {},
+        "alpha10_update": alpha10_update["substep_history"][0] if alpha10_update.get("substep_history") else {},
+        "baseline_agreement": baseline_agreement,
+        "alpha10_agreement": alpha10_agreement,
+        "reference_step_metrics": reference_step_metrics,
+        "priority_subset": priority_subset,
+        "panels": {
+            "baseline": baseline_panel,
+            "alpha10_overlap": alpha10_panel,
+        },
+        "panel_summaries": panel_summaries,
+        "rankings": rankings,
+    }
+    output_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
+    return artifact
+
+
+def run_ariane_argmax_agreement_diagnostic(
+    *,
+    output_path: Path,
+    prefit_rollout_seeds: tuple[int, ...] = (0, 1, 2, 3),
+    trace_seed: int = 0,
+    prefit_epochs: int = 200,
+    prefit_lr_warmup_epochs: int = 20,
+    policy_epochs: int = 1,
+    target_transform: str = "zscore",
+    first_substep_lr_scale: float | None = None,
+    grid_shape: tuple[int, int] | None = None,
+    hidden_dim: int = 64,
+    reward_weights: RewardWeights | None = None,
+) -> dict[str, object]:
+    artifact_dir = output_path.parent
+    resolved_grid_shape = _resolve_ariane_grid_shape(grid_shape)
+    training_config = dict(build_ariane_checkpoint_training_config())
+    if first_substep_lr_scale is not None:
+        training_config["first_substep_lr_scale"] = float(first_substep_lr_scale)
+    warm_value_prefit_config = build_ariane_warm_value_prefit_training_config(
+        target_transform=target_transform,
+        prefit_lr_warmup_epochs=prefit_lr_warmup_epochs,
+    )
+
+    torch.manual_seed(int(training_config["init_seed"]))
+    problem, policy, reward_model, adapter, metadata = _build_ariane_components(
+        artifact_dir=artifact_dir,
+        grid_shape=resolved_grid_shape,
+        hidden_dim=hidden_dim,
+        reward_weights=reward_weights,
+    )
+    checkpoint = resolve_ariane_warm_start_checkpoint(artifact_dir)
+    load_policy_warm_start(policy, checkpoint)
+
+    adapter_kwargs = {
+        "reward_model": reward_model,
+        "hpwl_evaluator": reward_model.hpwl_evaluator,
+    }
+    reference_policy = _clone_reference_policy(policy)
+    reference_rollout = collect_policy_rollout(
+        problem=problem,
+        policy=reference_policy,
+        grid_shape=resolved_grid_shape,
+        reward_source="phase3_proxy_hpwl",
+        max_steps=len(adapter.ordered_macros()),
+        seed=int(trace_seed),
+        deterministic=True,
+        adapter_kwargs=adapter_kwargs,
+    )
+    fixed_reference_rollout = _rollout_to_fixed_rollout_batch(reference_rollout)
+
+    prefit_rollouts = [
+        collect_policy_rollout(
+            problem=problem,
+            policy=policy,
+            grid_shape=resolved_grid_shape,
+            reward_source="phase3_proxy_hpwl",
+            max_steps=len(adapter.ordered_macros()),
+            seed=int(seed),
+            deterministic=False,
+            adapter_kwargs=adapter_kwargs,
+        )
+        for seed in prefit_rollout_seeds
+    ]
+    prefit_metrics = prefit_value_head_from_rollouts(
+        policy=policy,
+        fixed_rollouts=[_rollout_to_fixed_rollout_batch(rollout) for rollout in prefit_rollouts],
+        learning_rate=float(warm_value_prefit_config["prefit_learning_rate"]),
+        epochs=int(prefit_epochs),
+        lr_warmup_epochs=int(warm_value_prefit_config["prefit_lr_warmup_epochs"]),
+        target_transform=str(warm_value_prefit_config["target_transform"]),
+    )
+
+    training_reference_policy = _reference_policy_for_training(policy, training_config)
+    update_metrics = run_single_ppo_update(
+        problem=problem,
+        policy=policy,
+        reference_policy=training_reference_policy,
+        kl_anchor_beta=_training_kl_anchor_beta(training_config),
+        grid_shape=resolved_grid_shape,
+        reward_source="phase3_proxy_hpwl",
+        max_steps=len(adapter.ordered_macros()),
+        learning_rate=float(training_config["learning_rate"]),
+        seed=int(training_config["init_seed"]),
+        adapter_kwargs=adapter_kwargs,
+        value_coef=float(training_config["value_coef"]),
+        entropy_coef=float(training_config["entropy_coef"]),
+        policy_epochs=int(policy_epochs),
+        first_substep_lr_scale=None if first_substep_lr_scale is None else float(first_substep_lr_scale),
+    )
+
+    agreement_summary = summarize_argmax_agreement_for_fixed_rollout(
+        fixed_rollout=fixed_reference_rollout,
+        reference_policy=reference_policy,
+        candidate_policy=policy,
+    )
+    substep_zero = update_metrics["substep_history"][0] if update_metrics.get("substep_history") else {}
+
+    artifact = {
+        "benchmark": metadata["benchmark"],
+        "metadata": {
+            **metadata,
+            "training_config": dict(training_config),
+            "warm_value_prefit_config": dict(warm_value_prefit_config),
+            "warm_start_checkpoint": str(checkpoint),
+        },
+        "diagnostic_config": {
+            "comparison_mode": "argmax_vs_argmax_on_fixed_pi_init_trace",
+            "trace_seed": int(trace_seed),
+            "prefit_rollout_seeds": [int(seed) for seed in prefit_rollout_seeds],
+            "prefit_epochs": int(prefit_epochs),
+            "policy_epochs": int(policy_epochs),
+        },
+        "reference_trace": {
+            "seed": int(trace_seed),
+            "steps": int(reference_rollout["steps"]),
+            "episode_return": float(reference_rollout["episode_return"]),
+            "final_hpwl": float(reference_rollout["final_hpwl"]),
+            "termination_reason": str(reference_rollout["termination_reason"]),
+            "completed_episode": bool(reference_rollout["completed_episode"]),
+            "is_legal": bool(reference_rollout["is_legal"]),
+        },
+        "prefit_metrics": prefit_metrics,
+        "substep0_update": substep_zero,
+        "update_metrics": update_metrics,
+        "agreement_summary": agreement_summary,
+    }
+    output_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
+    return artifact
 
 
 def _build_ariane_critic_prefit_comparison_conditions() -> dict[str, dict[str, float | str]]:
@@ -2466,17 +3451,28 @@ def run_ariane_critic_prefit_diagnostic(
     prefit_rollout_seeds: tuple[int, ...] = (0, 1, 2, 3),
     diagnostic_eval_seeds: tuple[int, ...] = (0, 1, 2, 3, 4),
     prefit_epochs: int = 20,
+    prefit_lr_warmup_epochs: int = 0,
     policy_epochs: int = 1,
     followup_updates: int = 10,
     warm_start_baseline_hpwl: float = 2_881_800.0,
+    target_transform: str = "raw",
+    grad_clip_norm: float | None = None,
+    first_substep_lr_scale: float | None = None,
     grid_shape: tuple[int, int] | None = None,
     hidden_dim: int = 64,
     reward_weights: RewardWeights | None = None,
 ) -> dict[str, object]:
     artifact_dir = output_path.parent
     resolved_grid_shape = _resolve_ariane_grid_shape(grid_shape)
-    training_config = build_ariane_checkpoint_training_config()
-    warm_value_prefit_config = build_ariane_warm_value_prefit_training_config()
+    training_config = dict(build_ariane_checkpoint_training_config())
+    if grad_clip_norm is not None:
+        training_config["grad_clip_norm"] = float(grad_clip_norm)
+    if first_substep_lr_scale is not None:
+        training_config["first_substep_lr_scale"] = float(first_substep_lr_scale)
+    warm_value_prefit_config = build_ariane_warm_value_prefit_training_config(
+        target_transform=target_transform,
+        prefit_lr_warmup_epochs=prefit_lr_warmup_epochs,
+    )
     torch.manual_seed(int(training_config["init_seed"]))
     problem, policy, reward_model, adapter, metadata = _build_ariane_components(
         artifact_dir=artifact_dir,
@@ -2509,6 +3505,8 @@ def run_ariane_critic_prefit_diagnostic(
         fixed_rollouts=[_rollout_to_fixed_rollout_batch(rollout) for rollout in prefit_rollouts],
         learning_rate=float(warm_value_prefit_config["prefit_learning_rate"]),
         epochs=int(prefit_epochs),
+        lr_warmup_epochs=int(warm_value_prefit_config["prefit_lr_warmup_epochs"]),
+        target_transform=str(warm_value_prefit_config["target_transform"]),
     )
 
     reference_policy = _reference_policy_for_training(policy, training_config)
@@ -2527,6 +3525,8 @@ def run_ariane_critic_prefit_diagnostic(
         entropy_coef=float(training_config["entropy_coef"]),
         policy_epochs=int(policy_epochs),
         diagnostic_eval_seeds=tuple(int(seed) for seed in diagnostic_eval_seeds),
+        grad_clip_norm=None if grad_clip_norm is None else float(grad_clip_norm),
+        first_substep_lr_scale=None if first_substep_lr_scale is None else float(first_substep_lr_scale),
     )
 
     substep_zero = update_metrics["substep_history"][0] if update_metrics.get("substep_history") else {}
@@ -2539,10 +3539,32 @@ def run_ariane_critic_prefit_diagnostic(
         "heldout_log_prob_delta_mean" in substep_zero
         and abs(float(substep_zero["heldout_log_prob_delta_mean"])) < 0.05
     )
+    advantage_non_degenerate = bool(
+        update_metrics.get("batch_diagnostic", {}).get("advantage_gate", {}).get("pass", False)
+    )
     necessary = {
         "finite_kl": finite_kl,
         "heldout_log_prob_delta_within_band": heldout_log_prob_delta_within_band,
-        "pass": bool(finite_kl and heldout_log_prob_delta_within_band),
+        "advantage_non_degenerate": advantage_non_degenerate,
+        "pass": bool(finite_kl and heldout_log_prob_delta_within_band and advantage_non_degenerate),
+    }
+    approx_kl = None
+    if "approx_kl" in substep_zero:
+        approx_kl = float(substep_zero["approx_kl"])
+    elif "approx_kl" in update_metrics:
+        approx_kl = float(update_metrics["approx_kl"])
+    pre_update_hpwl = update_metrics.get("pre_update_diagnostic", {}).get("heldout_mean_hpwl")
+    post_update_hpwl = substep_zero.get("heldout_mean_hpwl")
+    hpwl_drift_fraction = None
+    if pre_update_hpwl is not None and post_update_hpwl is not None and abs(float(pre_update_hpwl)) > 1e-8:
+        hpwl_drift_fraction = (float(post_update_hpwl) - float(pre_update_hpwl)) / float(pre_update_hpwl)
+    severity = {
+        "approx_kl": approx_kl,
+        "approx_kl_band": _approx_kl_band(approx_kl),
+        "pre_update_heldout_mean_hpwl": None if pre_update_hpwl is None else float(pre_update_hpwl),
+        "substep0_heldout_mean_hpwl": None if post_update_hpwl is None else float(post_update_hpwl),
+        "heldout_mean_hpwl_drift_fraction": hpwl_drift_fraction,
+        "hpwl_drift_band": _hpwl_drift_band(hpwl_drift_fraction),
     }
 
     followup_training = None
@@ -2567,6 +3589,8 @@ def run_ariane_critic_prefit_diagnostic(
             adapter_kwargs=adapter_kwargs,
             value_coef=float(training_config["value_coef"]),
             entropy_coef=float(training_config["entropy_coef"]),
+            grad_clip_norm=None if grad_clip_norm is None else float(grad_clip_norm),
+            first_substep_lr_scale=None if first_substep_lr_scale is None else float(first_substep_lr_scale),
         )
         followup_training_artifact = {
             "history": followup_training["history"],
@@ -2617,6 +3641,7 @@ def run_ariane_critic_prefit_diagnostic(
         "followup_eval": followup_eval,
         "gate_status": {
             "necessary": necessary,
+            "severity": severity,
             "sufficient": sufficient,
         },
     }
@@ -2751,6 +3776,7 @@ def run_ariane_b2_separated_compare(
         fixed_rollout=prefit_batch,
         learning_rate=float(warm_value_prefit_config["prefit_learning_rate"]),
         epochs=int(warm_value_prefit_config["prefit_epochs"]),
+        target_transform=str(warm_value_prefit_config["target_transform"]),
     )
     warm_value_prefit_training = train_ppo_policy(
         problem=problem,

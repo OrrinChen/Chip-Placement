@@ -7,6 +7,7 @@ import pytest
 from chip.experiments.phase3_macroplacement_benchmarks import (
     MacroPlacementBenchmarkSpec,
     materialize_combined_lef,
+    resolve_macroplacement_benchmark,
     resolve_ariane_benchmark,
 )
 
@@ -49,3 +50,25 @@ def test_materialize_combined_lef_contains_tech_and_macro_defs(tmp_path: Path) -
 def test_resolve_ariane_benchmark_rejects_missing_repo_root(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError):
         resolve_ariane_benchmark(repo_root=tmp_path / "missing", variant="ariane133", platform="NanGate45")
+
+
+def test_resolve_macroplacement_benchmark_supports_bp_quad() -> None:
+    spec = resolve_macroplacement_benchmark(repo_root=macroplacement_repo_root(), variant="bp_quad", platform="NanGate45")
+
+    assert isinstance(spec, MacroPlacementBenchmarkSpec)
+    assert spec.name == "bp_quad_ng45"
+    assert spec.variant == "bp_quad"
+    assert spec.reference_def_path.name == "bsg_chip_fp_placed_macros.def"
+    assert spec.floorplan_def_path.name == "bsg_chip_fp.def"
+    assert spec.sdc_path.name == "bsg_chip.sdc"
+
+
+def test_resolve_macroplacement_benchmark_supports_nvdla() -> None:
+    spec = resolve_macroplacement_benchmark(repo_root=macroplacement_repo_root(), variant="nvdla", platform="NanGate45")
+
+    assert isinstance(spec, MacroPlacementBenchmarkSpec)
+    assert spec.name == "nvdla_ng45"
+    assert spec.variant == "nvdla"
+    assert spec.reference_def_path.name == "NV_NVDLA_partition_c_fp_placed_macros.def"
+    assert spec.floorplan_def_path.name == "NV_NVDLA_partition_c_fp.def"
+    assert spec.sdc_path.name == "NV_NVDLA_partition_c.sdc"

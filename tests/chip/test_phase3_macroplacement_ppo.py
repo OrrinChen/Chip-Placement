@@ -1664,6 +1664,8 @@ def test_run_ariane_warm_start_substep_diagnostic_records_substep_metrics(monkey
         return {
             "policy_loss": 0.1,
             "value_loss": 0.2,
+            "value_loss_train_space": 0.2,
+            "value_loss_raw_space": 10.0,
             "entropy": 0.3,
             "steps": 120.0,
             "final_hpwl": 2_950_000.0,
@@ -1681,13 +1683,23 @@ def test_run_ariane_warm_start_substep_diagnostic_records_substep_metrics(monkey
                 "heldout_log_prob_delta_mean": 0.0,
                 "update_batch_kl_to_reference": 0.0,
             },
+            "pre_update_metrics": {
+                "entropy": 0.5,
+            },
             "batch_diagnostic": {
                 "return_summary": {"count": 120, "mean": -10.0},
+                "old_value_summary": {"count": 120, "mean": -2.0},
                 "raw_advantage_summary": {"count": 120, "mean": -8.0},
                 "normalized_advantage_summary": {"count": 120, "mean": 0.0},
                 "top_abs_advantages": [{"transition_index": 4, "raw_advantage": 12.0}],
                 "value_return_correlation": 0.1,
+                "advantage_gate": {
+                    "std_gt_epsilon": True,
+                    "mean_over_std_within_band": True,
+                    "pass": True,
+                },
             },
+            "value_target_stats": {"mean": 0.0, "std": 1.0},
             "substep_history": [
                 {
                     "substep_index": 0,
@@ -1699,6 +1711,23 @@ def test_run_ariane_warm_start_substep_diagnostic_records_substep_metrics(monkey
                     "global_grad_norm": 3.0,
                     "policy_head_grad_norm": 2.0,
                     "value_head_grad_norm": 1.0,
+                    "value_loss_train_space": 0.2,
+                    "value_loss_raw_space": 10.0,
+                    "value_target_mean": 0.0,
+                    "value_target_std": 1.0,
+                    "grad_clip_norm": None,
+                    "global_grad_norm_pre_clip": 3.0,
+                    "global_grad_norm_post_clip": 3.0,
+                    "grad_clip_applied": False,
+                    "effective_learning_rate": 1e-4,
+                    "first_substep_lr_scale": 0.1,
+                    "global_param_delta_norm_from_pre_update": 0.02,
+                    "policy_head_param_delta_norm_from_pre_update": 0.01,
+                    "ratio_fraction_gt_1_5": 0.2,
+                    "ratio_fraction_lt_0_67": 0.1,
+                    "ratio_max": 1.8,
+                    "approx_kl_abs_top10pct_fraction": 0.95,
+                    "entropy_delta_from_pre_update": -0.2,
                 },
                 {
                     "substep_index": 1,
@@ -1710,6 +1739,23 @@ def test_run_ariane_warm_start_substep_diagnostic_records_substep_metrics(monkey
                     "global_grad_norm": 2.5,
                     "policy_head_grad_norm": 1.5,
                     "value_head_grad_norm": 0.9,
+                    "value_loss_train_space": 0.25,
+                    "value_loss_raw_space": 11.0,
+                    "value_target_mean": 0.0,
+                    "value_target_std": 1.0,
+                    "grad_clip_norm": None,
+                    "global_grad_norm_pre_clip": 2.5,
+                    "global_grad_norm_post_clip": 2.5,
+                    "grad_clip_applied": False,
+                    "effective_learning_rate": 1e-3,
+                    "first_substep_lr_scale": 0.1,
+                    "global_param_delta_norm_from_pre_update": 0.04,
+                    "policy_head_param_delta_norm_from_pre_update": 0.02,
+                    "ratio_fraction_gt_1_5": 0.25,
+                    "ratio_fraction_lt_0_67": 0.12,
+                    "ratio_max": 1.9,
+                    "approx_kl_abs_top10pct_fraction": 0.96,
+                    "entropy_delta_from_pre_update": -0.3,
                 },
             ],
         }
@@ -1723,21 +1769,29 @@ def test_run_ariane_warm_start_substep_diagnostic_records_substep_metrics(monkey
         output_path=tmp_path / "phase3_ariane_warm_start_substep_diagnostic.json",
         policy_epochs=2,
         diagnostic_eval_seeds=(7, 8, 9),
+        first_substep_lr_scale=0.1,
     )
 
     assert len(run_single_update_calls) == 1
     assert run_single_update_calls[0]["policy_epochs"] == 2
     assert run_single_update_calls[0]["diagnostic_eval_seeds"] == (7, 8, 9)
+    assert run_single_update_calls[0]["first_substep_lr_scale"] == 0.1
     assert run_single_update_calls[0]["reference_policy"] is not None
     assert run_single_update_calls[0]["kl_anchor_beta"] == 5.0
     assert artifact["diagnostic_config"]["policy_epochs"] == 2
     assert artifact["diagnostic_config"]["diagnostic_eval_seeds"] == [7, 8, 9]
     assert artifact["update_metrics"]["pre_update_diagnostic"]["heldout_completion_rate"] == 1 / 3
     assert artifact["update_metrics"]["batch_diagnostic"]["return_summary"]["count"] == 120
+    assert artifact["update_metrics"]["batch_diagnostic"]["advantage_gate"]["pass"] is True
+    assert artifact["update_metrics"]["value_target_stats"] == {"mean": 0.0, "std": 1.0}
     assert artifact["update_metrics"]["batch_diagnostic"]["top_abs_advantages"][0]["transition_index"] == 4
     assert artifact["update_metrics"]["substep_history"][0]["substep_index"] == 0
     assert artifact["update_metrics"]["substep_history"][1]["update_batch_kl_to_reference"] == 0.22
     assert artifact["update_metrics"]["substep_history"][0]["global_grad_norm"] == 3.0
+    assert artifact["update_metrics"]["substep_history"][0]["value_loss_raw_space"] == 10.0
+    assert artifact["update_metrics"]["substep_history"][0]["grad_clip_applied"] is False
+    assert artifact["update_metrics"]["substep_history"][0]["ratio_fraction_gt_1_5"] == 0.2
+    assert artifact["update_metrics"]["substep_history"][0]["approx_kl_abs_top10pct_fraction"] == 0.95
     assert len(warm_start_calls) == 1
 
 
@@ -1796,6 +1850,7 @@ def test_run_ariane_critic_prefit_diagnostic_records_prefit_and_gate_status(monk
             "epochs": 20.0,
             "rollout_count": 4.0,
             "transition_count": 12.0,
+            "target_transform": kwargs["target_transform"],
         }
 
     def fake_run_single_ppo_update(**kwargs):
@@ -1803,6 +1858,8 @@ def test_run_ariane_critic_prefit_diagnostic_records_prefit_and_gate_status(monk
         return {
             "policy_loss": 0.1,
             "value_loss": 0.2,
+            "value_loss_train_space": 0.2,
+            "value_loss_raw_space": 12.0,
             "entropy": 0.3,
             "steps": 120.0,
             "final_hpwl": 2_950_000.0,
@@ -1822,11 +1879,18 @@ def test_run_ariane_critic_prefit_diagnostic_records_prefit_and_gate_status(monk
             },
             "batch_diagnostic": {
                 "return_summary": {"count": 12, "mean": -100.0},
+                "old_value_summary": {"count": 12, "mean": -10.0},
                 "raw_advantage_summary": {"count": 12, "mean": -90.0},
                 "normalized_advantage_summary": {"count": 12, "mean": 0.0},
                 "top_abs_advantages": [{"transition_index": 1, "raw_advantage": 9.0}],
                 "value_return_correlation": 0.5,
+                "advantage_gate": {
+                    "std_gt_epsilon": True,
+                    "mean_over_std_within_band": True,
+                    "pass": True,
+                },
             },
+            "value_target_stats": {"mean": 10.0, "std": 2.0},
             "substep_history": [
                 {
                     "substep_index": 0,
@@ -1838,6 +1902,23 @@ def test_run_ariane_critic_prefit_diagnostic_records_prefit_and_gate_status(monk
                     "global_grad_norm": 3.0,
                     "policy_head_grad_norm": 2.0,
                     "value_head_grad_norm": 1.0,
+                    "value_loss_train_space": 0.2,
+                    "value_loss_raw_space": 12.0,
+                    "value_target_mean": 10.0,
+                    "value_target_std": 2.0,
+                    "grad_clip_norm": 30.0,
+                    "global_grad_norm_pre_clip": 40.0,
+                    "global_grad_norm_post_clip": 30.0,
+                    "grad_clip_applied": True,
+                    "effective_learning_rate": 1e-4,
+                    "first_substep_lr_scale": 0.1,
+                    "global_param_delta_norm_from_pre_update": 0.02,
+                    "policy_head_param_delta_norm_from_pre_update": 0.01,
+                    "ratio_fraction_gt_1_5": 0.2,
+                    "ratio_fraction_lt_0_67": 0.1,
+                    "ratio_max": 1.8,
+                    "approx_kl_abs_top10pct_fraction": 0.95,
+                    "entropy_delta_from_pre_update": -0.1,
                 }
             ],
         }
@@ -1873,21 +1954,35 @@ def test_run_ariane_critic_prefit_diagnostic_records_prefit_and_gate_status(monk
         prefit_rollout_seeds=(0, 1, 2, 3),
         diagnostic_eval_seeds=(10, 11, 12, 13, 14),
         prefit_epochs=20,
+        prefit_lr_warmup_epochs=5,
         policy_epochs=1,
         followup_updates=10,
         warm_start_baseline_hpwl=2_881_800.0,
+        target_transform="zscore",
+        grad_clip_norm=30.0,
+        first_substep_lr_scale=0.1,
     )
 
     assert len(warm_start_calls) == 1
     assert [call["seed"] for call in collect_calls[:4]] == [0, 1, 2, 3]
     assert prefit_calls[0]["epochs"] == 20
+    assert prefit_calls[0]["lr_warmup_epochs"] == 5
+    assert prefit_calls[0]["target_transform"] == "zscore"
     assert prefit_calls[0]["fixed_rollouts"][0].final_hpwl == 2_880_000.0
     assert update_calls[0]["policy_epochs"] == 1
+    assert update_calls[0]["grad_clip_norm"] == 30.0
+    assert update_calls[0]["first_substep_lr_scale"] == 0.1
     assert update_calls[0]["diagnostic_eval_seeds"] == (10, 11, 12, 13, 14)
     assert train_calls[0]["num_updates"] == 10
     assert artifact["prefit_metrics"]["final_loss"] == 10.0
+    assert artifact["metadata"]["training_config"]["grad_clip_norm"] == 30.0
+    assert artifact["metadata"]["warm_value_prefit_config"]["target_transform"] == "zscore"
+    assert artifact["metadata"]["warm_value_prefit_config"]["prefit_lr_warmup_epochs"] == 5
     assert artifact["gate_status"]["necessary"]["finite_kl"] is True
     assert artifact["gate_status"]["necessary"]["heldout_log_prob_delta_within_band"] is True
+    assert artifact["gate_status"]["necessary"]["advantage_non_degenerate"] is True
+    assert artifact["gate_status"]["severity"]["approx_kl_band"] == "clear"
+    assert artifact["gate_status"]["severity"]["hpwl_drift_band"] == "partial"
     assert artifact["gate_status"]["sufficient"]["followup_hpwl_within_3pct_of_baseline"] is True
 
 
@@ -1941,6 +2036,8 @@ def test_run_ariane_critic_prefit_diagnostic_skips_followup_when_necessary_gate_
         lambda **kwargs: {
             "policy_loss": 0.1,
             "value_loss": 0.2,
+            "value_loss_train_space": 0.2,
+            "value_loss_raw_space": 15.0,
             "entropy": 0.3,
             "steps": 10.0,
             "final_hpwl": 2_950_000.0,
@@ -1960,11 +2057,18 @@ def test_run_ariane_critic_prefit_diagnostic_skips_followup_when_necessary_gate_
             },
             "batch_diagnostic": {
                 "return_summary": {"count": 1, "mean": -1.0},
+                "old_value_summary": {"count": 1, "mean": -1.0},
                 "raw_advantage_summary": {"count": 1, "mean": -1.0},
                 "normalized_advantage_summary": {"count": 1, "mean": 0.0},
                 "top_abs_advantages": [{"transition_index": 0, "raw_advantage": 1.0}],
                 "value_return_correlation": 0.0,
+                "advantage_gate": {
+                    "std_gt_epsilon": False,
+                    "mean_over_std_within_band": False,
+                    "pass": False,
+                },
             },
+            "value_target_stats": {"mean": 0.0, "std": 1.0},
             "substep_history": [
                 {
                     "substep_index": 0,
@@ -1976,6 +2080,18 @@ def test_run_ariane_critic_prefit_diagnostic_skips_followup_when_necessary_gate_
                     "global_grad_norm": 3.0,
                     "policy_head_grad_norm": 2.0,
                     "value_head_grad_norm": 0.0,
+                    "value_loss_train_space": 0.2,
+                    "value_loss_raw_space": 15.0,
+                    "value_target_mean": 0.0,
+                    "value_target_std": 1.0,
+                    "grad_clip_norm": None,
+                    "global_grad_norm_pre_clip": 3.0,
+                    "global_grad_norm_post_clip": 3.0,
+                    "grad_clip_applied": False,
+                    "effective_learning_rate": 1e-3,
+                    "first_substep_lr_scale": None,
+                    "global_param_delta_norm_from_pre_update": 0.04,
+                    "policy_head_param_delta_norm_from_pre_update": 0.02,
                 }
             ],
         },
@@ -1994,12 +2110,490 @@ def test_run_ariane_critic_prefit_diagnostic_skips_followup_when_necessary_gate_
         prefit_rollout_seeds=(0,),
         diagnostic_eval_seeds=(10, 11),
         prefit_epochs=20,
+        prefit_lr_warmup_epochs=0,
         policy_epochs=1,
         followup_updates=10,
         warm_start_baseline_hpwl=2_881_800.0,
     )
 
     assert artifact["gate_status"]["necessary"]["pass"] is False
+    assert artifact["gate_status"]["necessary"]["advantage_non_degenerate"] is False
     assert artifact["followup_training"] is None
     assert artifact["followup_eval"] is None
     assert train_called["value"] is False
+
+
+def test_run_ariane_argmax_agreement_diagnostic_records_baseline_global_agreement(monkeypatch, tmp_path: Path):
+    collect_calls = []
+    prefit_calls = []
+    update_calls = []
+    agreement_calls = []
+
+    class _DummyPolicy:
+        def __init__(self, label: str):
+            self.label = label
+
+    def fake_build_components(*, artifact_dir, grid_shape=(32, 32), hidden_dim=64, reward_weights=None):
+        del artifact_dir, reward_weights
+        metadata = {
+            "benchmark": "ariane133_ng45",
+            "grid_shape": list(grid_shape),
+            "hidden_dim": hidden_dim,
+            "combined_lef_path": "combined.lef",
+            "reference_def_path": "reference.def",
+            "seed_macro_count": 2,
+            "ordered_macro_count": 2,
+            "reward_metadata": {"reward_weights": {"w_proxy": 0.0, "w_hpwl": 1.0, "legality_penalty": 10.0}},
+        }
+        reward_model = SimpleNamespace(hpwl_evaluator=object())
+        return SimpleNamespace(), _DummyPolicy("warm_start"), reward_model, _StubAdapter(), metadata
+
+    def fake_collect_policy_rollout(**kwargs):
+        policy = kwargs["policy"]
+        collect_calls.append(
+            {
+                "label": policy.label,
+                "seed": kwargs["seed"],
+                "deterministic": kwargs["deterministic"],
+            }
+        )
+        return {
+            "steps": 2,
+            "invalid_action_count": 0,
+            "transitions": [],
+            "schema": "schema",
+            "final_hpwl": 123.0 if kwargs["deterministic"] else 150.0,
+            "episode_return": -123.0 if kwargs["deterministic"] else -150.0,
+            "termination_reason": "completed",
+            "completed_episode": True,
+            "is_legal": True,
+        }
+
+    def fake_prefit_value_head_from_rollouts(**kwargs):
+        prefit_calls.append(kwargs)
+        return {
+            "initial_loss": 4.0,
+            "final_loss": 1.0,
+            "epochs": float(kwargs["epochs"]),
+            "target_transform": kwargs["target_transform"],
+            "final_value_return_correlation": 0.85,
+        }
+
+    def fake_run_single_ppo_update(**kwargs):
+        update_calls.append(kwargs)
+        kwargs["policy"].label = "post_update"
+        return {
+            "episode_return": -100.0,
+            "final_hpwl": 100.0,
+            "substep_history": [
+                {
+                    "substep_index": 0.0,
+                    "approx_kl": 0.4,
+                    "update_batch_kl_to_reference": 0.4,
+                }
+            ],
+        }
+
+    def fake_summarize_argmax_agreement_for_fixed_rollout(**kwargs):
+        agreement_calls.append(
+            {
+                "reference_label": kwargs["reference_policy"].label,
+                "candidate_label": kwargs["candidate_policy"].label,
+                "step_count": len(kwargs["fixed_rollout"].transitions),
+            }
+        )
+        return {
+            "step_count": 2,
+            "agreement_count": 1,
+            "flip_count": 1,
+            "overall_agreement_rate": 0.5,
+            "flipped_step_indices": [1],
+            "position_buckets": {
+                "early": {"step_count": 1, "agreement_count": 1, "flip_count": 0, "agreement_rate": 1.0},
+                "mid": {"step_count": 0, "agreement_count": 0, "flip_count": 0, "agreement_rate": 0.0},
+                "late": {"step_count": 1, "agreement_count": 0, "flip_count": 1, "agreement_rate": 0.0},
+            },
+        }
+
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_build_ariane_components", fake_build_components)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "resolve_ariane_warm_start_checkpoint", lambda artifact_dir: tmp_path / "ariane_greedy_bc.pt")
+    monkeypatch.setattr(phase3_macroplacement_ppo, "load_policy_warm_start", lambda *args, **kwargs: True)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "collect_policy_rollout", fake_collect_policy_rollout)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "prefit_value_head_from_rollouts", fake_prefit_value_head_from_rollouts)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "run_single_ppo_update", fake_run_single_ppo_update)
+    monkeypatch.setattr(
+        phase3_macroplacement_ppo,
+        "summarize_argmax_agreement_for_fixed_rollout",
+        fake_summarize_argmax_agreement_for_fixed_rollout,
+    )
+
+    artifact = phase3_macroplacement_ppo.run_ariane_argmax_agreement_diagnostic(
+        output_path=tmp_path / "phase3_ariane_argmax_agreement_diagnostic.json",
+        prefit_rollout_seeds=(3, 4),
+        trace_seed=11,
+    )
+
+    assert collect_calls[0] == {"label": "warm_start", "seed": 11, "deterministic": True}
+    assert collect_calls[1:] == [
+        {"label": "warm_start", "seed": 3, "deterministic": False},
+        {"label": "warm_start", "seed": 4, "deterministic": False},
+    ]
+    assert prefit_calls[0]["target_transform"] == "zscore"
+    assert prefit_calls[0]["epochs"] == 200
+    assert update_calls[0]["reference_policy"].label == "warm_start"
+    assert agreement_calls[0]["reference_label"] == "warm_start"
+    assert agreement_calls[0]["candidate_label"] == "post_update"
+    assert artifact["reference_trace"]["seed"] == 11
+    assert artifact["prefit_metrics"]["final_value_return_correlation"] == 0.85
+    assert artifact["substep0_update"]["approx_kl"] == 0.4
+    assert artifact["agreement_summary"]["overall_agreement_rate"] == 0.5
+    assert artifact["diagnostic_config"]["prefit_rollout_seeds"] == [3, 4]
+
+
+def test_select_fragile_decision_priority_subset_keeps_overlap_and_low_margin_unique():
+    summary = phase3_macroplacement_ppo._select_fragile_decision_priority_subset(
+        baseline_flipped_step_indices=[1, 2, 3, 4, 5, 6],
+        alpha10_flipped_step_indices=[1, 3],
+        pre_update_margin_by_step={
+            1: 0.01,
+            2: 0.04,
+            3: 0.02,
+            4: 0.10,
+            5: 0.03,
+            6: 0.20,
+        },
+        unique_budget=2,
+    )
+
+    assert summary["overlap_steps"] == [1, 3]
+    assert summary["unique_steps"] == [5, 2]
+    assert summary["evaluated_steps"] == [1, 3, 5, 2]
+
+
+def test_summarize_fragile_decision_probe_applies_materiality_and_concentration_thresholds():
+    summary = phase3_macroplacement_ppo._summarize_fragile_decision_probe(
+        per_step_results=[
+            {"step_index": 1, "mean_hpwl_delta": 100_000.0, "cohort": "overlap"},
+            {"step_index": 2, "mean_hpwl_delta": 2_000.0, "cohort": "overlap"},
+            {"step_index": 3, "mean_hpwl_delta": 1_000.0, "cohort": "unique"},
+            {"step_index": 4, "mean_hpwl_delta": 500.0, "cohort": "unique"},
+            {"step_index": 5, "mean_hpwl_delta": 200.0, "cohort": "unique"},
+        ],
+        greedy_random_gap_hpwl=1_539_200.0,
+    )
+
+    assert summary["material_step_count"] == 1
+    assert summary["concentration_band"] == "strong"
+    assert summary["top_20pct_contribution_fraction"] > 0.8
+
+
+def test_summarize_fragile_decision_probe_reports_init_rooted_when_cohort_medians_match():
+    summary = phase3_macroplacement_ppo._summarize_fragile_decision_probe(
+        per_step_results=[
+            {"step_index": 1, "mean_hpwl_delta": 20_000.0, "cohort": "overlap"},
+            {"step_index": 2, "mean_hpwl_delta": 18_000.0, "cohort": "overlap"},
+            {"step_index": 3, "mean_hpwl_delta": 19_000.0, "cohort": "unique"},
+            {"step_index": 4, "mean_hpwl_delta": 17_000.0, "cohort": "unique"},
+        ],
+        greedy_random_gap_hpwl=1_539_200.0,
+    )
+
+    assert summary["median_abs_delta_by_cohort"]["overlap"] == 19_000.0
+    assert summary["median_abs_delta_by_cohort"]["unique"] == 18_000.0
+    assert 0.5 <= summary["overlap_to_unique_median_ratio"] <= 2.0
+    assert summary["init_rooted_band"] == "same_order_of_magnitude"
+
+
+def test_run_ariane_fragile_decision_probe_records_priority_subset_and_panels(monkeypatch, tmp_path: Path):
+    class _DummyPolicy:
+        def __init__(self, label: str):
+            self.label = label
+
+    def fake_build_components(*, artifact_dir, grid_shape=(32, 32), hidden_dim=64, reward_weights=None):
+        del artifact_dir, reward_weights
+        metadata = {
+            "benchmark": "ariane133_ng45",
+            "grid_shape": list(grid_shape),
+            "hidden_dim": hidden_dim,
+            "combined_lef_path": "combined.lef",
+            "reference_def_path": "reference.def",
+            "seed_macro_count": 2,
+            "ordered_macro_count": 2,
+            "reward_metadata": {"reward_weights": {"w_proxy": 0.0, "w_hpwl": 1.0, "legality_penalty": 10.0}},
+        }
+        reward_model = SimpleNamespace(hpwl_evaluator=object())
+        return SimpleNamespace(), _DummyPolicy("warm_start"), reward_model, _StubAdapter(), metadata
+
+    def fake_collect_reference_fixed_rollout(**kwargs):
+        return {
+            "reference_rollout": {
+                "steps": 4,
+                "episode_return": -123.0,
+                "final_hpwl": 123.0,
+                "termination_reason": "completed",
+                "completed_episode": True,
+            },
+            "fixed_rollout": SimpleNamespace(transitions=[object(), object(), object(), object()]),
+            "reference_trace": [
+                {"step_index": 0, "macro": "m0", "target": (1.0, 1.0)},
+                {"step_index": 1, "macro": "m1", "target": (2.0, 2.0)},
+                {"step_index": 2, "macro": "m2", "target": (3.0, 3.0)},
+                {"step_index": 3, "macro": "m3", "target": (4.0, 4.0)},
+            ],
+        }
+
+    def fake_prefit_value_head_from_rollouts(**kwargs):
+        return {"final_value_return_correlation": 0.8}
+
+    def fake_run_single_ppo_update(**kwargs):
+        kwargs["policy"].label = f"{kwargs['policy'].label}_updated"
+        return {"substep_history": [{"substep_index": 0.0, "approx_kl": 0.4}], "final_hpwl": 111.0}
+
+    def fake_collect_policy_rollout(**kwargs):
+        return {
+            "steps": 2,
+            "invalid_action_count": 0,
+            "transitions": [],
+            "schema": "schema",
+            "final_hpwl": 150.0,
+            "episode_return": -150.0,
+            "termination_reason": "completed",
+            "completed_episode": True,
+            "is_legal": True,
+        }
+
+    def fake_reference_step_metrics_for_fixed_rollout(**kwargs):
+        return {
+            "margin_by_step": {0: 0.20, 1: 0.01, 2: 0.03, 3: 0.04},
+            "entropy_by_step": {0: 1.0, 1: 2.5, 2: 2.2, 3: 2.1},
+        }
+
+    def fake_extract_candidate_replacement_actions(**kwargs):
+        policy = kwargs["candidate_policy"]
+        if policy.label.startswith("warm_start_updated"):
+            return {1: {"macro": "m1", "target": (20.0, 20.0)}, 2: {"macro": "m2", "target": (30.0, 30.0)}, 3: {"macro": "m3", "target": (40.0, 40.0)}}
+        return {1: {"macro": "m1", "target": (21.0, 21.0)}, 3: {"macro": "m3", "target": (41.0, 41.0)}}
+
+    def fake_run_single_step_counterfactual_panel(**kwargs):
+        steps = kwargs["selected_steps"]
+        label = kwargs["panel_label"]
+        return {
+            "panel_label": label,
+            "step_count": len(steps),
+            "per_step_results": [
+                {
+                    "step_index": int(step),
+                    "mean_hpwl_delta": 20_000.0 if step == steps[0] else 1_000.0,
+                    "cohort": "overlap" if int(step) in {1, 3} else "unique",
+                }
+                for step in steps
+            ],
+        }
+
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_build_ariane_components", fake_build_components)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "resolve_ariane_warm_start_checkpoint", lambda artifact_dir: tmp_path / "ariane_greedy_bc.pt")
+    monkeypatch.setattr(phase3_macroplacement_ppo, "load_policy_warm_start", lambda *args, **kwargs: True)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_collect_ariane_fixed_reference_rollout", fake_collect_reference_fixed_rollout)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "collect_policy_rollout", fake_collect_policy_rollout)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "prefit_value_head_from_rollouts", fake_prefit_value_head_from_rollouts)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "run_single_ppo_update", fake_run_single_ppo_update)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_reference_step_metrics_for_fixed_rollout", fake_reference_step_metrics_for_fixed_rollout)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_extract_candidate_replacement_actions", fake_extract_candidate_replacement_actions)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_run_single_step_counterfactual_panel", fake_run_single_step_counterfactual_panel)
+
+    artifact = phase3_macroplacement_ppo.run_ariane_fragile_decision_probe(
+        output_path=tmp_path / "phase3_ariane_fragile_decision_probe.json",
+        baseline_flipped_step_indices=[1, 2, 3],
+        alpha10_flipped_step_indices=[1, 3],
+        suffix_seed_count=5,
+        unique_budget=1,
+    )
+
+    assert artifact["priority_subset"]["overlap_steps"] == [1, 3]
+    assert artifact["priority_subset"]["unique_steps"] == [2]
+    assert artifact["probe_config"]["suffix_seed_count"] == 5
+    assert artifact["panels"]["baseline"]["step_count"] == 3
+    assert artifact["panels"]["alpha10_overlap"]["step_count"] == 2
+    assert artifact["panel_summaries"]["baseline"]["material_step_count"] == 1
+
+
+def test_run_single_step_counterfactual_panel_supports_deterministic_suffix_mode(monkeypatch):
+    rollout_calls = []
+
+    class _PanelAdapter:
+        def ordered_macros(self):
+            return ("m0", "m1", "m2")
+
+        def initial_state(self):
+            return {"actions": []}
+
+        def apply_action(self, state, action):
+            return {"actions": [*state["actions"], action]}
+
+    def fake_collect_policy_rollout(**kwargs):
+        rollout_calls.append(
+            {
+                "seed": kwargs["seed"],
+                "deterministic": kwargs["deterministic"],
+                "initial_state": kwargs["initial_state"],
+            }
+        )
+        return {
+            "final_hpwl": 100.0 + len(kwargs["initial_state"]["actions"]),
+        }
+
+    monkeypatch.setattr(phase3_macroplacement_ppo, "collect_policy_rollout", fake_collect_policy_rollout)
+
+    panel = phase3_macroplacement_ppo._run_single_step_counterfactual_panel(
+        panel_label="screening",
+        problem=SimpleNamespace(),
+        reference_policy=SimpleNamespace(),
+        adapter=_PanelAdapter(),
+        reference_trace=[
+            {"macro": "m0", "target": (1.0, 1.0)},
+            {"macro": "m1", "target": (2.0, 2.0)},
+        ],
+        selected_steps=[1],
+        replacement_action_by_step={1: {"macro": "m1", "target": (20.0, 20.0)}},
+        cohort_by_step={1: "overlap"},
+        suffix_seeds=(7,),
+        grid_shape=(4, 4),
+        adapter_kwargs={},
+        deterministic_suffix=True,
+    )
+
+    assert panel["step_count"] == 1
+    assert rollout_calls == [
+        {
+            "seed": 7,
+            "deterministic": True,
+            "initial_state": {
+                "actions": [
+                    {"macro": "m0", "target": (1.0, 1.0)},
+                    {"macro": "m1", "target": (2.0, 2.0)},
+                ]
+            },
+        },
+        {
+            "seed": 7,
+            "deterministic": True,
+            "initial_state": {
+                "actions": [
+                    {"macro": "m0", "target": (1.0, 1.0)},
+                    {"macro": "m1", "target": (20.0, 20.0)},
+                ]
+            },
+        },
+    ]
+
+
+def test_run_ariane_fragile_decision_screening_records_ranked_steps(monkeypatch, tmp_path: Path):
+    class _DummyPolicy:
+        def __init__(self, label: str):
+            self.label = label
+
+    def fake_build_components(*, artifact_dir, grid_shape=(32, 32), hidden_dim=64, reward_weights=None):
+        del artifact_dir, reward_weights
+        metadata = {
+            "benchmark": "ariane133_ng45",
+            "grid_shape": list(grid_shape),
+            "hidden_dim": hidden_dim,
+            "combined_lef_path": "combined.lef",
+            "reference_def_path": "reference.def",
+            "seed_macro_count": 2,
+            "ordered_macro_count": 2,
+            "reward_metadata": {"reward_weights": {"w_proxy": 0.0, "w_hpwl": 1.0, "legality_penalty": 10.0}},
+        }
+        reward_model = SimpleNamespace(hpwl_evaluator=object())
+        return SimpleNamespace(), _DummyPolicy("warm_start"), reward_model, _StubAdapter(), metadata
+
+    def fake_collect_reference_fixed_rollout(**kwargs):
+        return {
+            "reference_rollout": {
+                "steps": 4,
+                "episode_return": -123.0,
+                "final_hpwl": 123.0,
+                "termination_reason": "completed",
+                "completed_episode": True,
+            },
+            "fixed_rollout": SimpleNamespace(transitions=[object(), object(), object(), object()]),
+            "reference_trace": [
+                {"step_index": 0, "macro": "m0", "target": (1.0, 1.0)},
+                {"step_index": 1, "macro": "m1", "target": (2.0, 2.0)},
+                {"step_index": 2, "macro": "m2", "target": (3.0, 3.0)},
+                {"step_index": 3, "macro": "m3", "target": (4.0, 4.0)},
+            ],
+        }
+
+    def fake_prefit_value_head_from_rollouts(**kwargs):
+        return {"final_value_return_correlation": 0.8}
+
+    def fake_run_single_ppo_update(**kwargs):
+        kwargs["policy"].label = f"{kwargs['policy'].label}_updated"
+        return {"substep_history": [{"substep_index": 0.0, "approx_kl": 0.4}], "final_hpwl": 111.0}
+
+    def fake_collect_policy_rollout(**kwargs):
+        return {
+            "steps": 2,
+            "invalid_action_count": 0,
+            "transitions": [],
+            "schema": "schema",
+            "final_hpwl": 150.0,
+            "episode_return": -150.0,
+            "termination_reason": "completed",
+            "completed_episode": True,
+            "is_legal": True,
+        }
+
+    def fake_reference_step_metrics_for_fixed_rollout(**kwargs):
+        return {
+            "margin_by_step": {0: 0.20, 1: 0.01, 2: 0.03, 3: 0.04},
+            "entropy_by_step": {0: 1.0, 1: 2.5, 2: 2.2, 3: 2.1},
+        }
+
+    def fake_extract_candidate_replacement_actions(**kwargs):
+        policy = kwargs["candidate_policy"]
+        if policy.label.startswith("warm_start_updated"):
+            return {1: {"macro": "m1", "target": (20.0, 20.0)}, 2: {"macro": "m2", "target": (30.0, 30.0)}, 3: {"macro": "m3", "target": (40.0, 40.0)}}
+        return {1: {"macro": "m1", "target": (21.0, 21.0)}, 3: {"macro": "m3", "target": (41.0, 41.0)}}
+
+    def fake_run_single_step_counterfactual_panel(**kwargs):
+        assert kwargs["deterministic_suffix"] is True
+        steps = kwargs["selected_steps"]
+        label = kwargs["panel_label"]
+        return {
+            "panel_label": label,
+            "step_count": len(steps),
+            "per_step_results": [
+                {
+                    "step_index": int(step),
+                    "mean_hpwl_delta": {1: 20_000.0, 2: 5_000.0, 3: -30_000.0}[int(step)],
+                    "cohort": "overlap" if int(step) in {1, 3} else "unique",
+                }
+                for step in steps
+            ],
+        }
+
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_build_ariane_components", fake_build_components)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "resolve_ariane_warm_start_checkpoint", lambda artifact_dir: tmp_path / "ariane_greedy_bc.pt")
+    monkeypatch.setattr(phase3_macroplacement_ppo, "load_policy_warm_start", lambda *args, **kwargs: True)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_collect_ariane_fixed_reference_rollout", fake_collect_reference_fixed_rollout)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "collect_policy_rollout", fake_collect_policy_rollout)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "prefit_value_head_from_rollouts", fake_prefit_value_head_from_rollouts)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "run_single_ppo_update", fake_run_single_ppo_update)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_reference_step_metrics_for_fixed_rollout", fake_reference_step_metrics_for_fixed_rollout)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_extract_candidate_replacement_actions", fake_extract_candidate_replacement_actions)
+    monkeypatch.setattr(phase3_macroplacement_ppo, "_run_single_step_counterfactual_panel", fake_run_single_step_counterfactual_panel)
+
+    artifact = phase3_macroplacement_ppo.run_ariane_fragile_decision_screening(
+        output_path=tmp_path / "phase3_ariane_fragile_decision_screening.json",
+        baseline_flipped_step_indices=[1, 2, 3],
+        alpha10_flipped_step_indices=[1, 3],
+        unique_budget=1,
+    )
+
+    assert artifact["screening_config"]["deterministic_suffix"] is True
+    assert artifact["panels"]["baseline"]["step_count"] == 3
+    assert artifact["rankings"]["baseline_by_abs_delta"][0]["step_index"] == 3
+    assert artifact["rankings"]["baseline_by_abs_delta"][0]["abs_mean_hpwl_delta"] == 30_000.0
+    assert artifact["rankings"]["alpha10_overlap_by_abs_delta"][0]["step_index"] == 3

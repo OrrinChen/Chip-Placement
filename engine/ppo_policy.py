@@ -53,8 +53,26 @@ class PPOPlacementPolicy(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_dim, 1),
         )
+        self.register_buffer("value_target_mean", torch.tensor(0.0, dtype=torch.float32))
+        self.register_buffer("value_target_std", torch.tensor(1.0, dtype=torch.float32))
 
     def forward(
+        self,
+        *,
+        graph_batch: GraphBatch,
+        canvas: torch.Tensor,
+        current_macro_index: torch.Tensor,
+        action_mask: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        masked_logits, value_train_space = self.forward_train_space(
+            graph_batch=graph_batch,
+            canvas=canvas,
+            current_macro_index=current_macro_index,
+            action_mask=action_mask,
+        )
+        return masked_logits, self.decode_value_predictions(value_train_space)
+
+    def forward_train_space(
         self,
         *,
         graph_batch: GraphBatch,
@@ -84,8 +102,65 @@ class PPOPlacementPolicy(nn.Module):
 
         pooled_canvas = conditioned_canvas.mean(dim=(2, 3))
         value_features = torch.cat([global_graph_embedding, current_macro_embedding, pooled_canvas], dim=1)
-        value = self.value_head(value_features)
-        return masked_logits, value
+        value_train_space = self.value_head(value_features)
+        return masked_logits, value_train_space
+
+    def set_value_target_stats(self, *, mean: float, std: float) -> None:
+        safe_std = float(std) if abs(float(std)) > 1e-8 else 1.0
+        self.value_target_mean.copy_(
+            torch.tensor(float(mean), dtype=self.value_target_mean.dtype, device=self.value_target_mean.device)
+        )
+        self.value_target_std.copy_(
+            torch.tensor(safe_std, dtype=self.value_target_std.dtype, device=self.value_target_std.device)
+        )
+
+    def encode_value_targets(self, raw_returns: torch.Tensor) -> torch.Tensor:
+        mean = self.value_target_mean.to(device=raw_returns.device, dtype=raw_returns.dtype)
+        std = self.value_target_std.to(device=raw_returns.device, dtype=raw_returns.dtype)
+        return (raw_returns - mean) / std
+
+    def decode_value_predictions(self, value_prediction_train_space: torch.Tensor) -> torch.Tensor:
+        mean = self.value_target_mean.to(
+            device=value_prediction_train_space.device,
+            dtype=value_prediction_train_space.dtype,
+        )
+        std = self.value_target_std.to(
+            device=value_prediction_train_space.device,
+            dtype=value_prediction_train_space.dtype,
+        )
+        return (value_prediction_train_space * std) + mean
+
+    def predict_value_train_space(
+        self,
+        *,
+        graph_batch: GraphBatch,
+        canvas: torch.Tensor,
+        current_macro_index: torch.Tensor,
+        action_mask: torch.Tensor,
+    ) -> torch.Tensor:
+        _, value_train_space = self.forward_train_space(
+            graph_batch=graph_batch,
+            canvas=canvas,
+            current_macro_index=current_macro_index,
+            action_mask=action_mask,
+        )
+        return value_train_space
+
+    def predict_value_raw(
+        self,
+        *,
+        graph_batch: GraphBatch,
+        canvas: torch.Tensor,
+        current_macro_index: torch.Tensor,
+        action_mask: torch.Tensor,
+    ) -> torch.Tensor:
+        value_train_space = self.predict_value_train_space(
+            graph_batch=graph_batch,
+            canvas=canvas,
+            current_macro_index=current_macro_index,
+            action_mask=action_mask,
+        )
+        return self.decode_value_predictions(value_train_space)
 
     @staticmethod
     def _mean_pool(node_embeddings: torch.Tensor, graph_index: torch.Tensor, num_graphs: int) -> torch.Tensor:

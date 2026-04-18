@@ -1,5 +1,121 @@
 # Task Memory
 
+## 2026-04-17 Phase 3 Zero-Update HPWL Noise Baseline
+
+### Investigation Goal
+
+- Clarify whether the `alpha/10` first-substep-LR result
+  - `approx_kl = -0.0033`
+  - `heldout_log_prob_delta_mean = +0.0007`
+  - `heldout_mean_hpwl_drift = +1.56%`
+  should be interpreted as:
+  - evaluation / trajectory-sampling noise floor, or
+  - a genuinely large quality regression despite near-zero policy drift.
+
+### Zero-Update Baseline Artifact
+
+- New artifact:
+  - [phase3_ariane_zero_update_eval_noise.json](C:/Users/14574/Chip/experiments/chip/phase3_zero_update_baseline_v1/phase3_ariane_zero_update_eval_noise.json)
+- Protocol:
+  - no PPO update
+  - warm-start checkpoint only
+  - stochastic heldout evaluation on Ariane with seeds `0..4`
+  - same `phase3_proxy_hpwl` reward path and same rollout length as the first-substep diagnostics
+
+### Zero-Update Baseline Numbers
+
+- `rollout_count = 5`
+- `completion_rate = 0.60`
+- HPWL distribution:
+  - `mean = 2.851888M`
+  - `median = 2.846314M`
+  - `std = 100,328`
+  - `std_fraction_of_mean = 3.52%`
+  - `range_fraction_of_mean = 9.65%`
+- Estimated noise scale for a `5`-seed heldout mean:
+  - `sem_from_individual_hpwl_for_panel_of_5 = 44,868`
+  - `sem_fraction_from_individual_hpwl_for_panel_of_5 = 1.57%`
+
+### Comparison Against Alpha/10 First-Substep LR
+
+- Current `alpha/10` diagnostic artifact:
+  - [phase3_ariane_critic_prefit_diagnostic_zscore_lrscale_0100.json](C:/Users/14574/Chip/experiments/chip/phase3_first_substep_lr_scale_v1/phase3_ariane_critic_prefit_diagnostic_zscore_lrscale_0100.json)
+- Relevant numbers:
+  - `pre_update_heldout_mean_hpwl = 2.851888M`
+  - `substep0_heldout_mean_hpwl = 2.896436M`
+  - `heldout_mean_hpwl_drift_fraction = +1.56%`
+
+### Interpretation
+
+- The zero-update `5`-seed mean noise estimate is `~1.57%`.
+- The observed `alpha/10` HPWL drift is `+1.56%`.
+- Therefore, the current HPWL drift is numerically indistinguishable from the measured heldout noise scale.
+- This does **not** prove that policy-space changes are irrelevant:
+  - the same evaluation seeds are reused before and after update, so if policy logits were exactly unchanged, the rollouts would also be unchanged
+  - but it does show that the observed HPWL movement is no larger than the warm-start policy's own seed-to-seed stochastic spread
+- Practical takeaway:
+  - `approx_kl` and `heldout_log_prob_delta` already show that `alpha/10` nearly suppresses policy drift
+  - HPWL is now too noisy at this evaluation scale to serve as a sensitive first-substep diagnostic by itself
+  - next decomposition should focus on trajectory-space stability metrics (for example argmax-agreement / action-trace agreement), not smaller optimizer tuning
+
+### Process Notes
+
+- A parallelized zero-update baseline briefly exposed a component-build race on one worker:
+  - concurrent `_build_ariane_components()` calls could trip a transient `KeyError` on LEF/DEF asset assembly
+  - rerunning the affected seed serially succeeded
+- This was a measurement-plumbing issue, not an Ariane rollout failure.
+
+## 2026-04-17 Phase 3 Alpha/10 Disjoint-Seed Replication
+
+### Investigation Goal
+
+- Validate whether the earlier `alpha/10` first-substep-LR HPWL drift
+  - `+1.56%` on heldout seeds `0..4`
+  was a robust policy effect or just a seed-panel-specific sample.
+
+### Replication Artifact
+
+- New artifact:
+  - [phase3_ariane_alpha10_disjoint_seed_replication_manual.json](C:/Users/14574/Chip/experiments/chip/phase3_first_substep_lr_scale_v1/phase3_ariane_alpha10_disjoint_seed_replication_manual.json)
+- Protocol:
+  - same `alpha/10` setup as the original `zscore_lrscale_0100` run
+  - same warm-start checkpoint
+  - same z-score value prefit (`200` epochs, warmup `20`)
+  - same single PPO update with `first_substep_lr_scale = 0.1`
+  - only heldout evaluation seeds changed from `0..4` to `5..9`
+
+### Disjoint-Seed Numbers
+
+- Pre-update heldout mean HPWL on seeds `5..9`:
+  - `2.954273M`
+- Post-update heldout mean HPWL on seeds `5..9`:
+  - `2.994049M`
+- Drift:
+  - `+1.346%`
+- Substep-0 policy diagnostic remains in the same regime:
+  - `approx_kl = -0.0027`
+
+### Comparison Against Earlier Seed Panel
+
+- Earlier zero-update / pre-update heldout mean HPWL on seeds `0..4`:
+  - `2.851888M`
+- New zero-update / pre-update heldout mean HPWL on seeds `5..9`:
+  - `2.954273M`
+- Seed-panel shift with **no** PPO update:
+  - `+3.59%`
+
+### Interpretation
+
+- The panel-to-panel zero-update shift (`+3.59%`) is larger than the previously discussed `alpha/10` within-panel drift (`+1.56%`).
+- The replicated `alpha/10` drift on disjoint seeds (`+1.35%`) remains close to the measured `5`-seed noise scale (`~1.57%` SEM from the `0..4` baseline).
+- This materially strengthens the earlier conclusion:
+  - HPWL at the current `5`-seed heldout protocol is too noisy to serve as a decisive first-substep diagnostic
+  - HPWL deltas at or below roughly `1.5%` should not be treated as independent evidence
+  - even `2%`-level differences need caution unless averaged over a much larger seed panel
+- Practical implication:
+  - the HPWL line is effectively closed for micro-diagnosis of first-update stability
+  - next useful diagnostic axis is trajectory-space behavior (argmax / action-trace agreement), not more optimizer tuning and not more single-panel HPWL interpretation
+
 ## 2026-04-16 Phase 3 Warm-Start Probe Recompute
 
 ### Unit-Semantics Correction
@@ -2596,3 +2712,236 @@ Interpretation:
   - do **not** jump to online critic warmup on raw targets
   - first rerun the substep-0 necessary gate with a **z-score-prefit critic**
   - only if that still fails should the next layer of stabilization (LR warmup, grad clipping, BC retention, etc.) be considered
+
+### April 17, 2026: Ariane baseline argmax-agreement diagnostic confirmed strong trajectory-space drift
+
+- artifact:
+  - `experiments/chip/phase3_argmax_agreement_v1/phase3_ariane_argmax_agreement_diagnostic.json`
+- protocol:
+  - fixed reference states came from a deterministic `pi_init` warm-start rollout on Ariane
+  - comparison mode was **argmax-vs-argmax** on that fixed state trace
+  - candidate policy was the baseline full-LR single-substep PPO update after z-score critic prefit
+  - this deliberately avoided HPWL micro-diagnostic interpretation after the `5-seed` HPWL noise-floor investigation
+- headline result:
+  - `overall_agreement_rate = 0.6165`
+  - `flip_count = 51 / 133`
+  - `substep0 approx_kl = 0.3958`
+- bucketed agreement:
+  - `early = 0.7333` (`12` flips over `45` steps)
+  - `mid = 0.4651` (`23` flips over `43` steps)
+  - `late = 0.6444` (`16` flips over `45` steps)
+- entropy / margin split:
+  - flipped-step entropy mean `= 2.4422`
+  - non-flipped-step entropy mean `= 1.2007`
+  - flipped-step top1-top2 probability margin mean `= 0.1040`
+  - non-flipped-step margin mean `= 0.5527`
+- interpretation:
+  - trajectory-space diagnostic produced a **strong signal**
+  - this is **not** a "policy drift with nearly unchanged argmax behavior" regime
+  - flips concentrate most heavily in the **mid** part of the macro sequence, not only at the very end
+  - flipped decisions are much higher-entropy and much lower-margin than non-flipped decisions
+  - current best reading is:
+    - the destructive baseline update is changing many argmax decisions on the fixed `pi_init` trace
+    - those changes are concentrated on comparatively ambiguous decision points
+    - HPWL micro-diagnostics remain too noisy to quantify small gains/losses, but action-space drift is now directly established
+- implication:
+  - HPWL `5-seed` micro-diagnostic line stays closed
+  - further optimizer tweaking is not the priority
+  - the next justified Phase 3 diagnostic slice, if continued, is **finer argmax/flip anatomy** on this same fixed-trace setup:
+    - macro-size bucket
+    - step-position bucket refinement
+    - pre-update entropy / probability-margin distribution on flipped steps
+
+### April 17, 2026: Alpha/10 null-reference sharpened the mechanism toward tie-breaking fragility
+
+- artifacts:
+  - `experiments/chip/phase3_argmax_agreement_v1/phase3_ariane_argmax_agreement_baseline.json`
+  - `experiments/chip/phase3_argmax_agreement_v1/phase3_ariane_argmax_agreement_alpha10.json`
+- same fixed-trace protocol:
+  - both runs used the same deterministic `pi_init` reference trace on Ariane
+  - comparison mode remained **argmax-vs-argmax** on identical states
+  - only the first-substep LR treatment changed:
+    - `baseline`: default first substep LR
+    - `alpha/10`: `first_substep_lr_scale = 0.1`
+- headline comparison:
+  - baseline:
+    - `overall_agreement_rate = 0.6165`
+    - `flip_count = 51 / 133`
+    - `substep0 approx_kl = 0.3958`
+  - alpha/10:
+    - `overall_agreement_rate = 0.9173`
+    - `flip_count = 11 / 133`
+    - `substep0 approx_kl = -0.0033`
+- distribution-shape comparison:
+  - baseline flipped-step margin histogram:
+    - `< 0.05`: `22 / 51`
+    - `0.05-0.10`: `12 / 51`
+    - `0.10-0.20`: `9 / 51`
+    - `0.20-0.50`: `7 / 51`
+    - `>= 0.50`: `1 / 51`
+  - alpha/10 flipped-step margin histogram:
+    - `< 0.05`: `10 / 11`
+    - `0.05-0.10`: `1 / 11`
+    - `>= 0.10`: `0 / 11`
+  - baseline flipped-step entropy histogram:
+    - `>= 2.0`: `38 / 51`
+  - alpha/10 flipped-step entropy histogram:
+    - `>= 2.0`: `10 / 11`
+- position comparison:
+  - baseline agreement:
+    - `early = 0.7333`
+    - `mid = 0.4651`
+    - `late = 0.6444`
+  - alpha/10 agreement:
+    - `early = 0.9333`
+    - `mid = 0.8605`
+    - `late = 0.9556`
+- new factual check on Ariane macro sizes:
+  - movable macro area distribution is **degenerate**
+  - `movable_count = 133`
+  - `unique_area_count = 1`
+  - all movable macros have area `7656.81`
+  - implication:
+    - macro-size bucketing is structurally uninformative on Ariane
+    - the runner now reports it, but on this benchmark every step collapses into a single `medium` bucket by construction
+- updated interpretation:
+  - the `alpha/10` null-reference strongly supports the **tie-breaking fragility** reading over the stronger "policy is globally broken" reading
+  - when the first PPO step is made tiny, only `11` steps flip, and those flips are almost entirely concentrated in the most fragile region:
+    - extremely low-margin
+    - high-entropy
+  - baseline first-step PPO does not create a qualitatively different flip population; it mostly expands the number of flipped steps outward from that fragile core
+  - current best reading is:
+    - the warm-start/init policy contains a non-trivial subset of decisions that already live near argmax tie boundaries
+    - baseline substep0 PPO pushes many more of those ambiguous decisions across the boundary
+    - this is more precise than "PPO destroys everything": it is **large-scale structural drift concentrated on fragile decisions**
+- implication for next Phase 3 work:
+  - continue not touching optimizer for now
+  - if this line continues, the next high-value anatomy is:
+    - finer step-position / entropy interaction
+    - possibly action-topk overlap or margin-rank diagnostics
+  - do **not** over-interpret macro-size on Ariane, because the benchmark itself provides no size variation
+
+### April 17, 2026: Direction 3 prereg and dual-track execution skeleton are now in code
+
+- prereg / execution shape locked:
+  - fixed deterministic `pi_init` trace remains the only reference trace for the fragile-decision probe
+  - Track A uses **single-step replacement** with paired suffix-seed rollouts
+  - Track A runtime is intentionally capped with:
+    - a `22`-step priority subset
+    - `25` paired suffix seeds per evaluated step
+    - a hard `3`-day wall-clock stop
+  - concentration / materiality / init-rooted interpretation are now formalized in code rather than left as narrative notes
+- Track A implementation state:
+  - helper now exists to build the priority subset:
+    - keep all `11` baseline/alpha10 overlap flips
+    - add `11` baseline-unique flips with the smallest pre-update margins
+  - runner skeleton now exists to:
+    - collect the fixed Ariane reference rollout
+    - build baseline and `alpha/10` post-substep policies
+    - run paired original-vs-counterfactual suffix panels
+    - summarize:
+      - per-step materiality bands
+      - concentration band (`strong` / `moderate` / `diffuse`)
+      - overlap-vs-unique median-|delta| ratio as the current init-rooted fallback
+  - current status:
+    - **code/test skeleton implemented**
+    - **heavy Ariane runtime artifact not launched yet**
+- Track B implementation state:
+  - real macro-placement benchmark resolution is no longer Ariane-specific
+  - generic resolver coverage now exists for:
+    - `ariane133`
+    - `bp_quad`
+    - `nvdla`
+  - `phase3_roadmap_eval.py` now has a minimal **SA-only real-benchmark skeleton** that can emit rows for those three benchmarks
+  - current status:
+    - **table/plumbing skeleton implemented**
+    - **actual fresh SA artifact generation still pending**
+- verification status for the new slice:
+  - targeted Track A / Track B tests passed:
+    - fragile-decision priority subset / summary tests
+    - Ariane fragile-decision runner skeleton test
+    - generic benchmark resolver tests for `bp_quad` and `nvdla`
+    - SA-only real-benchmark table skeleton test
+  - broader full-suite rerun across `tests/engine tests/chip` was still pending at this checkpoint
+- implication:
+  - the project has now moved from "mechanism discovery only" to "closure-directed execution"
+  - next gating order is:
+    1. full verification
+    2. actual Ariane fragile-decision probe runtime
+    3. actual SA-only three-benchmark skeleton artifact generation
+
+### April 17, 2026: Direction 3 moved from skeleton to execution, with runtime calibration now explicit
+
+- verification:
+  - `python -m pytest tests/engine tests/chip -q`
+  - result: `245 passed in 24.34s`
+- Track B execution:
+  - artifact written:
+    - `experiments/chip/phase3_real_macroplacement_sa_table_v1/phase3_real_macroplacement_sa_table.json`
+  - current meaning:
+    - **real-benchmark closure skeleton is now on disk**
+    - rows currently present:
+      - `sa`
+    - benchmarks currently present:
+      - `ariane133_ng45`
+      - `bp_quad_ng45`
+      - `nvdla_ng45`
+    - this is intentionally still a `status = "skeleton"` artifact, not a finished unified table
+- Track A runtime calibration:
+  - a direct full probe launch under the prereg config did not finish inside a `1h` shell timeout
+  - a reduced scout (`1` selected step, `1` suffix seed, `unique_budget = 0`) still failed to finish inside `30m`
+  - phase-timed profiling then isolated the actual wall-clock costs:
+    - `build_components`: `4.35s`
+    - `fixed_reference_rollout`: `159.49s`
+    - `one_prefit_rollout`: `148.04s`
+    - `prefit_10_epochs`: `4.65s`
+    - `baseline_update`: `149.24s`
+    - `alpha10_update`: `149.05s`
+    - `single_step_panel_one_seed`: `297.66s`
+    - total for the profiling slice: `912.48s`
+  - implication:
+    - the probe is **not** blocked by prefit epochs or component construction
+    - the dominant cost is rollout/counterfactual execution itself
+    - under current implementation, the prereg full probe is a long-running job with a runtime that belongs on the order of **days**, not minutes
+- execution decision taken from that evidence:
+  - do **not** reinterpret the runtime issue as a design failure
+  - instead treat the full Track A probe as a long-run batch job within the previously agreed `3`-day cap
+  - launcher added:
+    - `experiments/chip/phase3_fragile_decision_probe_v1/run_probe.py`
+  - background execution was started after fixing the launcher import path
+  - current logs:
+    - stdout: `experiments/chip/phase3_fragile_decision_probe_v1/run_probe.stdout.log`
+    - stderr: `experiments/chip/phase3_fragile_decision_probe_v1/run_probe.stderr.log`
+  - current stderr only shows the known cvxpy/ortools warnings and MacroPlacement parser warning; no new Python exception after the launcher fix
+
+### April 18, 2026: Direction 3 pivoted to deterministic screening as the minimal execution path
+
+- motivation:
+  - the original full fragile-decision probe remained scientifically valid, but runtime calibration showed it was a true multi-day batch job because each selected step required paired suffix rollouts across `25` seeds
+  - user explicitly chose the **minimal implementation** first rather than waiting on the full `25`-seed probe
+- code change:
+  - `_run_single_step_counterfactual_panel(...)` now supports `deterministic_suffix=True`
+  - new helper exists to rank steps by `abs(mean_hpwl_delta)`
+  - new runner exists:
+    - `run_ariane_fragile_decision_screening(...)`
+  - new reproducible launcher exists:
+    - `experiments/chip/phase3_fragile_decision_screening_v1/run_screening.py`
+- intended semantics of the new runner:
+  - keep the **same fixed `pi_init` reference trace**
+  - keep the same baseline vs `alpha/10` policy generation path
+  - replace the expensive `25`-seed suffix panels with a **single deterministic suffix continuation**
+  - output a first-pass step-importance ranking before any later top-k confirmation run
+- verification:
+  - new deterministic-screening tests passed
+  - `python -m pytest tests/chip/test_phase3_macroplacement_ppo.py -q` -> `32 passed`
+  - `python -m pytest tests/engine tests/chip -q` -> `247 passed`
+- execution state:
+  - deterministic screening runtime has been launched in the background
+  - artifact target:
+    - `experiments/chip/phase3_fragile_decision_screening_v1/phase3_ariane_fragile_decision_screening.json`
+  - logs:
+    - `experiments/chip/phase3_fragile_decision_screening_v1/run_screening.stdout.log`
+    - `experiments/chip/phase3_fragile_decision_screening_v1/run_screening.stderr.log`
+  - interpretation:
+    - Direction 3 is no longer blocked on the original multi-day full probe
+    - the project now has a fast screening path first, with later seed-confirmation left as an explicit second stage rather than a baked-in default

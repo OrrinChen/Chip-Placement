@@ -1,0 +1,87 @@
+{
+  "completion_rate": 0.6,
+  "hpwl_distribution": {
+    "max": 2963084.9030420054,
+    "mean": 2851888.058661598,
+    "median": 2846313.8467599954,
+    "min": 2687943.143475994,
+    "range_fraction_of_mean": 0.09647705446585322,
+    "std": 100328.11800345205,
+    "std_fraction_of_mean": 0.03517954279402412
+  },
+  "mean_noise_estimate": {
+    "seed_panel_size": 5,
+    "sem_fraction_from_individual_hpwl_for_panel_of_5": 0.01573276982096016,
+    "sem_from_individual_hpwl_for_panel_of_5": 44868.09838206785
+  },
+  "rollout_count": 5,
+  "rollouts": [
+    {
+      "benchmark": "ariane133_ng45",
+      "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+      "completed_episode": false,
+      "episode_return": 130082.53402199876,
+      "final_hpwl": 2812659.9949939996,
+      "invalid_action_count": 0,
+      "is_legal": true,
+      "seed": 0,
+      "steps": 127,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "benchmark": "ariane133_ng45",
+      "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+      "completed_episode": false,
+      "episode_return": -20342.37402600702,
+      "final_hpwl": 2963084.9030420054,
+      "invalid_action_count": 0,
+      "is_legal": true,
+      "seed": 1,
+      "steps": 132,
+      "termination_reason": "no_valid_actions"
+    },
+    {
+      "benchmark": "ariane133_ng45",
+      "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+      "completed_episode": true,
+      "episode_return": -6695.876019994728,
+      "final_hpwl": 2949438.405035993,
+      "invalid_action_count": 0,
+      "is_legal": true,
+      "seed": 2,
+      "steps": 133,
+      "termination_reason": "completed"
+    },
+    {
+      "benchmark": "ariane133_ng45",
+      "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+      "completed_episode": true,
+      "episode_return": 254799.38554000435,
+      "final_hpwl": 2687943.143475994,
+      "invalid_action_count": 0,
+      "is_legal": true,
+      "seed": 3,
+      "steps": 133,
+      "termination_reason": "completed"
+    },
+    {
+      "benchmark": "ariane133_ng45",
+      "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+      "completed_episode": true,
+      "episode_return": 96428.68225600291,
+      "final_hpwl": 2846313.8467599954,
+      "invalid_action_count": 0,
+      "is_legal": true,
+      "seed": 4,
+      "steps": 133,
+      "termination_reason": "completed"
+    }
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ]
+}

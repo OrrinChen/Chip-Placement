@@ -1,0 +1,3814 @@
+{
+  "alpha10_agreement": {
+    "agreement_count": 122,
+    "candidate_argmax_indices": [
+      1282,
+      1605,
+      836,
+      1224,
+      1547,
+      778,
+      390,
+      1166,
+      3689,
+      3684,
+      3651,
+      3654,
+      3657,
+      3660,
+      3663,
+      3666,
+      3695,
+      3695,
+      3679,
+      720,
+      1870,
+      3674,
+      3674,
+      3203,
+      3206,
+      3209,
+      3212,
+      3215,
+      3218,
+      3221,
+      1043,
+      256,
+      596,
+      272,
+      3239,
+      3308,
+      2858,
+      2927,
+      3701,
+      3701,
+      2477,
+      2546,
+      3234,
+      2165,
+      1898,
+      1922,
+      2245,
+      2568,
+      3707,
+      2766,
+      2769,
+      1517,
+      1586,
+      1784,
+      2232,
+      2613,
+      1205,
+      1531,
+      1531,
+      1979,
+      2427,
+      2744,
+      2875,
+      952,
+      599,
+      2994,
+      3707,
+      602,
+      3255,
+      3704,
+      2994,
+      3442,
+      2786,
+      3230,
+      605,
+      2775,
+      2405,
+      608,
+      2187,
+      1828,
+      1828,
+      2338,
+      1653,
+      1565,
+      2757,
+      1873,
+      1307,
+      1447,
+      1565,
+      1248,
+      1123,
+      2096,
+      1965,
+      1876,
+      2781,
+      2408,
+      1876,
+      1696,
+      2318,
+      2321,
+      2324,
+      2201,
+      1066,
+      614,
+      891,
+      704,
+      891,
+      813,
+      1959,
+      752,
+      2332,
+      2143,
+      1117,
+      151,
+      499,
+      233,
+      2120,
+      1672,
+      157,
+      1751,
+      1754,
+      329,
+      365,
+      163,
+      304,
+      246,
+      444,
+      148,
+      441,
+      154,
+      160,
+      102,
+      51
+    ],
+    "flip_count": 11,
+    "flipped_entropy_histogram": {
+      "0_50_to_1_00": {
+        "count": 0,
+        "fraction": 0.0
+      },
+      "1_00_to_1_50": {
+        "count": 0,
+        "fraction": 0.0
+      },
+      "1_50_to_2_00": {
+        "count": 1,
+        "fraction": 0.09090909090909091
+      },
+      "gte_2_00": {
+        "count": 10,
+        "fraction": 0.9090909090909091
+      },
+      "lt_0_50": {
+        "count": 0,
+        "fraction": 0.0
+      }
+    },
+    "flipped_entropy_summary": {
+      "count": 11.0,
+      "max": 3.4580318927764893,
+      "mean": 2.599269151687622,
+      "min": 1.8508033752441406,
+      "p10": 2.2030649185180664,
+      "p25": 2.292762041091919,
+      "p50": 2.5603883266448975,
+      "p75": 2.885935068130493,
+      "p90": 3.075242519378662,
+      "std": 0.4341375529766083
+    },
+    "flipped_margin_histogram": {
+      "0_05_to_0_10": {
+        "count": 1,
+        "fraction": 0.09090909090909091
+      },
+      "0_10_to_0_20": {
+        "count": 0,
+        "fraction": 0.0
+      },
+      "0_20_to_0_50": {
+        "count": 0,
+        "fraction": 0.0
+      },
+      "gte_0_50": {
+        "count": 0,
+        "fraction": 0.0
+      },
+      "lt_0_05": {
+        "count": 10,
+        "fraction": 0.9090909090909091
+      }
+    },
+    "flipped_margin_summary": {
+      "count": 11.0,
+      "max": 0.06745970249176025,
+      "mean": 0.019845593720674515,
+      "min": 0.00041274726390838623,
+      "p10": 0.0028421133756637573,
+      "p25": 0.005216084420681,
+      "p50": 0.010022714734077454,
+      "p75": 0.030923083424568176,
+      "p90": 0.041887760162353516,
+      "std": 0.019932299852371216
+    },
+    "flipped_step_indices": [
+      16,
+      21,
+      38,
+      48,
+      57,
+      65,
+      79,
+      83,
+      86,
+      93,
+      104
+    ],
+    "macro_area_buckets": {
+      "large": {
+        "agreement_count": 0,
+        "agreement_rate": 0.0,
+        "flip_count": 0,
+        "mean_macro_area": 0.0,
+        "step_count": 0
+      },
+      "medium": {
+        "agreement_count": 122,
+        "agreement_rate": 0.9172932330827067,
+        "flip_count": 11,
+        "mean_macro_area": 7656.80908203125,
+        "step_count": 133
+      },
+      "small": {
+        "agreement_count": 0,
+        "agreement_rate": 0.0,
+        "flip_count": 0,
+        "mean_macro_area": 0.0,
+        "step_count": 0
+      }
+    },
+    "non_flipped_entropy_histogram": {
+      "0_50_to_1_00": {
+        "count": 16,
+        "fraction": 0.13114754098360656
+      },
+      "1_00_to_1_50": {
+        "count": 8,
+        "fraction": 0.06557377049180328
+      },
+      "1_50_to_2_00": {
+        "count": 22,
+        "fraction": 0.18032786885245902
+      },
+      "gte_2_00": {
+        "count": 49,
+        "fraction": 0.4016393442622951
+      },
+      "lt_0_50": {
+        "count": 27,
+        "fraction": 0.22131147540983606
+      }
+    },
+    "non_flipped_entropy_summary": {
+      "count": 122.0,
+      "max": 3.5442309379577637,
+      "mean": 1.5935771465301514,
+      "min": 6.24000434656935e-11,
+      "p10": 0.06525339186191559,
+      "p25": 0.5858897566795349,
+      "p50": 1.7874259948730469,
+      "p75": 2.518568515777588,
+      "p90": 2.9201090335845947,
+      "std": 1.0534327030181885
+    },
+    "non_flipped_margin_histogram": {
+      "0_05_to_0_10": {
+        "count": 23,
+        "fraction": 0.1885245901639344
+      },
+      "0_10_to_0_20": {
+        "count": 14,
+        "fraction": 0.11475409836065574
+      },
+      "0_20_to_0_50": {
+        "count": 20,
+        "fraction": 0.16393442622950818
+      },
+      "gte_0_50": {
+        "count": 46,
+        "fraction": 0.3770491803278688
+      },
+      "lt_0_05": {
+        "count": 19,
+        "fraction": 0.1557377049180328
+      }
+    },
+    "non_flipped_margin_summary": {
+      "count": 122.0,
+      "max": 1.0,
+      "mean": 0.41318830847740173,
+      "min": 0.0009462907910346985,
+      "p10": 0.03501252830028534,
+      "p25": 0.07003761827945709,
+      "p50": 0.2938545346260071,
+      "p75": 0.8235217332839966,
+      "p90": 0.9866135716438293,
+      "std": 0.37412595748901367
+    },
+    "overall_agreement_rate": 0.9172932505607605,
+    "position_buckets": {
+      "early": {
+        "agreement_count": 42,
+        "agreement_rate": 0.9333333333333333,
+        "flip_count": 3,
+        "mean_macro_area": 7656.810546875,
+        "step_count": 45
+      },
+      "late": {
+        "agreement_count": 43,
+        "agreement_rate": 0.9555555555555556,
+        "flip_count": 2,
+        "mean_macro_area": 7656.810546875,
+        "step_count": 45
+      },
+      "mid": {
+        "agreement_count": 37,
+        "agreement_rate": 0.8604651162790697,
+        "flip_count": 6,
+        "mean_macro_area": 7656.810546875,
+        "step_count": 43
+      }
+    },
+    "pre_update_entropy_summary": {
+      "count": 133.0,
+      "max": 3.5442309379577637,
+      "mean": 1.6767547130584717,
+      "min": 6.24000434656935e-11,
+      "p10": 0.1012573391199112,
+      "p25": 0.7130451202392578,
+      "p50": 1.8508033752441406,
+      "p75": 2.5603883266448975,
+      "p90": 2.929687261581421,
+      "std": 1.053688645362854
+    },
+    "pre_update_margin_summary": {
+      "count": 133.0,
+      "max": 1.0,
+      "mean": 0.38065624237060547,
+      "min": 0.00041274726390838623,
+      "p10": 0.01864892803132534,
+      "p25": 0.05893871188163757,
+      "p50": 0.1960344761610031,
+      "p75": 0.7704408764839172,
+      "p90": 0.9856708645820618,
+      "std": 0.3743855357170105
+    },
+    "reference_argmax_indices": [
+      1282,
+      1605,
+      836,
+      1224,
+      1547,
+      778,
+      390,
+      1166,
+      3689,
+      3684,
+      3651,
+      3654,
+      3657,
+      3660,
+      3663,
+      3666,
+      3670,
+      3695,
+      3679,
+      720,
+      1870,
+      332,
+      3674,
+      3203,
+      3206,
+      3209,
+      3212,
+      3215,
+      3218,
+      3221,
+      1043,
+      256,
+      596,
+      272,
+      3239,
+      3308,
+      2858,
+      2927,
+      3224,
+      3701,
+      2477,
+      2546,
+      3234,
+      2165,
+      1898,
+      1922,
+      2245,
+      2568,
+      2763,
+      2766,
+      2769,
+      1517,
+      1586,
+      1784,
+      2232,
+      2613,
+      1205,
+      2772,
+      1531,
+      1979,
+      2427,
+      2744,
+      2875,
+      952,
+      599,
+      3227,
+      3707,
+      602,
+      3255,
+      3704,
+      2994,
+      3442,
+      2786,
+      3230,
+      605,
+      2775,
+      2405,
+      608,
+      2187,
+      1304,
+      1828,
+      2338,
+      1653,
+      2562,
+      2757,
+      1873,
+      611,
+      1447,
+      1565,
+      1248,
+      1123,
+      2096,
+      1965,
+      2778,
+      2781,
+      2408,
+      1876,
+      1696,
+      2318,
+      2321,
+      2324,
+      2201,
+      1066,
+      614,
+      387,
+      704,
+      891,
+      813,
+      1959,
+      752,
+      2332,
+      2143,
+      1117,
+      151,
+      499,
+      233,
+      2120,
+      1672,
+      157,
+      1751,
+      1754,
+      329,
+      365,
+      163,
+      304,
+      246,
+      444,
+      148,
+      441,
+      154,
+      160,
+      102,
+      51
+    ],
+    "step_count": 133
+  },
+  "alpha10_update": {
+    "approx_kl": -0.003250722773373127,
+    "approx_kl_abs_top10pct_fraction": 0.3632664680480957,
+    "current_value_mean_raw": -42541.4140625,
+    "current_value_return_correlation": 0.8980303406715393,
+    "current_value_std_raw": 115934.46875,
+    "effective_learning_rate": 1e-05,
+    "entropy": 1.4535480737686157,
+    "entropy_delta_from_pre_update": 0.04329407215118408,
+    "first_substep_lr_scale": 0.1,
+    "global_grad_norm": 165.8515364655119,
+    "global_grad_norm_post_clip": 165.8515364655119,
+    "global_grad_norm_pre_clip": 165.8515364655119,
+    "global_param_delta_norm_from_pre_update": 0.0028141195213385343,
+    "grad_clip_applied": false,
+    "grad_clip_norm": null,
+    "policy_head_grad_norm": 42.53877051667507,
+    "policy_head_param_delta_norm_from_pre_update": 8.061192716185808e-05,
+    "policy_loss": 0.005605596117675304,
+    "ratio_fraction_gt_1_5": 0.0,
+    "ratio_fraction_lt_0_67": 0.0,
+    "ratio_max": 1.3785674571990967,
+    "ratio_mean": 1.0077474117279053,
+    "ratio_p90": 1.135368824005127,
+    "ratio_std": 0.09809988737106323,
+    "substep_index": 0.0,
+    "update_batch_kl_to_reference": 0.004372390452772379,
+    "value_head_grad_norm": 0.0,
+    "value_loss": 0.21261480450630188,
+    "value_loss_raw_space": 4101546240.0,
+    "value_loss_train_space": 0.21261480450630188,
+    "value_target_mean": -44827.87890625,
+    "value_target_std": 138891.953125
+  },
+  "baseline_agreement": {
+    "agreement_count": 82,
+    "candidate_argmax_indices": [
+      1282,
+      1605,
+      836,
+      1928,
+      1547,
+      3689,
+      3689,
+      3689,
+      3689,
+      3684,
+      3651,
+      3654,
+      3657,
+      3660,
+      3663,
+      3666,
+      3695,
+      3695,
+      3679,
+      720,
+      1870,
+      3674,
+      3674,
+      3203,
+      3206,
+      3209,
+      3212,
+      3215,
+      3218,
+      3239,
+      1043,
+      256,
+      596,
+      272,
+      3701,
+      3308,
+      2858,
+      2927,
+      3701,
+      3701,
+      3233,
+      2546,
+      1898,
+      1898,
+      1898,
+      1586,
+      2245,
+      2568,
+      1586,
+      2766,
+      1586,
+      1784,
+      1586,
+      2618,
+      1205,
+      2613,
+      1205,
+      1531,
+      1531,
+      1979,
+      2427,
+      2744,
+      2875,
+      952,
+      2994,
+      2994,
+      3707,
+      3255,
+      3255,
+      3704,
+      2994,
+      3442,
+      2786,
+      2405,
+      2405,
+      2405,
+      2405,
+      1828,
+      1828,
+      1828,
+      1828,
+      1565,
+      1565,
+      1565,
+      1565,
+      1565,
+      1447,
+      1565,
+      1565,
+      1248,
+      2394,
+      2394,
+      1965,
+      1696,
+      1942,
+      1942,
+      1696,
+      1696,
+      2318,
+      891,
+      2137,
+      2201,
+      1066,
+      614,
+      891,
+      704,
+      891,
+      813,
+      752,
+      752,
+      2012,
+      2143,
+      233,
+      233,
+      233,
+      233,
+      1751,
+      1672,
+      1751,
+      1751,
+      1754,
+      329,
+      365,
+      163,
+      304,
+      246,
+      444,
+      148,
+      441,
+      154,
+      160,
+      102,
+      51
+    ],
+    "flip_count": 51,
+    "flipped_entropy_histogram": {
+      "0_50_to_1_00": {
+        "count": 0,
+        "fraction": 0.0
+      },
+      "1_00_to_1_50": {
+        "count": 1,
+        "fraction": 0.0196078431372549
+      },
+      "1_50_to_2_00": {
+        "count": 12,
+        "fraction": 0.23529411764705882
+      },
+      "gte_2_00": {
+        "count": 38,
+        "fraction": 0.7450980392156863
+      },
+      "lt_0_50": {
+        "count": 0,
+        "fraction": 0.0
+      }
+    },
+    "flipped_entropy_summary": {
+      "count": 51.0,
+      "max": 3.503321647644043,
+      "mean": 2.442194938659668,
+      "min": 1.134891390800476,
+      "p10": 1.787009596824646,
+      "p25": 2.02510404586792,
+      "p50": 2.508831024169922,
+      "p75": 2.828571081161499,
+      "p90": 3.0909242630004883,
+      "std": 0.5279879570007324
+    },
+    "flipped_margin_histogram": {
+      "0_05_to_0_10": {
+        "count": 12,
+        "fraction": 0.23529411764705882
+      },
+      "0_10_to_0_20": {
+        "count": 9,
+        "fraction": 0.17647058823529413
+      },
+      "0_20_to_0_50": {
+        "count": 7,
+        "fraction": 0.13725490196078433
+      },
+      "gte_0_50": {
+        "count": 1,
+        "fraction": 0.0196078431372549
+      },
+      "lt_0_05": {
+        "count": 22,
+        "fraction": 0.43137254901960786
+      }
+    },
+    "flipped_margin_summary": {
+      "count": 51.0,
+      "max": 0.5978245735168457,
+      "mean": 0.10402961075305939,
+      "min": 0.00041274726390838623,
+      "p10": 0.008784949779510498,
+      "p25": 0.024607598781585693,
+      "p50": 0.05896146595478058,
+      "p75": 0.12113794684410095,
+      "p90": 0.29648810625076294,
+      "std": 0.12562191486358643
+    },
+    "flipped_step_indices": [
+      3,
+      5,
+      6,
+      7,
+      16,
+      21,
+      29,
+      34,
+      38,
+      40,
+      42,
+      43,
+      45,
+      48,
+      50,
+      51,
+      53,
+      54,
+      57,
+      64,
+      65,
+      67,
+      73,
+      74,
+      75,
+      77,
+      78,
+      79,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      90,
+      91,
+      93,
+      94,
+      95,
+      96,
+      99,
+      100,
+      104,
+      108,
+      110,
+      112,
+      113,
+      114,
+      116,
+      118
+    ],
+    "macro_area_buckets": {
+      "large": {
+        "agreement_count": 0,
+        "agreement_rate": 0.0,
+        "flip_count": 0,
+        "mean_macro_area": 0.0,
+        "step_count": 0
+      },
+      "medium": {
+        "agreement_count": 82,
+        "agreement_rate": 0.6165413533834586,
+        "flip_count": 51,
+        "mean_macro_area": 7656.80908203125,
+        "step_count": 133
+      },
+      "small": {
+        "agreement_count": 0,
+        "agreement_rate": 0.0,
+        "flip_count": 0,
+        "mean_macro_area": 0.0,
+        "step_count": 0
+      }
+    },
+    "non_flipped_entropy_histogram": {
+      "0_50_to_1_00": {
+        "count": 16,
+        "fraction": 0.1951219512195122
+      },
+      "1_00_to_1_50": {
+        "count": 7,
+        "fraction": 0.08536585365853659
+      },
+      "1_50_to_2_00": {
+        "count": 11,
+        "fraction": 0.13414634146341464
+      },
+      "gte_2_00": {
+        "count": 21,
+        "fraction": 0.25609756097560976
+      },
+      "lt_0_50": {
+        "count": 27,
+        "fraction": 0.32926829268292684
+      }
+    },
+    "non_flipped_entropy_summary": {
+      "count": 82.0,
+      "max": 3.5442309379577637,
+      "mean": 1.2006882429122925,
+      "min": 6.24000434656935e-11,
+      "p10": 0.012505641207098961,
+      "p25": 0.26505807042121887,
+      "p50": 0.9194648265838623,
+      "p75": 1.9961210489273071,
+      "p90": 2.7139861583709717,
+      "std": 1.0180203914642334
+    },
+    "non_flipped_margin_histogram": {
+      "0_05_to_0_10": {
+        "count": 12,
+        "fraction": 0.14634146341463414
+      },
+      "0_10_to_0_20": {
+        "count": 5,
+        "fraction": 0.06097560975609756
+      },
+      "0_20_to_0_50": {
+        "count": 13,
+        "fraction": 0.15853658536585366
+      },
+      "gte_0_50": {
+        "count": 45,
+        "fraction": 0.5487804878048781
+      },
+      "lt_0_05": {
+        "count": 7,
+        "fraction": 0.08536585365853659
+      }
+    },
+    "non_flipped_margin_summary": {
+      "count": 82.0,
+      "max": 1.0,
+      "mean": 0.5527045130729675,
+      "min": 0.0014686733484268188,
+      "p10": 0.05900779366493225,
+      "p25": 0.14839734137058258,
+      "p50": 0.5988361835479736,
+      "p75": 0.9391452670097351,
+      "p90": 0.9983552694320679,
+      "std": 0.37460827827453613
+    },
+    "overall_agreement_rate": 0.61654132604599,
+    "position_buckets": {
+      "early": {
+        "agreement_count": 33,
+        "agreement_rate": 0.7333333333333333,
+        "flip_count": 12,
+        "mean_macro_area": 7656.810546875,
+        "step_count": 45
+      },
+      "late": {
+        "agreement_count": 29,
+        "agreement_rate": 0.6444444444444445,
+        "flip_count": 16,
+        "mean_macro_area": 7656.810546875,
+        "step_count": 45
+      },
+      "mid": {
+        "agreement_count": 20,
+        "agreement_rate": 0.46511627906976744,
+        "flip_count": 23,
+        "mean_macro_area": 7656.810546875,
+        "step_count": 43
+      }
+    },
+    "pre_update_entropy_summary": {
+      "count": 133.0,
+      "max": 3.5442309379577637,
+      "mean": 1.6767547130584717,
+      "min": 6.24000434656935e-11,
+      "p10": 0.1012573391199112,
+      "p25": 0.7130451202392578,
+      "p50": 1.8508033752441406,
+      "p75": 2.5603883266448975,
+      "p90": 2.929687261581421,
+      "std": 1.053688645362854
+    },
+    "pre_update_margin_summary": {
+      "count": 133.0,
+      "max": 1.0,
+      "mean": 0.38065624237060547,
+      "min": 0.00041274726390838623,
+      "p10": 0.01864892803132534,
+      "p25": 0.05893871188163757,
+      "p50": 0.1960344761610031,
+      "p75": 0.7704408764839172,
+      "p90": 0.9856708645820618,
+      "std": 0.3743855357170105
+    },
+    "reference_argmax_indices": [
+      1282,
+      1605,
+      836,
+      1224,
+      1547,
+      778,
+      390,
+      1166,
+      3689,
+      3684,
+      3651,
+      3654,
+      3657,
+      3660,
+      3663,
+      3666,
+      3670,
+      3695,
+      3679,
+      720,
+      1870,
+      332,
+      3674,
+      3203,
+      3206,
+      3209,
+      3212,
+      3215,
+      3218,
+      3221,
+      1043,
+      256,
+      596,
+      272,
+      3239,
+      3308,
+      2858,
+      2927,
+      3224,
+      3701,
+      2477,
+      2546,
+      3234,
+      2165,
+      1898,
+      1922,
+      2245,
+      2568,
+      2763,
+      2766,
+      2769,
+      1517,
+      1586,
+      1784,
+      2232,
+      2613,
+      1205,
+      2772,
+      1531,
+      1979,
+      2427,
+      2744,
+      2875,
+      952,
+      599,
+      3227,
+      3707,
+      602,
+      3255,
+      3704,
+      2994,
+      3442,
+      2786,
+      3230,
+      605,
+      2775,
+      2405,
+      608,
+      2187,
+      1304,
+      1828,
+      2338,
+      1653,
+      2562,
+      2757,
+      1873,
+      611,
+      1447,
+      1565,
+      1248,
+      1123,
+      2096,
+      1965,
+      2778,
+      2781,
+      2408,
+      1876,
+      1696,
+      2318,
+      2321,
+      2324,
+      2201,
+      1066,
+      614,
+      387,
+      704,
+      891,
+      813,
+      1959,
+      752,
+      2332,
+      2143,
+      1117,
+      151,
+      499,
+      233,
+      2120,
+      1672,
+      157,
+      1751,
+      1754,
+      329,
+      365,
+      163,
+      304,
+      246,
+      444,
+      148,
+      441,
+      154,
+      160,
+      102,
+      51
+    ],
+    "step_count": 133
+  },
+  "baseline_update": {
+    "approx_kl": 0.3957577347755432,
+    "approx_kl_abs_top10pct_fraction": 0.3270808160305023,
+    "current_value_mean_raw": -42485.1875,
+    "current_value_return_correlation": 0.8941029906272888,
+    "current_value_std_raw": 120890.265625,
+    "effective_learning_rate": 0.0001,
+    "entropy": 1.840238332748413,
+    "entropy_delta_from_pre_update": 0.42998433113098145,
+    "first_substep_lr_scale": null,
+    "global_grad_norm": 165.8515364655119,
+    "global_grad_norm_post_clip": 165.8515364655119,
+    "global_grad_norm_pre_clip": 165.8515364655119,
+    "global_param_delta_norm_from_pre_update": 0.02813893785740283,
+    "grad_clip_applied": false,
+    "grad_clip_norm": null,
+    "policy_head_grad_norm": 42.53877051667507,
+    "policy_head_param_delta_norm_from_pre_update": 0.0008062078764319822,
+    "policy_loss": 0.3009490966796875,
+    "ratio_fraction_gt_1_5": 0.14960630238056183,
+    "ratio_fraction_lt_0_67": 0.4330708682537079,
+    "ratio_max": 7.861769676208496,
+    "ratio_mean": 1.071598768234253,
+    "ratio_p90": 1.904475212097168,
+    "ratio_std": 1.2695902585983276,
+    "substep_index": 0.0,
+    "update_batch_kl_to_reference": 0.4698716104030609,
+    "value_head_grad_norm": 0.0,
+    "value_loss": 0.21805806457996368,
+    "value_loss_raw_space": 4206552832.0,
+    "value_loss_train_space": 0.21805806457996368,
+    "value_target_mean": -44827.87890625,
+    "value_target_std": 138891.953125
+  },
+  "benchmark": "ariane133_ng45",
+  "metadata": {
+    "alpha10_config": {
+      "entropy_coef": 5.0,
+      "first_substep_lr_scale": 0.1,
+      "init_seed": 0,
+      "kl_anchor_beta": 5.0,
+      "learning_rate": 0.0001,
+      "value_coef": 0.0
+    },
+    "benchmark": "ariane133_ng45",
+    "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_fragile_decision_screening_v1\\ariane133_ng45.combined.lef",
+    "grid_shape": [
+      64,
+      64
+    ],
+    "hidden_dim": 64,
+    "ordered_macro_count": 133,
+    "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "reward_metadata": {
+      "benchmark": "ariane133_ng45",
+      "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_fragile_decision_screening_v1\\ariane133_ng45.combined.lef",
+      "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+      "reward_weights": {
+        "completion_bonus": 0.0,
+        "legality_penalty": 10.0,
+        "w_hpwl": 1.0,
+        "w_proxy": 0.0
+      },
+      "seed_macro_count": 133
+    },
+    "seed_macro_count": 133,
+    "training_config": {
+      "entropy_coef": 5.0,
+      "init_seed": 0,
+      "kl_anchor_beta": 5.0,
+      "learning_rate": 0.0001,
+      "value_coef": 0.0
+    },
+    "warm_start_checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+    "warm_value_prefit_config": {
+      "entropy_coef": 1.0,
+      "init_seed": 0,
+      "learning_rate": 0.0001,
+      "prefit_epochs": 50,
+      "prefit_learning_rate": 0.001,
+      "prefit_lr_warmup_epochs": 20,
+      "target_transform": "zscore",
+      "value_coef": 0.0
+    }
+  },
+  "panel_summaries": {
+    "alpha10_overlap": {
+      "concentration_band": "moderate",
+      "init_rooted_band": "overlap_dominant",
+      "material_step_count": 7,
+      "materiality_threshold_hpwl": 15392.0,
+      "median_abs_delta_by_cohort": {
+        "overlap": 18571.113459999673,
+        "unique": 0.0
+      },
+      "modest_step_count": 3,
+      "negligible_step_count": 1,
+      "negligible_threshold_hpwl": 3078.4,
+      "overlap_to_unique_median_ratio": Infinity,
+      "per_step_results": [
+        {
+          "abs_hpwl_delta": 18571.113459999673,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1007.415625,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 18571.113459999673,
+          "mean_hpwl_delta": 18571.113459999673,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              477.196875,
+              1219.071875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2846805.0358099984,
+              "hpwl_delta": 18571.113459999673,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 16
+        },
+        {
+          "abs_hpwl_delta": 56871.28211999778,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              562.031875,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 56871.28211999778,
+          "mean_hpwl_delta": 56871.28211999778,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              265.109375,
+              116.606875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2885105.2044699965,
+              "hpwl_delta": 56871.28211999778,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 21
+        },
+        {
+          "abs_hpwl_delta": 18565.380560000893,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1134.668125,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 18565.380560000893,
+          "mean_hpwl_delta": 18565.380560000893,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              519.614375,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2846799.3029099996,
+              "hpwl_delta": 18565.380560000893,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 38
+        },
+        {
+          "abs_hpwl_delta": 107447.05499999644,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              1261.920625,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 107447.05499999644,
+          "mean_hpwl_delta": 107447.05499999644,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              243.900625,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2935680.977349995,
+              "hpwl_delta": 107447.05499999644,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 48
+        },
+        {
+          "abs_hpwl_delta": 31095.478430000134,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              1261.920625,
+              498.22937500000006
+            ]
+          },
+          "max_abs_hpwl_delta": 31095.478430000134,
+          "mean_hpwl_delta": 31095.478430000134,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              434.77937499999996,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2859329.400779999,
+              "hpwl_delta": 31095.478430000134,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 57
+        },
+        {
+          "abs_hpwl_delta": 9987.571940008085,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              1071.041875,
+              985.8581250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 9987.571940008085,
+          "mean_hpwl_delta": 9987.571940008085,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              583.2406249999999,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2838221.494290007,
+              "hpwl_delta": 9987.571940008085,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 65
+        },
+        {
+          "abs_hpwl_delta": 2543.3899999982677,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              774.119375,
+              604.235625
+            ]
+          },
+          "max_abs_hpwl_delta": 2543.3899999982677,
+          "mean_hpwl_delta": 2543.3899999982677,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              519.614375,
+              434.625625
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2830777.312349997,
+              "hpwl_delta": 2543.3899999982677,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 79
+        },
+        {
+          "abs_hpwl_delta": 24082.124809998553,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[6\\].i_ram",
+            "target": [
+              625.6581249999999,
+              519.4306250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 24082.124809998553,
+          "mean_hpwl_delta": 24082.124809998553,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[6\\].i_ram",
+            "target": [
+              53.021874999999994,
+              858.6506250000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2852316.0471599973,
+              "hpwl_delta": 24082.124809998553,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 83
+        },
+        {
+          "abs_hpwl_delta": 3997.101589997299,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              583.2406249999999,
+              434.625625
+            ]
+          },
+          "max_abs_hpwl_delta": 3997.101589997299,
+          "mean_hpwl_delta": 3997.101589997299,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              752.910625,
+              201.411875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2832231.023939996,
+              "hpwl_delta": 3997.101589997299,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 86
+        },
+        {
+          "abs_hpwl_delta": 78390.99351000227,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              434.77937499999996,
+              625.4368750000001
+            ]
+          },
+          "max_abs_hpwl_delta": 78390.99351000227,
+          "mean_hpwl_delta": 78390.99351000227,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              562.031875,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2906624.915860001,
+              "hpwl_delta": 78390.99351000227,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 93
+        },
+        {
+          "abs_hpwl_delta": 9936.161710000131,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[5\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1261.920625,
+              286.216875
+            ]
+          },
+          "max_abs_hpwl_delta": 9936.161710000131,
+          "mean_hpwl_delta": 9936.161710000131,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[5\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              74.23062499999999,
+              137.80812500000002
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2838170.084059999,
+              "hpwl_delta": 9936.161710000131,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 104
+        }
+      ],
+      "step_count": 11,
+      "top_20pct_abs_delta_sum": 242709.3306299965,
+      "top_20pct_contribution_fraction": 0.6714180374584259,
+      "top_20pct_step_count": 3,
+      "total_abs_delta_sum": 361487.6531299995
+    },
+    "baseline": {
+      "concentration_band": "moderate",
+      "init_rooted_band": "same_order_of_magnitude",
+      "material_step_count": 12,
+      "materiality_threshold_hpwl": 15392.0,
+      "median_abs_delta_by_cohort": {
+        "overlap": 18571.113459999673,
+        "unique": 14992.02773999609
+      },
+      "modest_step_count": 8,
+      "negligible_step_count": 2,
+      "negligible_threshold_hpwl": 3078.4,
+      "overlap_to_unique_median_ratio": 1.23873259722267,
+      "per_step_results": [
+        {
+          "abs_hpwl_delta": 18571.113459999673,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1007.415625,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 18571.113459999673,
+          "mean_hpwl_delta": 18571.113459999673,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              477.196875,
+              1219.071875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2846805.0358099984,
+              "hpwl_delta": 18571.113459999673,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 16
+        },
+        {
+          "abs_hpwl_delta": 56871.28211999778,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              562.031875,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 56871.28211999778,
+          "mean_hpwl_delta": 56871.28211999778,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              265.109375,
+              116.606875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2885105.2044699965,
+              "hpwl_delta": 56871.28211999778,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 21
+        },
+        {
+          "abs_hpwl_delta": 18565.380560000893,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1134.668125,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 18565.380560000893,
+          "mean_hpwl_delta": 18565.380560000893,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              519.614375,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2846799.3029099996,
+              "hpwl_delta": 18565.380560000893,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 38
+        },
+        {
+          "abs_hpwl_delta": 48012.4140200126,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              1071.041875,
+              519.4306250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 48012.4140200126,
+          "mean_hpwl_delta": 48012.4140200126,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              243.900625,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2876246.3363700113,
+              "hpwl_delta": 48012.4140200126,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 48
+        },
+        {
+          "abs_hpwl_delta": 31095.478430000134,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              1261.920625,
+              498.22937500000006
+            ]
+          },
+          "max_abs_hpwl_delta": 31095.478430000134,
+          "mean_hpwl_delta": 31095.478430000134,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              434.77937499999996,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2859329.400779999,
+              "hpwl_delta": 31095.478430000134,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 57
+        },
+        {
+          "abs_hpwl_delta": 9987.571940008085,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              1071.041875,
+              985.8581250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 9987.571940008085,
+          "mean_hpwl_delta": 9987.571940008085,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              583.2406249999999,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2838221.494290007,
+              "hpwl_delta": 9987.571940008085,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 65
+        },
+        {
+          "abs_hpwl_delta": 2543.3899999982677,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              774.119375,
+              604.235625
+            ]
+          },
+          "max_abs_hpwl_delta": 2543.3899999982677,
+          "mean_hpwl_delta": 2543.3899999982677,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              519.614375,
+              434.625625
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2830777.312349997,
+              "hpwl_delta": 2543.3899999982677,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 79
+        },
+        {
+          "abs_hpwl_delta": 24082.124809998553,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[6\\].i_ram",
+            "target": [
+              625.6581249999999,
+              519.4306250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 24082.124809998553,
+          "mean_hpwl_delta": 24082.124809998553,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[6\\].i_ram",
+            "target": [
+              53.021874999999994,
+              858.6506250000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2852316.0471599973,
+              "hpwl_delta": 24082.124809998553,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 83
+        },
+        {
+          "abs_hpwl_delta": 11526.419869997073,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              837.7456249999999,
+              477.02812500000005
+            ]
+          },
+          "max_abs_hpwl_delta": 11526.419869997073,
+          "mean_hpwl_delta": 11526.419869997073,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              752.910625,
+              201.411875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2839760.342219996,
+              "hpwl_delta": 11526.419869997073,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 86
+        },
+        {
+          "abs_hpwl_delta": 71302.61514000082,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              689.284375,
+              561.833125
+            ]
+          },
+          "max_abs_hpwl_delta": 71302.61514000082,
+          "mean_hpwl_delta": 71302.61514000082,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              562.031875,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2899536.5374899996,
+              "hpwl_delta": 71302.61514000082,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 93
+        },
+        {
+          "abs_hpwl_delta": 9936.161710000131,
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[5\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1261.920625,
+              286.216875
+            ]
+          },
+          "max_abs_hpwl_delta": 9936.161710000131,
+          "mean_hpwl_delta": 9936.161710000131,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[5\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              74.23062499999999,
+              137.80812500000002
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2838170.084059999,
+              "hpwl_delta": 9936.161710000131,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 104
+        },
+        {
+          "abs_hpwl_delta": 18577.161760000046,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              1134.668125,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 18577.161760000046,
+          "mean_hpwl_delta": 18577.161760000046,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              837.7456249999999,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2846811.084109999,
+              "hpwl_delta": 18577.161760000046,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 34
+        },
+        {
+          "abs_hpwl_delta": 30962.314889995847,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              625.6581249999999,
+              519.4306250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 30962.314889995847,
+          "mean_hpwl_delta": 30962.314889995847,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              731.701875,
+              773.845625
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2859196.2372399946,
+              "hpwl_delta": 30962.314889995847,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 81
+        },
+        {
+          "abs_hpwl_delta": 12579.459999997169,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[3\\].i_ram",
+            "target": [
+              880.1631249999999,
+              74.204375
+            ]
+          },
+          "max_abs_hpwl_delta": 12579.459999997169,
+          "mean_hpwl_delta": 12579.459999997169,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[3\\].i_ram",
+            "target": [
+              498.405625,
+              53.003125000000004
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2840813.382349996,
+              "hpwl_delta": 12579.459999997169,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 113
+        },
+        {
+          "abs_hpwl_delta": 10242.770599997602,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              901.3718749999999,
+              625.4368750000001
+            ]
+          },
+          "max_abs_hpwl_delta": 10242.770599997602,
+          "mean_hpwl_delta": 10242.770599997602,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              731.701875,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2838476.6929499963,
+              "hpwl_delta": 10242.770599997602,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 42
+        },
+        {
+          "abs_hpwl_delta": 7043.190000001807,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              880.1631249999999,
+              74.204375
+            ]
+          },
+          "max_abs_hpwl_delta": 7043.190000001807,
+          "mean_hpwl_delta": 7043.190000001807,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              1092.250625,
+              159.009375
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2835277.1123500005,
+              "hpwl_delta": 7043.190000001807,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 114
+        },
+        {
+          "abs_hpwl_delta": 62356.11982000852,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              1198.294375,
+              583.0343750000001
+            ]
+          },
+          "max_abs_hpwl_delta": 62356.11982000852,
+          "mean_hpwl_delta": 62356.11982000852,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              964.998125,
+              498.22937500000006
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2890590.0421700072,
+              "hpwl_delta": 62356.11982000852,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 51
+        },
+        {
+          "abs_hpwl_delta": 8208.728399999905,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              901.3718749999999,
+              625.4368750000001
+            ]
+          },
+          "max_abs_hpwl_delta": 8208.728399999905,
+          "mean_hpwl_delta": 8208.728399999905,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              1134.668125,
+              710.241875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2836442.6507499986,
+              "hpwl_delta": 8208.728399999905,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 43
+        },
+        {
+          "abs_hpwl_delta": 2743.5213100002147,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].tag_sram/macro_mem\\[0\\].i_ram",
+            "target": [
+              498.405625,
+              583.0343750000001
+            ]
+          },
+          "max_abs_hpwl_delta": 2743.5213100002147,
+          "mean_hpwl_delta": -2743.5213100002147,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].tag_sram/macro_mem\\[0\\].i_ram",
+            "target": [
+              625.6581249999999,
+              53.003125000000004
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2825490.4010399985,
+              "hpwl_delta": -2743.5213100002147,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 118
+        },
+        {
+          "abs_hpwl_delta": 22804.409014000557,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              710.493125,
+              1070.663125
+            ]
+          },
+          "max_abs_hpwl_delta": 22804.409014000557,
+          "mean_hpwl_delta": -22804.409014000557,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              964.998125,
+              816.2481250000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2805429.513335998,
+              "hpwl_delta": -22804.409014000557,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 40
+        },
+        {
+          "abs_hpwl_delta": 14992.02773999609,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              880.1631249999999,
+              74.204375
+            ]
+          },
+          "max_abs_hpwl_delta": 14992.02773999609,
+          "mean_hpwl_delta": 14992.02773999609,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              625.6581249999999,
+              371.021875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2843225.950089995,
+              "hpwl_delta": 14992.02773999609,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 112
+        },
+        {
+          "abs_hpwl_delta": 36328.434050004464,
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              477.196875,
+              646.6381250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 36328.434050004464,
+          "mean_hpwl_delta": 36328.434050004464,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              858.9543749999999,
+              795.0468750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2864562.356400003,
+              "hpwl_delta": 36328.434050004464,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 95
+        }
+      ],
+      "step_count": 22,
+      "top_20pct_abs_delta_sum": 274870.8651500242,
+      "top_20pct_contribution_fraction": 0.5192786731197025,
+      "top_20pct_step_count": 5,
+      "total_abs_delta_sum": 529332.0896440162
+    }
+  },
+  "panels": {
+    "alpha10_overlap": {
+      "panel_label": "alpha10_overlap",
+      "per_step_results": [
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1007.415625,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 18571.113459999673,
+          "mean_hpwl_delta": 18571.113459999673,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              477.196875,
+              1219.071875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2846805.0358099984,
+              "hpwl_delta": 18571.113459999673,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 16
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              562.031875,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 56871.28211999778,
+          "mean_hpwl_delta": 56871.28211999778,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              265.109375,
+              116.606875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2885105.2044699965,
+              "hpwl_delta": 56871.28211999778,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 21
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1134.668125,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 18565.380560000893,
+          "mean_hpwl_delta": 18565.380560000893,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              519.614375,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2846799.3029099996,
+              "hpwl_delta": 18565.380560000893,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 38
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              1261.920625,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 107447.05499999644,
+          "mean_hpwl_delta": 107447.05499999644,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              243.900625,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2935680.977349995,
+              "hpwl_delta": 107447.05499999644,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 48
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              1261.920625,
+              498.22937500000006
+            ]
+          },
+          "max_abs_hpwl_delta": 31095.478430000134,
+          "mean_hpwl_delta": 31095.478430000134,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              434.77937499999996,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2859329.400779999,
+              "hpwl_delta": 31095.478430000134,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 57
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              1071.041875,
+              985.8581250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 9987.571940008085,
+          "mean_hpwl_delta": 9987.571940008085,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              583.2406249999999,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2838221.494290007,
+              "hpwl_delta": 9987.571940008085,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 65
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              774.119375,
+              604.235625
+            ]
+          },
+          "max_abs_hpwl_delta": 2543.3899999982677,
+          "mean_hpwl_delta": 2543.3899999982677,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              519.614375,
+              434.625625
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2830777.312349997,
+              "hpwl_delta": 2543.3899999982677,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 79
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[6\\].i_ram",
+            "target": [
+              625.6581249999999,
+              519.4306250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 24082.124809998553,
+          "mean_hpwl_delta": 24082.124809998553,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[6\\].i_ram",
+            "target": [
+              53.021874999999994,
+              858.6506250000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2852316.0471599973,
+              "hpwl_delta": 24082.124809998553,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 83
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              583.2406249999999,
+              434.625625
+            ]
+          },
+          "max_abs_hpwl_delta": 3997.101589997299,
+          "mean_hpwl_delta": 3997.101589997299,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              752.910625,
+              201.411875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2832231.023939996,
+              "hpwl_delta": 3997.101589997299,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 86
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              434.77937499999996,
+              625.4368750000001
+            ]
+          },
+          "max_abs_hpwl_delta": 78390.99351000227,
+          "mean_hpwl_delta": 78390.99351000227,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              562.031875,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2906624.915860001,
+              "hpwl_delta": 78390.99351000227,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 93
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[5\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1261.920625,
+              286.216875
+            ]
+          },
+          "max_abs_hpwl_delta": 9936.161710000131,
+          "mean_hpwl_delta": 9936.161710000131,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[5\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              74.23062499999999,
+              137.80812500000002
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2838170.084059999,
+              "hpwl_delta": 9936.161710000131,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 104
+        }
+      ],
+      "selected_steps": [
+        16,
+        21,
+        38,
+        48,
+        57,
+        65,
+        79,
+        83,
+        86,
+        93,
+        104
+      ],
+      "step_count": 11,
+      "suffix_seed_count": 1
+    },
+    "baseline": {
+      "panel_label": "baseline",
+      "per_step_results": [
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1007.415625,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 18571.113459999673,
+          "mean_hpwl_delta": 18571.113459999673,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              477.196875,
+              1219.071875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2846805.0358099984,
+              "hpwl_delta": 18571.113459999673,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 16
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              562.031875,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 56871.28211999778,
+          "mean_hpwl_delta": 56871.28211999778,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              265.109375,
+              116.606875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2885105.2044699965,
+              "hpwl_delta": 56871.28211999778,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 21
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1134.668125,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 18565.380560000893,
+          "mean_hpwl_delta": 18565.380560000893,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              519.614375,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2846799.3029099996,
+              "hpwl_delta": 18565.380560000893,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 38
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              1071.041875,
+              519.4306250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 48012.4140200126,
+          "mean_hpwl_delta": 48012.4140200126,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              243.900625,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2876246.3363700113,
+              "hpwl_delta": 48012.4140200126,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 48
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              1261.920625,
+              498.22937500000006
+            ]
+          },
+          "max_abs_hpwl_delta": 31095.478430000134,
+          "mean_hpwl_delta": 31095.478430000134,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              434.77937499999996,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2859329.400779999,
+              "hpwl_delta": 31095.478430000134,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 57
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              1071.041875,
+              985.8581250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 9987.571940008085,
+          "mean_hpwl_delta": 9987.571940008085,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[1\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              583.2406249999999,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2838221.494290007,
+              "hpwl_delta": 9987.571940008085,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 65
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              774.119375,
+              604.235625
+            ]
+          },
+          "max_abs_hpwl_delta": 2543.3899999982677,
+          "mean_hpwl_delta": 2543.3899999982677,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              519.614375,
+              434.625625
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2830777.312349997,
+              "hpwl_delta": 2543.3899999982677,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 79
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[6\\].i_ram",
+            "target": [
+              625.6581249999999,
+              519.4306250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 24082.124809998553,
+          "mean_hpwl_delta": 24082.124809998553,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[6\\].i_ram",
+            "target": [
+              53.021874999999994,
+              858.6506250000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2852316.0471599973,
+              "hpwl_delta": 24082.124809998553,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 83
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              837.7456249999999,
+              477.02812500000005
+            ]
+          },
+          "max_abs_hpwl_delta": 11526.419869997073,
+          "mean_hpwl_delta": 11526.419869997073,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              752.910625,
+              201.411875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2839760.342219996,
+              "hpwl_delta": 11526.419869997073,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 86
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              689.284375,
+              561.833125
+            ]
+          },
+          "max_abs_hpwl_delta": 71302.61514000082,
+          "mean_hpwl_delta": 71302.61514000082,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              562.031875,
+              922.2543750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2899536.5374899996,
+              "hpwl_delta": 71302.61514000082,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 93
+        },
+        {
+          "cohort": "overlap",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[5\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              1261.920625,
+              286.216875
+            ]
+          },
+          "max_abs_hpwl_delta": 9936.161710000131,
+          "mean_hpwl_delta": 9936.161710000131,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[5\\].data_sram/macro_mem\\[5\\].i_ram",
+            "target": [
+              74.23062499999999,
+              137.80812500000002
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2838170.084059999,
+              "hpwl_delta": 9936.161710000131,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 104
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              1134.668125,
+              1219.071875
+            ]
+          },
+          "max_abs_hpwl_delta": 18577.161760000046,
+          "mean_hpwl_delta": 18577.161760000046,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              837.7456249999999,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2846811.084109999,
+              "hpwl_delta": 18577.161760000046,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 34
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              625.6581249999999,
+              519.4306250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 30962.314889995847,
+          "mean_hpwl_delta": 30962.314889995847,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[3\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              731.701875,
+              773.845625
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2859196.2372399946,
+              "hpwl_delta": 30962.314889995847,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 81
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[3\\].i_ram",
+            "target": [
+              880.1631249999999,
+              74.204375
+            ]
+          },
+          "max_abs_hpwl_delta": 12579.459999997169,
+          "mean_hpwl_delta": 12579.459999997169,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[3\\].i_ram",
+            "target": [
+              498.405625,
+              53.003125000000004
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2840813.382349996,
+              "hpwl_delta": 12579.459999997169,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 113
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              901.3718749999999,
+              625.4368750000001
+            ]
+          },
+          "max_abs_hpwl_delta": 10242.770599997602,
+          "mean_hpwl_delta": 10242.770599997602,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].tag_sram/macro_mem\\[1\\].i_ram",
+            "target": [
+              731.701875,
+              1070.663125
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2838476.6929499963,
+              "hpwl_delta": 10242.770599997602,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 42
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              880.1631249999999,
+              74.204375
+            ]
+          },
+          "max_abs_hpwl_delta": 7043.190000001807,
+          "mean_hpwl_delta": 7043.190000001807,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[4\\].i_ram",
+            "target": [
+              1092.250625,
+              159.009375
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2835277.1123500005,
+              "hpwl_delta": 7043.190000001807,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 114
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              1198.294375,
+              583.0343750000001
+            ]
+          },
+          "max_abs_hpwl_delta": 62356.11982000852,
+          "mean_hpwl_delta": 62356.11982000852,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[0\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              964.998125,
+              498.22937500000006
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2890590.0421700072,
+              "hpwl_delta": 62356.11982000852,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 51
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              901.3718749999999,
+              625.4368750000001
+            ]
+          },
+          "max_abs_hpwl_delta": 8208.728399999905,
+          "mean_hpwl_delta": 8208.728399999905,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].tag_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              1134.668125,
+              710.241875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2836442.6507499986,
+              "hpwl_delta": 8208.728399999905,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 43
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].tag_sram/macro_mem\\[0\\].i_ram",
+            "target": [
+              498.405625,
+              583.0343750000001
+            ]
+          },
+          "max_abs_hpwl_delta": 2743.5213100002147,
+          "mean_hpwl_delta": -2743.5213100002147,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].tag_sram/macro_mem\\[0\\].i_ram",
+            "target": [
+              625.6581249999999,
+              53.003125000000004
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2825490.4010399985,
+              "hpwl_delta": -2743.5213100002147,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 118
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              710.493125,
+              1070.663125
+            ]
+          },
+          "max_abs_hpwl_delta": 22804.409014000557,
+          "mean_hpwl_delta": -22804.409014000557,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_icache/sram_block\\[3\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              964.998125,
+              816.2481250000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2805429.513335998,
+              "hpwl_delta": -22804.409014000557,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 40
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              880.1631249999999,
+              74.204375
+            ]
+          },
+          "max_abs_hpwl_delta": 14992.02773999609,
+          "mean_hpwl_delta": 14992.02773999609,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[6\\].data_sram/macro_mem\\[2\\].i_ram",
+            "target": [
+              625.6581249999999,
+              371.021875
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2843225.950089995,
+              "hpwl_delta": 14992.02773999609,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 112
+        },
+        {
+          "cohort": "unique",
+          "counterfactual_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              477.196875,
+              646.6381250000001
+            ]
+          },
+          "max_abs_hpwl_delta": 36328.434050004464,
+          "mean_hpwl_delta": 36328.434050004464,
+          "original_action": {
+            "macro": "i_cache_subsystem/i_nbdcache/sram_block\\[4\\].data_sram/macro_mem\\[7\\].i_ram",
+            "target": [
+              858.9543749999999,
+              795.0468750000001
+            ]
+          },
+          "seed_count": 1,
+          "seed_rows": [
+            {
+              "counterfactual_final_hpwl": 2864562.356400003,
+              "hpwl_delta": 36328.434050004464,
+              "original_final_hpwl": 2828233.9223499987,
+              "seed": 0
+            }
+          ],
+          "step_index": 95
+        }
+      ],
+      "selected_steps": [
+        16,
+        21,
+        38,
+        48,
+        57,
+        65,
+        79,
+        83,
+        86,
+        93,
+        104,
+        34,
+        81,
+        113,
+        42,
+        114,
+        51,
+        43,
+        118,
+        40,
+        112,
+        95
+      ],
+      "step_count": 22,
+      "suffix_seed_count": 1
+    }
+  },
+  "prefit_metrics": {
+    "epochs": 200.0,
+    "final_loss": 0.2736596167087555,
+    "final_prediction_summary_raw": {
+      "count": 525.0,
+      "max": 230761.0,
+      "mean": -44322.75,
+      "min": -195380.828125,
+      "p10": -149484.65625,
+      "p25": -131800.078125,
+      "p50": -85716.453125,
+      "p75": 29282.77734375,
+      "p90": 158293.8125,
+      "std": 113233.0234375
+    },
+    "final_raw_mse": 5279160832.0,
+    "final_value_return_correlation": 0.8531035780906677,
+    "initial_loss": 2701.744873046875,
+    "initial_prediction_summary_raw": {
+      "count": 525.0,
+      "max": 8132505.5,
+      "mean": 7171570.5,
+      "min": 6616739.0,
+      "p10": 6918075.0,
+      "p25": 6989623.0,
+      "p50": 7095060.0,
+      "p75": 7223120.5,
+      "p90": 7631059.5,
+      "std": 289098.25
+    },
+    "initial_raw_mse": 52119289724928.0,
+    "initial_value_return_correlation": 0.747000515460968,
+    "lr_warmup_epochs": 20.0,
+    "raw_return_summary": {
+      "count": 525.0,
+      "max": 366515.75,
+      "mean": -44827.87890625,
+      "min": -269829.09375,
+      "p10": -155800.328125,
+      "p25": -131384.0625,
+      "p50": -96910.421875,
+      "p75": -6954.68994140625,
+      "p90": 187817.046875,
+      "std": 138891.953125
+    },
+    "raw_return_variance": 19290972160.0,
+    "rollout_count": 4.0,
+    "target_mean": -44827.87890625,
+    "target_std": 138891.953125,
+    "target_summary": {
+      "count": 525.0,
+      "max": 2.961608648300171,
+      "mean": 7.947286384535346e-09,
+      "min": -1.619973063468933,
+      "p10": -0.7989839911460876,
+      "p25": -0.6231908202171326,
+      "p50": -0.37498602271080017,
+      "p75": 0.27268093824386597,
+      "p90": 1.6750065088272095,
+      "std": 0.9999999403953552
+    },
+    "target_transform": "zscore",
+    "transition_count": 525.0
+  },
+  "priority_subset": {
+    "evaluated_count": 22,
+    "evaluated_steps": [
+      16,
+      21,
+      38,
+      48,
+      57,
+      65,
+      79,
+      83,
+      86,
+      93,
+      104,
+      34,
+      81,
+      113,
+      42,
+      114,
+      51,
+      43,
+      118,
+      40,
+      112,
+      95
+    ],
+    "overlap_count": 11,
+    "overlap_steps": [
+      16,
+      21,
+      38,
+      48,
+      57,
+      65,
+      79,
+      83,
+      86,
+      93,
+      104
+    ],
+    "unique_count": 11,
+    "unique_steps": [
+      34,
+      81,
+      113,
+      42,
+      114,
+      51,
+      43,
+      118,
+      40,
+      112,
+      95
+    ]
+  },
+  "rankings": {
+    "alpha10_overlap_by_abs_delta": [
+      {
+        "abs_mean_hpwl_delta": 107447.05499999644,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 107447.05499999644,
+        "step_index": 48
+      },
+      {
+        "abs_mean_hpwl_delta": 78390.99351000227,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 78390.99351000227,
+        "step_index": 93
+      },
+      {
+        "abs_mean_hpwl_delta": 56871.28211999778,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 56871.28211999778,
+        "step_index": 21
+      },
+      {
+        "abs_mean_hpwl_delta": 31095.478430000134,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 31095.478430000134,
+        "step_index": 57
+      },
+      {
+        "abs_mean_hpwl_delta": 24082.124809998553,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 24082.124809998553,
+        "step_index": 83
+      },
+      {
+        "abs_mean_hpwl_delta": 18571.113459999673,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 18571.113459999673,
+        "step_index": 16
+      },
+      {
+        "abs_mean_hpwl_delta": 18565.380560000893,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 18565.380560000893,
+        "step_index": 38
+      },
+      {
+        "abs_mean_hpwl_delta": 9987.571940008085,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 9987.571940008085,
+        "step_index": 65
+      },
+      {
+        "abs_mean_hpwl_delta": 9936.161710000131,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 9936.161710000131,
+        "step_index": 104
+      },
+      {
+        "abs_mean_hpwl_delta": 3997.101589997299,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 3997.101589997299,
+        "step_index": 86
+      },
+      {
+        "abs_mean_hpwl_delta": 2543.3899999982677,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 2543.3899999982677,
+        "step_index": 79
+      }
+    ],
+    "baseline_by_abs_delta": [
+      {
+        "abs_mean_hpwl_delta": 71302.61514000082,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 71302.61514000082,
+        "step_index": 93
+      },
+      {
+        "abs_mean_hpwl_delta": 62356.11982000852,
+        "cohort": "unique",
+        "mean_hpwl_delta": 62356.11982000852,
+        "step_index": 51
+      },
+      {
+        "abs_mean_hpwl_delta": 56871.28211999778,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 56871.28211999778,
+        "step_index": 21
+      },
+      {
+        "abs_mean_hpwl_delta": 48012.4140200126,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 48012.4140200126,
+        "step_index": 48
+      },
+      {
+        "abs_mean_hpwl_delta": 36328.434050004464,
+        "cohort": "unique",
+        "mean_hpwl_delta": 36328.434050004464,
+        "step_index": 95
+      },
+      {
+        "abs_mean_hpwl_delta": 31095.478430000134,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 31095.478430000134,
+        "step_index": 57
+      },
+      {
+        "abs_mean_hpwl_delta": 30962.314889995847,
+        "cohort": "unique",
+        "mean_hpwl_delta": 30962.314889995847,
+        "step_index": 81
+      },
+      {
+        "abs_mean_hpwl_delta": 24082.124809998553,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 24082.124809998553,
+        "step_index": 83
+      },
+      {
+        "abs_mean_hpwl_delta": 22804.409014000557,
+        "cohort": "unique",
+        "mean_hpwl_delta": -22804.409014000557,
+        "step_index": 40
+      },
+      {
+        "abs_mean_hpwl_delta": 18577.161760000046,
+        "cohort": "unique",
+        "mean_hpwl_delta": 18577.161760000046,
+        "step_index": 34
+      },
+      {
+        "abs_mean_hpwl_delta": 18571.113459999673,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 18571.113459999673,
+        "step_index": 16
+      },
+      {
+        "abs_mean_hpwl_delta": 18565.380560000893,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 18565.380560000893,
+        "step_index": 38
+      },
+      {
+        "abs_mean_hpwl_delta": 14992.02773999609,
+        "cohort": "unique",
+        "mean_hpwl_delta": 14992.02773999609,
+        "step_index": 112
+      },
+      {
+        "abs_mean_hpwl_delta": 12579.459999997169,
+        "cohort": "unique",
+        "mean_hpwl_delta": 12579.459999997169,
+        "step_index": 113
+      },
+      {
+        "abs_mean_hpwl_delta": 11526.419869997073,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 11526.419869997073,
+        "step_index": 86
+      },
+      {
+        "abs_mean_hpwl_delta": 10242.770599997602,
+        "cohort": "unique",
+        "mean_hpwl_delta": 10242.770599997602,
+        "step_index": 42
+      },
+      {
+        "abs_mean_hpwl_delta": 9987.571940008085,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 9987.571940008085,
+        "step_index": 65
+      },
+      {
+        "abs_mean_hpwl_delta": 9936.161710000131,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 9936.161710000131,
+        "step_index": 104
+      },
+      {
+        "abs_mean_hpwl_delta": 8208.728399999905,
+        "cohort": "unique",
+        "mean_hpwl_delta": 8208.728399999905,
+        "step_index": 43
+      },
+      {
+        "abs_mean_hpwl_delta": 7043.190000001807,
+        "cohort": "unique",
+        "mean_hpwl_delta": 7043.190000001807,
+        "step_index": 114
+      },
+      {
+        "abs_mean_hpwl_delta": 2743.5213100002147,
+        "cohort": "unique",
+        "mean_hpwl_delta": -2743.5213100002147,
+        "step_index": 118
+      },
+      {
+        "abs_mean_hpwl_delta": 2543.3899999982677,
+        "cohort": "overlap",
+        "mean_hpwl_delta": 2543.3899999982677,
+        "step_index": 79
+      }
+    ]
+  },
+  "reference_step_metrics": {
+    "entropy_by_step": {
+      "0": 1.647171974182129,
+      "1": 0.007095371838659048,
+      "2": 0.4140850007534027,
+      "3": 1.134891390800476,
+      "4": 0.7787292003631592,
+      "5": 2.9270856380462646,
+      "6": 3.0909242630004883,
+      "7": 2.577338457107544,
+      "8": 3.039031505584717,
+      "9": 2.93033766746521,
+      "10": 2.5848512649536133,
+      "11": 0.000968103704508394,
+      "12": 0.060379162430763245,
+      "13": 0.27523544430732727,
+      "14": 0.1578671932220459,
+      "15": 0.7130451202392578,
+      "16": 2.657280445098877,
+      "17": 2.6252474784851074,
+      "18": 1.858075499534607,
+      "19": 1.9775704145431519,
+      "20": 2.5120582580566406,
+      "21": 2.5603883266448975,
+      "22": 2.441540241241455,
+      "23": 2.7898778915405273,
+      "24": 0.012445004656910896,
+      "25": 0.06127294525504112,
+      "26": 0.010880728252232075,
+      "27": 0.10197761654853821,
+      "28": 0.9829088449478149,
+      "29": 2.850081443786621,
+      "30": 1.2725811004638672,
+      "31": 1.5669797658920288,
+      "32": 1.8081105947494507,
+      "33": 0.5850138664245605,
+      "34": 2.807060718536377,
+      "35": 0.19896963238716125,
+      "36": 0.8576879501342773,
+      "37": 0.1505032330751419,
+      "38": 3.075242519378662,
+      "39": 2.9696707725524902,
+      "40": 2.857323408126831,
+      "41": 0.004993045702576637,
+      "42": 2.9319779872894287,
+      "43": 3.268444061279297,
+      "44": 3.5442309379577637,
+      "45": 3.503321647644043,
+      "46": 6.826662865933031e-05,
+      "47": 0.035042665898799896,
+      "48": 3.4580318927764893,
+      "49": 0.16380244493484497,
+      "50": 3.268296003341675,
+      "51": 2.571559190750122,
+      "52": 3.4521987438201904,
+      "53": 3.310029983520508,
+      "54": 2.066831588745117,
+      "55": 0.8041312098503113,
+      "56": 2.1913394927978516,
+      "57": 2.866393566131592,
+      "58": 2.7238457202911377,
+      "59": 0.26369425654411316,
+      "60": 0.10107727348804474,
+      "61": 1.4924441576004028,
+      "62": 0.40635812282562256,
+      "63": 2.0023045539855957,
+      "64": 1.9344332218170166,
+      "65": 2.2407920360565186,
+      "66": 2.4178788661956787,
+      "67": 1.5628358125686646,
+      "68": 0.3125763237476349,
+      "69": 0.004693024326115847,
+      "70": 1.2558563947677612,
+      "71": 0.5349723100662231,
+      "72": 2.16322922706604,
+      "73": 2.326406955718994,
+      "74": 1.8482599258422852,
+      "75": 2.508831024169922,
+      "76": 2.541822671890259,
+      "77": 2.401076316833496,
+      "78": 2.678929090499878,
+      "79": 2.4297518730163574,
+      "80": 3.015052318572998,
+      "81": 2.633542776107788,
+      "82": 2.3814120292663574,
+      "83": 2.9054765701293945,
+      "84": 1.6420884132385254,
+      "85": 2.6508395671844482,
+      "86": 2.3447320461273193,
+      "87": 2.732797145843506,
+      "88": 2.8114893436431885,
+      "89": 1.2879565954208374,
+      "90": 2.2339112758636475,
+      "91": 2.251307725906372,
+      "92": 0.3339086174964905,
+      "93": 2.2030649185180664,
+      "94": 1.9344044923782349,
+      "95": 2.46036696434021,
+      "96": 1.8923531770706177,
+      "97": 1.7878422737121582,
+      "98": 1.6932404041290283,
+      "99": 1.787009596824646,
+      "100": 2.1457479000091553,
+      "101": 2.2913260459899902,
+      "102": 2.007664203643799,
+      "103": 1.7994599342346191,
+      "104": 1.8508033752441406,
+      "105": 0.2691494822502136,
+      "106": 2.0056681632995605,
+      "107": 1.6675957441329956,
+      "108": 1.9833767414093018,
+      "109": 1.553867220878601,
+      "110": 2.558865785598755,
+      "111": 0.628356397151947,
+      "112": 2.6041207313537598,
+      "113": 2.5207386016845703,
+      "114": 1.925066590309143,
+      "115": 1.828562617301941,
+      "116": 1.5720983743667603,
+      "117": 0.013051368296146393,
+      "118": 1.6239948272705078,
+      "119": 0.578209638595581,
+      "120": 3.0725157557753846e-05,
+      "121": 0.19910366833209991,
+      "122": 1.1533927917480469,
+      "123": 1.1812396049499512,
+      "124": 0.5114431977272034,
+      "125": 1.2426276206970215,
+      "126": 0.9639902710914612,
+      "127": 0.8749393224716187,
+      "128": 0.7144347429275513,
+      "129": 0.8646299839019775,
+      "130": 0.7809595465660095,
+      "131": 0.5885173678398132,
+      "132": 6.24000434656935e-11
+    },
+    "margin_by_step": {
+      "0": 0.05893871188163757,
+      "1": 0.9983952045440674,
+      "2": 0.909363329410553,
+      "3": 0.38872408866882324,
+      "4": 0.6334390640258789,
+      "5": 0.10741572082042694,
+      "6": 0.05038468539714813,
+      "7": 0.29122093319892883,
+      "8": 0.005297154188156128,
+      "9": 0.06494739651679993,
+      "10": 0.03493413329124451,
+      "11": 0.9998130798339844,
+      "12": 0.986678421497345,
+      "13": 0.9379825592041016,
+      "14": 0.9674815535545349,
+      "15": 0.8236817121505737,
+      "16": 0.0028421133756637573,
+      "17": 0.08194385468959808,
+      "18": 0.34082621335983276,
+      "19": 0.25182753801345825,
+      "20": 0.06024593114852905,
+      "21": 0.010022714734077454,
+      "22": 0.2887748181819916,
+      "23": 0.059629544615745544,
+      "24": 0.9985966682434082,
+      "25": 0.992374837398529,
+      "26": 0.9987423419952393,
+      "27": 0.9842352867126465,
+      "28": 0.7938936948776245,
+      "29": 0.05214501917362213,
+      "30": 0.6334320306777954,
+      "31": 0.07054132223129272,
+      "32": 0.529699444770813,
+      "33": 0.8984933495521545,
+      "34": 0.0009462907910346985,
+      "35": 0.9627405405044556,
+      "36": 0.7704408764839172,
+      "37": 0.9772297739982605,
+      "38": 0.00041274726390838623,
+      "39": 0.09352315962314606,
+      "40": 0.02758374810218811,
+      "41": 0.9994634985923767,
+      "42": 0.01776331663131714,
+      "43": 0.025487452745437622,
+      "44": 0.03819723427295685,
+      "45": 0.07640886306762695,
+      "46": 0.9999943375587463,
+      "47": 0.996002733707428,
+      "48": 0.041887760162353516,
+      "49": 0.9723737835884094,
+      "50": 0.156947523355484,
+      "51": 0.023727744817733765,
+      "52": 0.06196649372577667,
+      "53": 0.11503094434738159,
+      "54": 0.10160458087921143,
+      "55": 0.7683315277099609,
+      "56": 0.13567958772182465,
+      "57": 0.03480494022369385,
+      "58": 0.010835662484169006,
+      "59": 0.876971423625946,
+      "60": 0.9860297441482544,
+      "61": 0.6046000123023987,
+      "62": 0.9279437065124512,
+      "63": 0.193462535738945,
+      "64": 0.08257120847702026,
+      "65": 0.008784949779510498,
+      "66": 0.15197435021400452,
+      "67": 0.43705910444259644,
+      "68": 0.9395328164100647,
+      "69": 0.9992685317993164,
+      "70": 0.6264104843139648,
+      "71": 0.8740793466567993,
+      "72": 0.3612767457962036,
+      "73": 0.17069843411445618,
+      "74": 0.3505088686943054,
+      "75": 0.08099563419818878,
+      "76": 0.03571808338165283,
+      "77": 0.06986971199512482,
+      "78": 0.05892786383628845,
+      "79": 0.027041226625442505,
+      "80": 0.05000709742307663,
+      "81": 0.010391995310783386,
+      "82": 0.10507956147193909,
+      "83": 0.005823880434036255,
+      "84": 0.5978245735168457,
+      "85": 0.09516577422618866,
+      "86": 0.004608288407325745,
+      "87": 0.13277482986450195,
+      "88": 0.0934627428650856,
+      "89": 0.6415088176727295,
+      "90": 0.05896146595478058,
+      "91": 0.08208377659320831,
+      "92": 0.9290529489517212,
+      "93": 0.014613211154937744,
+      "94": 0.2987120747566223,
+      "95": 0.03696775436401367,
+      "96": 0.13767604529857635,
+      "97": 0.04660244286060333,
+      "98": 0.2561517357826233,
+      "99": 0.29648810625076294,
+      "100": 0.1272449493408203,
+      "101": 0.09795375168323517,
+      "102": 0.0014686733484268188,
+      "103": 0.35029512643814087,
+      "104": 0.06745970249176025,
+      "105": 0.9351890087127686,
+      "106": 0.1960344761610031,
+      "107": 0.09910544753074646,
+      "108": 0.06138378381729126,
+      "109": 0.34761613607406616,
+      "110": 0.04770320653915405,
+      "111": 0.8716127872467041,
+      "112": 0.03615027666091919,
+      "113": 0.013116903603076935,
+      "114": 0.022191375494003296,
+      "115": 0.14720501005649567,
+      "116": 0.21567408740520477,
+      "117": 0.9979960918426514,
+      "118": 0.02559638023376465,
+      "119": 0.6845343112945557,
+      "120": 0.999995768070221,
+      "121": 0.9421347975730896,
+      "122": 0.3333636522293091,
+      "123": 0.3191125988960266,
+      "124": 0.8230417966842651,
+      "125": 0.30680546164512634,
+      "126": 0.5917538404464722,
+      "127": 0.3506276309490204,
+      "128": 0.5930723547935486,
+      "129": 0.4995556175708771,
+      "130": 0.4953441321849823,
+      "131": 0.5529085993766785,
+      "132": 1.0
+    }
+  },
+  "reference_trace": {
+    "completed_episode": true,
+    "episode_return": 114508.60666599963,
+    "final_hpwl": 2828233.9223499987,
+    "seed": 0,
+    "steps": 133,
+    "termination_reason": "completed"
+  },
+  "screening_config": {
+    "deterministic_suffix": true,
+    "prefit_rollout_seeds": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "ranking_top_k": null,
+    "selection_rule": "all_overlap_plus_lowest_margin_baseline_unique",
+    "suffix_seeds": [
+      0
+    ],
+    "trace_seed": 0,
+    "unique_budget": 11
+  }
+}
