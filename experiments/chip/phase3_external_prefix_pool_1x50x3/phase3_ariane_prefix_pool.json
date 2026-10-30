@@ -214,18 +214,18 @@
   "benchmark": "ariane133_ng45",
   "metadata": {
     "benchmark": "ariane133_ng45",
-    "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_external_prefix_pool_1x50x3\\ariane133_ng45.combined.lef",
+    "combined_lef_path": "experiments\\chip\\phase3_external_prefix_pool_1x50x3\\ariane133_ng45.combined.lef",
     "grid_shape": [
       64,
       64
     ],
     "hidden_dim": 64,
     "ordered_macro_count": 133,
-    "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "reference_def_path": "tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
     "reward_metadata": {
       "benchmark": "ariane133_ng45",
-      "combined_lef_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_external_prefix_pool_1x50x3\\ariane133_ng45.combined.lef",
-      "reference_def_path": "C:\\Users\\14574\\Chip\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+      "combined_lef_path": "experiments\\chip\\phase3_external_prefix_pool_1x50x3\\ariane133_ng45.combined.lef",
+      "reference_def_path": "tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
       "reward_weights": {
         "completion_bonus": 0.0,
         "legality_penalty": 10.0,
@@ -241,7 +241,7 @@
       "learning_rate": 0.0001,
       "value_coef": 0.0
     },
-    "warm_start_checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
+    "warm_start_checkpoint": "experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
   },
   "prefix_source": {
     "candidate_rollout_count": 3,

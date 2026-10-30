@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from chip.experiments.phase3_ppo import collect_rollout_for_action_trace
 from chip.experiments.phase3_ppo import initialize_policy_for_problem
-from tests.chip.test_rl_adapter import build_problem
 from tests.chip.test_rl_adapter import build_two_movable_problem
 
 

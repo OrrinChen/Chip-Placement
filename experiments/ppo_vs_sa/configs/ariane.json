@@ -1,0 +1,24 @@
+{
+  "name": "ariane_masked_ppo_vs_sa",
+  "benchmarks": ["ariane133"],
+  "seeds": [0, 1, 2, 3, 4],
+  "ppo": {
+    "hidden_dim": 64,
+    "num_updates": 50,
+    "learning_rate": 0.001,
+    "clip_epsilon": 0.2,
+    "gamma": 0.99,
+    "entropy_coef": 0.01,
+    "value_coef": 0.5
+  },
+  "sa": {
+    "iterations": 500,
+    "initial_temperature": 10.0,
+    "cooling_rate": 0.95
+  },
+  "notes": [
+    "Not yet run. This runner rejects ariane133 and writes no metrics.",
+    "Requires tmp/MacroPlacement Ariane assets. Routed OpenROAD or ORFS metrics are a separate evaluation and are not implemented here.",
+    "Command: python -m chip.experiments.ppo_vs_sa --config experiments/ppo_vs_sa/configs/ariane.json --output-dir experiments/ppo_vs_sa/runs/ariane"
+  ]
+}

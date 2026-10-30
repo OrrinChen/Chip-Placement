@@ -1,0 +1,25 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-test-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "torch>=2.2,<3" --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements-dev.txt
+      - name: Lint
+        run: ruff check .
+      - name: Fast tests
+        run: python -m pytest tests/engine tests/toys tests/chip/test_cost.py tests/chip/test_constraints.py tests/chip/test_netlist_parser.py tests/chip/test_ppo_vs_sa.py -q
+      - name: Smoke
+        run: python -m chip.experiments.ppo_vs_sa --config experiments/ppo_vs_sa/configs/smoke.json --output-dir /tmp/ppo-vs-sa-smoke

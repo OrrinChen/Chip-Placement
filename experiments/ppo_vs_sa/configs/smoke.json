@@ -1,0 +1,23 @@
+{
+  "name": "smoke",
+  "benchmarks": ["tiny"],
+  "seeds": [0],
+  "ppo": {
+    "hidden_dim": 8,
+    "num_updates": 1,
+    "learning_rate": 0.001,
+    "clip_epsilon": 0.2,
+    "gamma": 0.99,
+    "entropy_coef": 0.01,
+    "value_coef": 0.5
+  },
+  "sa": {
+    "iterations": 5,
+    "initial_temperature": 10.0,
+    "cooling_rate": 0.95
+  },
+  "notes": [
+    "CI smoke only. One seed, so the sample standard deviation is undefined.",
+    "Do not quote this file as the masked PPO vs SA result."
+  ]
+}

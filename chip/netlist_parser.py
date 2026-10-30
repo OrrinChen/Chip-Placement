@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 import math
-from dataclasses import dataclass
 from pathlib import Path
 
 from chip.problem import ChipProblem, DieArea, Macro, Net, PlacementRow

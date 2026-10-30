@@ -1,4 +1,6 @@
 -r requirements.txt
 
-# Test and development dependencies
+# Test, lint, and figure dependencies
 pytest>=8,<9
+matplotlib>=3.8,<4
+ruff>=0.6,<1

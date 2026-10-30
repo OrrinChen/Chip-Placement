@@ -10,7 +10,6 @@ import subprocess
 from pathlib import Path
 from typing import Callable
 
-from chip.constraints import build_constraint_registry
 from chip.cost import hpwl_cost
 from chip.experiments.baseline import _neighbor
 from chip.experiments.phase1_acceptance import _build_sa_initial_placement
@@ -471,7 +470,6 @@ def _ensure_seed_placed_def(
 
 
 def _build_sample_placement(problem, graph, sample: dict[str, object]) -> dict[str, tuple[float, float]]:
-    constraints = build_constraint_registry(problem)
     source = sample["source"]
     if source == "sa_truncated":
         initial_placement = _build_sa_initial_placement(graph, problem)

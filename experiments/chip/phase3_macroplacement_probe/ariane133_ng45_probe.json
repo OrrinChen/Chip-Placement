@@ -1,7 +1,7 @@
 {
   "benchmark": "ariane133_ng45",
   "build_action_mask_seconds": 0.2691832999989856,
-  "combined_lef_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45.combined.lef",
+  "combined_lef_path": ".worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45.combined.lef",
   "fixed_object_count": 0,
   "grid_shape": [
     32,
@@ -11,7 +11,7 @@
   "movable_macro_count": 133,
   "net_count": 2,
   "platform": "NanGate45",
-  "reference_def_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+  "reference_def_path": ".worktrees\\phase3-macroplacement\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
   "single_legality_check_seconds": 0.0008286999945994467,
   "single_legality_check_valid": false,
   "unique_macro_size_count": 1,
