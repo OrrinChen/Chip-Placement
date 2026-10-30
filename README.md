@@ -58,6 +58,10 @@ OpenROAD, ORFS, Docker, and the ISPD / TILOS MacroPlacement assets are external.
 
 ## Masked PPO vs simulated annealing
 
+**Finding.** On the in-repo toy ladder (tiny, small, and medium; seeds 0–4; analytic HPWL), simulated annealing beat masked PPO on every problem. The paired delta (PPO − SA) is positive in both tables below, and SA's HPWL is lower on every individual seed as well (15 pairs in each budget). A 5× longer PPO budget did not help. The second run uses 40 updates instead of 8, and also a wider network (hidden dim 64 instead of 32). Masked PPO's mean HPWL went from 5.2 to 6.4 on tiny, from 73.36 to 95.32 on small, and from 102.6 to 109 on medium. That second run also gave SA 2000 iterations instead of 200. SA's mean stayed 1 ± 0 on tiny and 23 ± 2.73861 on small, and moved from 66.9 ± 3.17017 to 60.5 ± 0.707107 on medium.
+
+The same write-up, with the hypotheses spelled out, is in [docs/ppo_vs_sa.md](docs/ppo_vs_sa.md).
+
 Both budgets below were run on this machine (Python 3.12.3, torch 2.15.0+cpu, Linux). The metric is analytic HPWL. Lower is better. The spread is the sample standard deviation across seeds 0–4 (`statistics.stdev`, ddof=1). Display strings use Python format `.6g`; full precision is in each `summary.json`. Every seed of both methods was legal (5/5) on tiny, small, and medium.
 
 Masked PPO is `PPOPlacementPolicy` trained from scratch. Illegal grid cells are masked with `-inf`. The reported HPWL is a deterministic argmax rollout after training, not the best stochastic training episode. Simulated annealing uses the Phase 1 neighbor in `chip/experiments/baseline.py`. Its search objective is analytic HPWL plus constraint penalty; the reported score is analytic HPWL of the incumbent. The action spaces differ: PPO places macros one at a time onto a legality mask, and SA perturbs a full placement.
@@ -110,15 +114,31 @@ The longer budget did not lower masked PPO's mean HPWL relative to the 8-update 
 
 Wall-clock seconds for training plus eval (PPO) or for the anneal (SA), same mean ± sample-std display, are the `runtime_seconds_display` fields in the two summary files. The first PPO seed is slower than the later seeds.
 
-## Not yet run
+### What the result implies
 
-Real-chip Ariane masked PPO versus SA has not been run. The runner rejects `ariane133` and writes no metrics:
+At this scale, classical simulated annealing is a strong baseline. The reported comparison is analytic HPWL on 1, 3, and 8 movable macros. SA improved the initial placement on every problem (initial HPWL 8, 100, and 80.5). Masked PPO's medium mean is worse than that initial placement in both budgets (102.6 and 109). A later claim that this masked PPO recipe is useful on these three problems would have to beat the SA numbers above on the same metric and the same seeds. The Phase 2 Spearman figures and the Ariane reference-flow DRC count are different measurements. They do not change this comparison.
+
+### Hypotheses
+
+These are hypotheses about the runs above. They are not extra measurements.
+
+- **One-shot placement versus repeated local search.** PPO places each movable macro once. The reported score is one deterministic argmax rollout after training, and the episode length is the movable count (1, 3, or 8). SA keeps an incumbent and applies 200 or 2000 full-placement moves from the Phase 1 neighbor. On the extended run, seed 0 of tiny is a concrete case: the fixed cell stays at (8, 0); SA moves the free cell from (0, 0) to (7, 0); PPO leaves it at (2, 2). Coordinates are in `experiments/ppo_vs_sa/runs/toy_ladder_extended/placements.json`. That seed is not the five-seed mean.
+- **These extra PPO updates did not settle the eval policy.** Means rose on all three problems when updates went from 8 to 40 and hidden dim from 32 to 64. On small, extended seed 1 evaluates at 203.2 while the other four seeds are 73.6, 70.0, 73.2, and 56.6. That says this from-scratch recipe, scored by a deterministic rollout, did not improve. It does not measure a warm start, another reward, or another algorithm. Those were not run.
+- **The neighborhood is cheap on these instances.** The slowest stored SA mean runtime is medium in the extended run, `0.0380016 ± 0.00127223` seconds. The other SA means in the two summaries are lower. A direct search with that cost is difficult for a freshly initialized policy to beat on one, three, or eight macros. The Ariane probe records 133 movable macros, and the ORFS completion record has 132 macros. This toy comparison does not include that netlist.
+
+### Testing RL at larger scale
+
+That test has not been run. The checked-in Ariane config asks for `ariane133`, seeds 0–4, hidden dim 64, 50 PPO updates, and 500 SA iterations. The runner rejects `ariane133` and writes no metrics:
 
 ```bash
 python -m chip.experiments.ppo_vs_sa --config experiments/ppo_vs_sa/configs/ariane.json --output-dir experiments/ppo_vs_sa/runs/ariane
 ```
 
-That command exits 2. It needs `tmp/MacroPlacement` before a real-chip run is possible, and this entrypoint does not call OpenROAD or ORFS.
+The command exits 2. A real run needs `tmp/MacroPlacement`. This entrypoint still would not report routed wirelength or DRC. The existing Ariane 0 DRC figure remains the reference-floorplan ORFS completion, which the artifact marks as offline evaluation only. The toy-ladder result is not a prediction of that run.
+
+## Not yet run
+
+The Ariane comparison is the section above. It has not been run, and the command there exits 2 without writing metrics.
 
 Phase 1 acceptance and the Phase 2 dataset / proxy fit were not re-executed for this write-up. The commands, for a machine that already has the external benchmarks and OpenROAD, are:
 
@@ -132,7 +152,7 @@ python -m chip.experiments.phase2_proxy --help
 
 - Same-design Spearman is high on three ISPD-style designs. Cross-design Spearman misses the 0.5 stretch gate. That is a proxy-ranking result for HPWL and routed wirelength, not a placement-quality win for PPO.
 - The Ariane 0 DRC count is the reference floorplan's fast ORFS completion. Phase 1 acceptance on `mgc_pci_bridge32_1`, `mgc_pci_bridge32_2`, and `mgc_des_perf_2` is a different flow: those rows in `experiments/chip/phase1_acceptance_results.json` are marked `infra_pass / quality_pass` and still report SA DRC counts of 32829, 33544, and 134172 (built-in placer 32545, 33378, and 134512).
-- The toy-ladder comparison does not share an action space, does not use a routed or timed reward, and does not transfer to Ariane. A unified RL / SA / analytical / OpenROAD table on three or more real macro-placement benchmarks is still open.
+- On the toy ladder, simulated annealing beat masked PPO on analytic HPWL for every problem and every seed in both budgets above. The methods do not share an action space, the reward is analytic HPWL, and the comparison was not run on Ariane. A unified RL / SA / analytical / OpenROAD table on three or more real macro-placement benchmarks is still open.
 - Benchmark assets and OpenROAD are not vendored. `pyproject.toml` only carries package metadata; install from `requirements.txt` and `requirements-dev.txt`.
 
 ## Layout
@@ -142,6 +162,7 @@ chip/                 chip constraints, cost, parsers, experiment entrypoints
 engine/               graph, SA, analytical solver, masked PPO policy
 experiments/chip/     committed phase reports
 experiments/ppo_vs_sa configs and the runs reported above
+docs/ppo_vs_sa.md     the toy-ladder finding, hypotheses, and the unrun Ariane command
 docs/figures/         plots from those artifacts and runs
 tests/                engine, chip, and toy tests
 ```
