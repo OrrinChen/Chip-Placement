@@ -8,5 +8,5 @@
   "invalid_action_count": 0,
   "is_legal": true,
   "benchmark": "ariane133_ng45",
-  "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
+  "checkpoint": "experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
 }

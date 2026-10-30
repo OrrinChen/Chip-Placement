@@ -1,0 +1,707 @@
+{
+  "experiment": "masked_ppo_vs_simulated_annealing",
+  "status": "completed",
+  "metric": "analytic_hpwl",
+  "lower_is_better": true,
+  "std_definition": "sample standard deviation (statistics.stdev, ddof=1) across seeds; null when n < 2",
+  "display_format": "Python format .6g applied to the stored mean and std; full precision is in this file",
+  "config_name": "toy_ladder",
+  "config": {
+    "name": "toy_ladder",
+    "benchmarks": [
+      "tiny",
+      "small",
+      "medium"
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "ppo": {
+      "hidden_dim": 32,
+      "num_updates": 8,
+      "learning_rate": 0.001,
+      "clip_epsilon": 0.2,
+      "gamma": 0.99,
+      "entropy_coef": 0.01,
+      "value_coef": 0.5
+    },
+    "sa": {
+      "iterations": 200,
+      "initial_temperature": 10.0,
+      "cooling_rate": 0.95
+    },
+    "notes": [
+      "In-repo toy ladder. Analytic HPWL only.",
+      "Five seeds. Reported spread is the sample standard deviation.",
+      "Not an Ariane or OpenROAD result."
+    ]
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "benchmarks": {
+    "tiny": {
+      "grid_shape": [
+        4,
+        4
+      ],
+      "movable_macro_count": 1,
+      "ordered_macro_count": 1,
+      "node_count": 2,
+      "net_count": 1,
+      "row_count": 2,
+      "initial_hpwl": 8.0,
+      "initial_total_penalty": 0.0,
+      "initial_is_legal": true,
+      "methods": {
+        "masked_ppo": {
+          "final_hpwl": {
+            "count": 5,
+            "mean": 5.2,
+            "std": 2.280350850198276
+          },
+          "final_hpwl_display": "5.2 \u00b1 2.28035",
+          "runtime_seconds": {
+            "count": 5,
+            "mean": 0.23086680899998555,
+            "std": 0.3863137494888006
+          },
+          "runtime_seconds_display": "0.230867 \u00b1 0.386314",
+          "legal_count": 5,
+          "seed_count": 5,
+          "per_seed": [
+            {
+              "seed": 0,
+              "final_hpwl": 4.0,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 1,
+              "runtime_seconds": 0.9218664449999778,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                2.0,
+                6.0,
+                2.0,
+                6.0,
+                6.0,
+                2.0,
+                2.0,
+                6.0
+              ]
+            },
+            {
+              "seed": 1,
+              "final_hpwl": 6.0,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 1,
+              "runtime_seconds": 0.06677031199990324,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                6.0,
+                2.0,
+                6.0,
+                6.0,
+                2.0,
+                2.0,
+                6.0,
+                4.0
+              ]
+            },
+            {
+              "seed": 2,
+              "final_hpwl": 8.0,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 1,
+              "runtime_seconds": 0.05471741300004851,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                2.0,
+                6.0,
+                6.0,
+                2.0,
+                2.0,
+                6.0,
+                4.0,
+                4.0
+              ]
+            },
+            {
+              "seed": 3,
+              "final_hpwl": 6.0,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 1,
+              "runtime_seconds": 0.054396531999941544,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                6.0,
+                6.0,
+                2.0,
+                2.0,
+                6.0,
+                4.0,
+                4.0,
+                8.0
+              ]
+            },
+            {
+              "seed": 4,
+              "final_hpwl": 2.0,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 1,
+              "runtime_seconds": 0.05658334300005663,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                6.0,
+                2.0,
+                2.0,
+                6.0,
+                4.0,
+                4.0,
+                8.0,
+                4.0
+              ]
+            }
+          ]
+        },
+        "simulated_annealing": {
+          "final_hpwl": {
+            "count": 5,
+            "mean": 1.0,
+            "std": 0.0
+          },
+          "final_hpwl_display": "1 \u00b1 0",
+          "runtime_seconds": {
+            "count": 5,
+            "mean": 0.0016793725999832531,
+            "std": 0.00011116653732212257
+          },
+          "runtime_seconds_display": "0.00167937 \u00b1 0.000111167",
+          "legal_count": 5,
+          "seed_count": 5,
+          "per_seed": [
+            {
+              "seed": 0,
+              "final_hpwl": 1.0,
+              "objective_hpwl_plus_penalty": 1.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.0018726229999401767,
+              "iterations": 200
+            },
+            {
+              "seed": 1,
+              "final_hpwl": 1.0,
+              "objective_hpwl_plus_penalty": 1.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.0016731409999692914,
+              "iterations": 200
+            },
+            {
+              "seed": 2,
+              "final_hpwl": 1.0,
+              "objective_hpwl_plus_penalty": 1.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.0016117379999514014,
+              "iterations": 200
+            },
+            {
+              "seed": 3,
+              "final_hpwl": 1.0,
+              "objective_hpwl_plus_penalty": 1.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.0016065140000591782,
+              "iterations": 200
+            },
+            {
+              "seed": 4,
+              "final_hpwl": 1.0,
+              "objective_hpwl_plus_penalty": 1.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.001632846999996218,
+              "iterations": 200
+            }
+          ]
+        }
+      },
+      "paired_hpwl_delta_ppo_minus_sa": {
+        "count": 5,
+        "mean": 4.2,
+        "std": 2.280350850198276
+      },
+      "paired_hpwl_delta_ppo_minus_sa_display": "4.2 \u00b1 2.28035"
+    },
+    "small": {
+      "grid_shape": [
+        6,
+        6
+      ],
+      "movable_macro_count": 3,
+      "ordered_macro_count": 3,
+      "node_count": 3,
+      "net_count": 2,
+      "row_count": 0,
+      "initial_hpwl": 100.0,
+      "initial_total_penalty": 0.0,
+      "initial_is_legal": true,
+      "methods": {
+        "masked_ppo": {
+          "final_hpwl": {
+            "count": 5,
+            "mean": 73.36,
+            "std": 11.739165217339776
+          },
+          "final_hpwl_display": "73.36 \u00b1 11.7392",
+          "runtime_seconds": {
+            "count": 5,
+            "mean": 0.08884882920003748,
+            "std": 0.0035250640498234206
+          },
+          "runtime_seconds_display": "0.0888488 \u00b1 0.00352506",
+          "legal_count": 5,
+          "seed_count": 5,
+          "per_seed": [
+            {
+              "seed": 0,
+              "final_hpwl": 90.0,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 3,
+              "runtime_seconds": 0.09490531100004773,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                103.4,
+                170.0,
+                71.6,
+                89.80000000000001,
+                105.0,
+                136.6,
+                73.2,
+                106.6
+              ]
+            },
+            {
+              "seed": 1,
+              "final_hpwl": 56.8,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 3,
+              "runtime_seconds": 0.08684187200003635,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                170.0,
+                71.6,
+                89.80000000000001,
+                105.0,
+                136.6,
+                73.2,
+                106.6,
+                123.19999999999999
+              ]
+            },
+            {
+              "seed": 2,
+              "final_hpwl": 73.2,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 3,
+              "runtime_seconds": 0.08801030400002219,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                71.6,
+                89.80000000000001,
+                105.0,
+                136.6,
+                73.2,
+                106.6,
+                123.19999999999999,
+                90.0
+              ]
+            },
+            {
+              "seed": 3,
+              "final_hpwl": 73.2,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 3,
+              "runtime_seconds": 0.08599091700000372,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                89.80000000000001,
+                105.0,
+                136.6,
+                73.2,
+                106.6,
+                123.19999999999999,
+                90.0,
+                121.80000000000001
+              ]
+            },
+            {
+              "seed": 4,
+              "final_hpwl": 73.6,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 3,
+              "runtime_seconds": 0.08849574200007737,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                105.0,
+                136.6,
+                73.2,
+                106.6,
+                123.19999999999999,
+                90.0,
+                121.80000000000001,
+                106.6
+              ]
+            }
+          ]
+        },
+        "simulated_annealing": {
+          "final_hpwl": {
+            "count": 5,
+            "mean": 23.0,
+            "std": 2.7386127875258306
+          },
+          "final_hpwl_display": "23 \u00b1 2.73861",
+          "runtime_seconds": {
+            "count": 5,
+            "mean": 0.0017125672000020131,
+            "std": 7.79618602187739e-05
+          },
+          "runtime_seconds_display": "0.00171257 \u00b1 7.79619e-05",
+          "legal_count": 5,
+          "seed_count": 5,
+          "per_seed": [
+            {
+              "seed": 0,
+              "final_hpwl": 20.0,
+              "objective_hpwl_plus_penalty": 20.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.0017705280000654966,
+              "iterations": 200
+            },
+            {
+              "seed": 1,
+              "final_hpwl": 25.0,
+              "objective_hpwl_plus_penalty": 25.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.0016824279999809733,
+              "iterations": 200
+            },
+            {
+              "seed": 2,
+              "final_hpwl": 20.0,
+              "objective_hpwl_plus_penalty": 20.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.001815856000007443,
+              "iterations": 200
+            },
+            {
+              "seed": 3,
+              "final_hpwl": 25.0,
+              "objective_hpwl_plus_penalty": 25.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.001627252999924167,
+              "iterations": 200
+            },
+            {
+              "seed": 4,
+              "final_hpwl": 25.0,
+              "objective_hpwl_plus_penalty": 25.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.0016667710000319857,
+              "iterations": 200
+            }
+          ]
+        }
+      },
+      "paired_hpwl_delta_ppo_minus_sa": {
+        "count": 5,
+        "mean": 50.36,
+        "std": 13.656793181417079
+      },
+      "paired_hpwl_delta_ppo_minus_sa_display": "50.36 \u00b1 13.6568"
+    },
+    "medium": {
+      "grid_shape": [
+        8,
+        8
+      ],
+      "movable_macro_count": 8,
+      "ordered_macro_count": 8,
+      "node_count": 10,
+      "net_count": 8,
+      "row_count": 4,
+      "initial_hpwl": 80.5,
+      "initial_total_penalty": 0.0,
+      "initial_is_legal": true,
+      "methods": {
+        "masked_ppo": {
+          "final_hpwl": {
+            "count": 5,
+            "mean": 102.6,
+            "std": 21.538918264388304
+          },
+          "final_hpwl_display": "102.6 \u00b1 21.5389",
+          "runtime_seconds": {
+            "count": 5,
+            "mean": 0.18132207920000382,
+            "std": 0.006467304868678527
+          },
+          "runtime_seconds_display": "0.181322 \u00b1 0.0064673",
+          "legal_count": 5,
+          "seed_count": 5,
+          "per_seed": [
+            {
+              "seed": 0,
+              "final_hpwl": 141.0,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 8,
+              "runtime_seconds": 0.18858955799998967,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                91.5,
+                137.5,
+                116.0,
+                132.5,
+                120.5,
+                135.5,
+                114.0,
+                136.5
+              ]
+            },
+            {
+              "seed": 1,
+              "final_hpwl": 93.0,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 8,
+              "runtime_seconds": 0.17505603999995856,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                137.5,
+                116.0,
+                132.5,
+                120.5,
+                135.5,
+                114.0,
+                136.5,
+                137.0
+              ]
+            },
+            {
+              "seed": 2,
+              "final_hpwl": 90.5,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 8,
+              "runtime_seconds": 0.1838081800000282,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                116.0,
+                132.5,
+                124.5,
+                135.5,
+                114.0,
+                136.5,
+                137.0,
+                115.0
+              ]
+            },
+            {
+              "seed": 3,
+              "final_hpwl": 95.5,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 8,
+              "runtime_seconds": 0.17396749500005626,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                132.5,
+                120.5,
+                135.5,
+                114.0,
+                136.5,
+                137.0,
+                115.0,
+                126.5
+              ]
+            },
+            {
+              "seed": 4,
+              "final_hpwl": 93.0,
+              "is_legal": true,
+              "invalid_action_count": 0,
+              "completed_episode": true,
+              "steps": 8,
+              "runtime_seconds": 0.18518912299998647,
+              "num_updates": 8,
+              "hidden_dim": 32,
+              "eval": "deterministic argmax after training",
+              "training_episode_final_hpwl": [
+                120.5,
+                135.5,
+                114.0,
+                136.5,
+                137.0,
+                115.0,
+                126.5,
+                110.5
+              ]
+            }
+          ]
+        },
+        "simulated_annealing": {
+          "final_hpwl": {
+            "count": 5,
+            "mean": 66.9,
+            "std": 3.1701734968294715
+          },
+          "final_hpwl_display": "66.9 \u00b1 3.17017",
+          "runtime_seconds": {
+            "count": 5,
+            "mean": 0.004245181000010234,
+            "std": 0.00036313507244408437
+          },
+          "runtime_seconds_display": "0.00424518 \u00b1 0.000363135",
+          "legal_count": 5,
+          "seed_count": 5,
+          "per_seed": [
+            {
+              "seed": 0,
+              "final_hpwl": 66.0,
+              "objective_hpwl_plus_penalty": 66.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.004746426999986397,
+              "iterations": 200
+            },
+            {
+              "seed": 1,
+              "final_hpwl": 62.0,
+              "objective_hpwl_plus_penalty": 62.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.0039303419999896505,
+              "iterations": 200
+            },
+            {
+              "seed": 2,
+              "final_hpwl": 68.0,
+              "objective_hpwl_plus_penalty": 68.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.004502006999928199,
+              "iterations": 200
+            },
+            {
+              "seed": 3,
+              "final_hpwl": 70.5,
+              "objective_hpwl_plus_penalty": 70.5,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.004103907000057916,
+              "iterations": 200
+            },
+            {
+              "seed": 4,
+              "final_hpwl": 68.0,
+              "objective_hpwl_plus_penalty": 68.0,
+              "total_penalty": 0.0,
+              "is_legal": true,
+              "runtime_seconds": 0.003943222000089008,
+              "iterations": 200
+            }
+          ]
+        }
+      },
+      "paired_hpwl_delta_ppo_minus_sa": {
+        "count": 5,
+        "mean": 35.7,
+        "std": 22.1912144778063
+      },
+      "paired_hpwl_delta_ppo_minus_sa_display": "35.7 \u00b1 22.1912"
+    }
+  },
+  "qualifiers": [
+    "Toy ladder only: tiny, small, and medium problems defined in chip/experiments/phase3_benchmarks.py.",
+    "Not Ariane, not an ISPD mgc_* benchmark, and not an OpenROAD or ORFS routed-wirelength result.",
+    "Masked PPO uses PPOPlacementPolicy, which fills illegal grid cells with -inf before sampling.",
+    "PPO is trained from scratch for num_updates on each seed. The reported HPWL is a deterministic argmax rollout after training, not the best stochastic training episode.",
+    "PPO training-episode HPWL values are stored separately and are not the comparison metric.",
+    "Simulated annealing uses the Phase 1 neighbor in chip/experiments/baseline.py. Its search objective is analytic HPWL plus constraint penalty. The reported score is analytic HPWL of the incumbent.",
+    "The two methods do not share an action space: PPO places macros sequentially onto a legality mask; SA perturbs a full placement.",
+    "These numbers are not the Phase 2 Spearman results and not the Ariane reference-flow DRC count."
+  ],
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.15.0+cpu",
+    "platform": "Linux-6.12.94+-x86_64-with-glibc2.39"
+  },
+  "command": "python -m chip.experiments.ppo_vs_sa --config experiments/ppo_vs_sa/configs/toy_ladder.json --output-dir experiments/ppo_vs_sa/runs/toy_ladder"
+}

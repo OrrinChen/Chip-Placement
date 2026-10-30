@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from chip.orfs_export import ORFSDesignExporter
 
 

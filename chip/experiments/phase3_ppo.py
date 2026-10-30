@@ -165,6 +165,10 @@ def collect_policy_rollout(
         "termination_reason": termination_reason,
         "completed_episode": termination_reason == "completed",
         "is_legal": adapter.constraint_report(env.state).is_valid,
+        "placement": {
+            name: [float(coord[0]), float(coord[1])]
+            for name, coord in env.state.placement.items()
+        },
     }
 
 

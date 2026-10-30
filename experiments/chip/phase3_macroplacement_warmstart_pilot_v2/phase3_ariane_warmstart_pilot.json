@@ -2,8 +2,8 @@
   "benchmark": "ariane133_ng45",
   "reward_metadata": {
     "benchmark": "ariane133_ng45",
-    "reference_def_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
-    "combined_lef_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane133_ng45.combined.lef",
+    "reference_def_path": ".worktrees\\phase3-macroplacement\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "combined_lef_path": ".worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane133_ng45.combined.lef",
     "seed_macro_count": 133,
     "reward_weights": {
       "w_proxy": 0.0,
@@ -21,7 +21,7 @@
   "behavior_cloning": {
     "masked_accuracy": 0.4095238149166107,
     "final_loss": 1.810828685760498,
-    "checkpoint_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
+    "checkpoint_path": ".worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt"
   },
   "bc_rollout": {
     "steps": 105,

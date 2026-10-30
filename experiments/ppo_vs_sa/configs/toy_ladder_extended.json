@@ -1,0 +1,24 @@
+{
+  "name": "toy_ladder_extended",
+  "benchmarks": ["tiny", "small", "medium"],
+  "seeds": [0, 1, 2, 3, 4],
+  "ppo": {
+    "hidden_dim": 64,
+    "num_updates": 40,
+    "learning_rate": 0.001,
+    "clip_epsilon": 0.2,
+    "gamma": 0.99,
+    "entropy_coef": 0.01,
+    "value_coef": 0.5
+  },
+  "sa": {
+    "iterations": 2000,
+    "initial_temperature": 10.0,
+    "cooling_rate": 0.95
+  },
+  "notes": [
+    "Longer in-repo toy-ladder budget: hidden dim 64, 40 PPO updates, 2000 SA iterations, five seeds.",
+    "Analytic HPWL only. Not Ariane and not an OpenROAD result.",
+    "Command: python -m chip.experiments.ppo_vs_sa --config experiments/ppo_vs_sa/configs/toy_ladder_extended.json --output-dir experiments/ppo_vs_sa/runs/toy_ladder_extended"
+  ]
+}

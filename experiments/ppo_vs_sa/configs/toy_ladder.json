@@ -1,0 +1,24 @@
+{
+  "name": "toy_ladder",
+  "benchmarks": ["tiny", "small", "medium"],
+  "seeds": [0, 1, 2, 3, 4],
+  "ppo": {
+    "hidden_dim": 32,
+    "num_updates": 8,
+    "learning_rate": 0.001,
+    "clip_epsilon": 0.2,
+    "gamma": 0.99,
+    "entropy_coef": 0.01,
+    "value_coef": 0.5
+  },
+  "sa": {
+    "iterations": 200,
+    "initial_temperature": 10.0,
+    "cooling_rate": 0.95
+  },
+  "notes": [
+    "In-repo toy ladder. Analytic HPWL only.",
+    "Five seeds. Reported spread is the sample standard deviation.",
+    "Not an Ariane or OpenROAD result."
+  ]
+}

@@ -16,7 +16,7 @@
     "displacement_p90_sites": 23.999999999999915,
     "displacement_max_sites": 162.99999999999997,
     "moved_fraction": 0.3853626731866341,
-    "placement_def": "C:/Users/14574/Chip/.worktrees/phase2-foundation/experiments/chip/phase2_repair_sweeps/phase2_samples/mgc_pci_bridge32_1/rand_0000.def",
-    "metrics_json": "C:/Users/14574/Chip/.worktrees/phase2-foundation/experiments/chip/phase2_repair_sweeps/phase2_samples/mgc_pci_bridge32_1/rand_0000.metrics.json"
+    "placement_def": ".worktrees/phase2-foundation/experiments/chip/phase2_repair_sweeps/phase2_samples/mgc_pci_bridge32_1/rand_0000.def",
+    "metrics_json": ".worktrees/phase2-foundation/experiments/chip/phase2_repair_sweeps/phase2_samples/mgc_pci_bridge32_1/rand_0000.metrics.json"
   }
 ]

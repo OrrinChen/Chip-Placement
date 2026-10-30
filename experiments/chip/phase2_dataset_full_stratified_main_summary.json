@@ -1,10 +1,10 @@
 {
     "generated_at":  "2026-04-07T00:29:08.7995386-04:00",
-    "canonical_dataset":  "C:\\Users\\14574\\Chip\\.worktrees\\phase2-foundation\\experiments\\chip\\phase2_dataset_full_stratified_main.json",
+    "canonical_dataset":  ".worktrees\\phase2-foundation\\experiments\\chip\\phase2_dataset_full_stratified_main.json",
     "sources":  {
-                    "pci_rows":  "C:\\Users\\14574\\Chip\\.worktrees\\phase2-foundation\\experiments\\chip\\phase2_dataset_full_stratified.json",
-                    "mgc_des_perf_2_override_rows":  "C:\\Users\\14574\\Chip\\.worktrees\\phase2-foundation\\experiments\\chip\\phase2_dataset_mgc_des_perf_2_override.json",
-                    "phase1_seed_metrics":  "C:\\Users\\14574\\Chip\\.worktrees\\phase2-foundation\\experiments\\chip\\phase1_acceptance_results.json"
+                    "pci_rows":  ".worktrees\\phase2-foundation\\experiments\\chip\\phase2_dataset_full_stratified.json",
+                    "mgc_des_perf_2_override_rows":  ".worktrees\\phase2-foundation\\experiments\\chip\\phase2_dataset_mgc_des_perf_2_override.json",
+                    "phase1_seed_metrics":  ".worktrees\\phase2-foundation\\experiments\\chip\\phase1_acceptance_results.json"
                 },
     "total_rows":  300,
     "success_count":  300,

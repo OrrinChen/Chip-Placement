@@ -1,10 +1,10 @@
-#[INFO] Reading from C:/Users/14574/Chip/tmp/MacroPlacement/Flows/NanGate45/ariane133/netlist/output_CT_Grouping/netlist.pb.txt
+#[INFO] Reading from tmp/MacroPlacement/Flows/NanGate45/ariane133/netlist/output_CT_Grouping/netlist.pb.txt
 None
 #[ROUTES PER MICRON] Hor: 70.33, Ver: 74.51
 #[CONGESTION SMOOTH RANGE] Smooth Range: 2
 #[OVERLAP THRESHOLD] Threshold: 0.0040
 {
-  "output_path": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_fragile_decision_screening_v1\\phase3_ariane_fragile_decision_screening.json",
+  "output_path": "experiments\\chip\\phase3_fragile_decision_screening_v1\\phase3_ariane_fragile_decision_screening.json",
   "elapsed_seconds": 7961.439363002777,
   "baseline_top3": [
     {

@@ -18,7 +18,7 @@
   "rollouts": [
     {
       "benchmark": "ariane133_ng45",
-      "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+      "checkpoint": "experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
       "completed_episode": false,
       "episode_return": 130082.53402199876,
       "final_hpwl": 2812659.9949939996,
@@ -30,7 +30,7 @@
     },
     {
       "benchmark": "ariane133_ng45",
-      "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+      "checkpoint": "experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
       "completed_episode": false,
       "episode_return": -20342.37402600702,
       "final_hpwl": 2963084.9030420054,
@@ -42,7 +42,7 @@
     },
     {
       "benchmark": "ariane133_ng45",
-      "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+      "checkpoint": "experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
       "completed_episode": true,
       "episode_return": -6695.876019994728,
       "final_hpwl": 2949438.405035993,
@@ -54,7 +54,7 @@
     },
     {
       "benchmark": "ariane133_ng45",
-      "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+      "checkpoint": "experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
       "completed_episode": true,
       "episode_return": 254799.38554000435,
       "final_hpwl": 2687943.143475994,
@@ -66,7 +66,7 @@
     },
     {
       "benchmark": "ariane133_ng45",
-      "checkpoint": "C:\\Users\\14574\\Chip\\experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
+      "checkpoint": "experiments\\chip\\phase3_macroplacement_warmstart_pilot_v2\\ariane_greedy_bc.pt",
       "completed_episode": true,
       "episode_return": 96428.68225600291,
       "final_hpwl": 2846313.8467599954,

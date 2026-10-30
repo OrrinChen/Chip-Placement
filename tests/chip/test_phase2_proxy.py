@@ -404,14 +404,6 @@ def test_run_phase2_proxy_reports_cross_design_folds(monkeypatch, tmp_path):
         ProblemGraph(nodes={"b1": {"width": 2.0}}, edges=[]),
         ProblemGraph(nodes={"b2": {"width": 2.5}}, edges=[]),
     ]
-    targets = torch.tensor(
-        [
-            [100.0, -0.1, -1.0, 0.0, 0.0],
-            [120.0, -0.2, -1.0, 0.0, 0.0],
-            [140.0, -0.3, -2.0, 0.0, 0.0],
-            [160.0, -0.4, -2.0, 0.0, 0.0],
-        ]
-    )
     rows = [
         {
             "benchmark": "mgc_pci_bridge32_1",

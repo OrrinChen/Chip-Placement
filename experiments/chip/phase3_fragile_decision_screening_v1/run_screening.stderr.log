@@ -3,7 +3,7 @@ RuntimeError('Unrecognized new version of ortools (9.15.6755). Expected < 9.15.0
 (CVXPY) Apr 18 01:00:01 AM: Encountered unexpected exception importing solver PDLP:
 RuntimeError('Unrecognized new version of ortools (9.15.6755). Expected < 9.15.0. Please open a feature request on cvxpy to enable support for this version.')
 WARNING:absl:block_name is not set. Please add the block_name in:
-C:/Users/14574/Chip/tmp/MacroPlacement/Flows/NanGate45/ariane133/netlist/output_CT_Grouping/netlist.pb.txt
+tmp/MacroPlacement/Flows/NanGate45/ariane133/netlist/output_CT_Grouping/netlist.pb.txt
 or in:
 None
 INFO:absl:[INFO NETLIST PARSER] skipping invalid net input

@@ -4,7 +4,7 @@
   "probe": {
     "benchmark": "ariane133_ng45",
     "build_action_mask_seconds": 0.2665268999990076,
-    "combined_lef_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45.combined.lef",
+    "combined_lef_path": ".worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45.combined.lef",
     "fixed_object_count": 0,
     "grid_shape": [
       32,
@@ -14,14 +14,14 @@
     "movable_macro_count": 133,
     "net_count": 2,
     "platform": "NanGate45",
-    "reference_def_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+    "reference_def_path": ".worktrees\\phase3-macroplacement\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
     "single_legality_check_seconds": 0.0008653000040794723,
     "single_legality_check_valid": false,
     "unique_macro_size_count": 1,
     "valid_action_fraction": 0.15625,
     "variant": "ariane133"
   },
-  "reference_def_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
+  "reference_def_path": ".worktrees\\phase3-macroplacement\\tmp\\MacroPlacement\\Flows\\NanGate45\\ariane133\\def\\ariane133_fp_placed_macros.def",
   "reference_eval": {
     "returncode": 1,
     "status": "blocked_generic_eval",
@@ -31,7 +31,7 @@
   "variant": "ariane133",
   "reference_orfs_completion": {
     "status": "pass",
-    "artifact_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45_reference_orfs_completion.json",
+    "artifact_path": ".worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45_reference_orfs_completion.json",
     "placement_source": "ariane_reference_floorplan_orfs_completion",
     "skip_cts_repair_timing": true,
     "runtime_seconds": 4246.425961494446,
@@ -72,7 +72,7 @@
       "status": "pass",
       "evaluation_path": "orfs_completion",
       "generic_eval_status": "blocked_generic_eval",
-      "artifact_path": "C:\\Users\\14574\\Chip\\.worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45_reference_orfs_completion.json",
+      "artifact_path": ".worktrees\\phase3-macroplacement\\experiments\\chip\\phase3_macroplacement_probe\\ariane133_ng45_reference_orfs_completion.json",
       "note": "ORFS completion succeeds with FLOORPLAN_DEF and SKIP_CTS_REPAIR_TIMING=1",
       "runtime_seconds": 4246.425961494446,
       "runtime_minutes": 70.77376602490743,

@@ -25,6 +25,8 @@ __all__ = [
     "ConstraintChecker",
     "DecisionEnv",
     "Evaluator",
+    "GNNProxy",
+    "GraphBatch",
     "ProblemGraph",
     "PPOPlacementPolicy",
     "RLAdapter",
@@ -32,6 +34,7 @@ __all__ = [
     "SurrogateModel",
     "TrainingStrategy",
     "TransitionModel",
+    "batch_graph_tensors",
 ]
 
 if PlacementEnv is not None:
